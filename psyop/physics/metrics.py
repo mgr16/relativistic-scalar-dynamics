@@ -59,9 +59,6 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         dim = mesh.topology.dim if is_dolfinx() else mesh.geometric_dimension()
         if dim != 3:
             raise ValueError("Kerr-Schild requiere dominio 3D.")
-        if abs(self.a) > self.M:
-            raise ValueError("El spin |a| debe ser menor o igual a M.")
-
         x = ufl.SpatialCoordinate(mesh)
         a = Constant(mesh, self.a)
         M = Constant(mesh, self.M)
@@ -70,19 +67,17 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         rho2 = x0**2 + y0**2 + z0**2
         a2 = a * a
 
-        eps = Constant(mesh, 1.0e-15)
         r2 = 0.5 * (rho2 - a2 + ufl.sqrt((rho2 - a2) ** 2 + 4.0 * a2 * z0**2))
-        r = ufl.sqrt(r2 + eps)
+        r = ufl.sqrt(r2 + Constant(mesh, 1.0e-15))
 
         denom = r2 + a2
         l = ufl.as_vector(((r * x0 + a * y0) / denom,
                            (r * y0 - a * x0) / denom,
                            z0 / r))
+        H = M * r**3 / (r**4 + a2 * z0**2 + Constant(mesh, 1.0e-15))
         l2 = ufl.dot(l, l)
-        l = l / ufl.sqrt(l2 + eps)
+        l = l / ufl.sqrt(l2 + Constant(mesh, 1.0e-15))
         l2 = ufl.dot(l, l)
-
-        H = M * r**3 / (r**4 + a2 * z0**2 + eps)
 
         factor = 2.0 * H
 
