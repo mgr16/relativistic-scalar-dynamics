@@ -70,18 +70,19 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         rho2 = x0**2 + y0**2 + z0**2
         a2 = a * a
 
+        eps = Constant(mesh, 1.0e-15)
         r2 = 0.5 * (rho2 - a2 + ufl.sqrt((rho2 - a2) ** 2 + 4.0 * a2 * z0**2))
-        r = ufl.sqrt(r2 + Constant(mesh, 1.0e-15))
+        r = ufl.sqrt(r2 + eps)
 
         denom = r2 + a2
         l = ufl.as_vector(((r * x0 + a * y0) / denom,
                            (r * y0 - a * x0) / denom,
                            z0 / r))
         l2 = ufl.dot(l, l)
-        l = l / ufl.sqrt(l2 + Constant(mesh, 1.0e-15))
+        l = l / ufl.sqrt(l2 + eps)
         l2 = ufl.dot(l, l)
 
-        H = M * r**3 / (r**4 + a2 * z0**2 + Constant(mesh, 1.0e-15))
+        H = M * r**3 / (r**4 + a2 * z0**2 + eps)
 
         factor = 2.0 * H
 
