@@ -16,6 +16,46 @@ def compute_qnm(signal, dt, window="hann", pad_factor=4):
     return freqs, spec
 
 
+def estimate_qnm_prony(signal, dt, modes=1, svd_rank=None):
+    """
+    Estima frecuencias complejas usando método tipo Prony/matrix-pencil.
+    Retorna lista de (freq_real, decay_rate).
+    """
+    x = np.asarray(signal, dtype=float)
+    n = len(x)
+    if n < 2 * modes + 4:
+        return []
+
+    m = n // 2
+    if m <= modes:
+        return []
+
+    hankel0 = np.column_stack([x[i:i + m] for i in range(n - m)])
+    hankel1 = np.column_stack([x[i + 1:i + 1 + m] for i in range(n - m)])
+
+    if svd_rank is None:
+        svd_rank = max(modes, 1)
+
+    u, s, vh = np.linalg.svd(hankel0, full_matrices=False)
+    u = u[:, :svd_rank]
+    s = s[:svd_rank]
+    vh = vh[:svd_rank, :]
+    s_inv = np.diag(1.0 / s)
+
+    pencil = u.T @ hankel1 @ vh.T @ s_inv
+    eigvals = np.linalg.eigvals(pencil)
+
+    results = []
+    for lam in eigvals[:modes]:
+        if lam == 0:
+            continue
+        omega = np.log(lam) / dt
+        freq = omega.imag / (2.0 * np.pi)
+        decay = -omega.real
+        results.append((freq, decay))
+    return results
+
+
 def estimate_peak(freqs, spec):
     """Interpolación cuadrática del pico principal."""
     i = int(np.argmax(spec))
