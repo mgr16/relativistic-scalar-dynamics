@@ -27,20 +27,17 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 
 ```
 PSYOP/
-├── main.py                    # Script principal renovado
-├── solver_first_order.py      # Solver (φ, Π) con SSP-RK3
-├── gmsh_helpers.py           # Generación de mallas con Gmsh
-├── initial_conditions.py     # Condiciones iniciales DOLFINx-compatible
-├── potential.py              # Potenciales generalizados
-├── utils.py                  # Utilidades CFL y mesh analysis
-├── metrics.py                # Métricas de agujeros negros
-├── quasinormal_modes.py      # Análisis de modos quasi-normales
-├── field.py                  # Módulo legacy de campos
-├── solver.py                 # Solver legacy
-├── solver_dissipation.py     # Solver con disipación
-├── test_standalone_logic.py  # Pruebas sin FEniCS
-├── test_complete_system.py   # Pruebas completas
-└── README.md                 # Esta documentación
+├── main.py                    # Script principal
+├── psyop/                     # Paquete principal
+│   ├── analysis/              # Análisis (QNM, espectros)
+│   ├── backends/              # Abstracciones FEniCS/DOLFINx
+│   ├── mesh/                  # Generación de mallas (Gmsh, cajas)
+│   ├── physics/               # Métricas, potenciales, condiciones iniciales
+│   ├── solvers/               # Solvers numéricos
+│   └── utils/                 # Utilidades (CFL, análisis de malla)
+├── scripts/                   # Scripts auxiliares
+├── tests/                     # Pruebas
+└── README.md                  # Esta documentación
 ```
 
 ## Instalación

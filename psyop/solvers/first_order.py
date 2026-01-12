@@ -77,6 +77,9 @@ class FirstOrderKGSolver:
         self.sqrtg_f = None
         self.K_f = None
 
+        # Registrar config completa si fue pasada (para flags como solver.sommerfeld)
+        self.cfg = kwargs.get("cfg", {})
+
         # Configurar espacios de funciones
         self._setup_function_spaces()
         
@@ -86,6 +89,7 @@ class FirstOrderKGSolver:
         self.potential = get_potential(potential_type, **potential_params)
         
         # Configurar formas variacionales
+        self.preassemble_stiffness = bool(self.cfg.get("optimization", {}).get("preassemble", True))
         self._setup_variational_forms()
         
         # Configurar condiciones de frontera Sommerfeld
@@ -97,8 +101,6 @@ class FirstOrderKGSolver:
         # Variables de estado
         self.current_time = 0.0
         self.current_dt = None
-        # Registrar config completa si fue pasada (para flags como solver.sommerfeld)
-        self.cfg = kwargs.get("cfg", {})
         # Función derivada temporal (du/dt)
         if HAS_DOLFINX:
             self.du = fem.Function(self.V, name="du")
@@ -174,8 +176,13 @@ class FirstOrderKGSolver:
         sqrtg = self._SQRTG()
         self.mass_form = (test_phi_mass * phi_trial + test_Pi_mass * Pi_trial) * sqrtg * dx
         
-        # Forma del lado derecho (RHS) con métrica
-        self.rhs_form = self._rhs_phi_form() + self._rhs_Pi_form()
+        if self.preassemble_stiffness:
+            self.diffusion_form = self._diffusion_form()
+            self.rhs_form = self._rhs_phi_form() + self._rhs_Pi_transport_form()
+            self._setup_diffusion_matrix()
+        else:
+            # Forma del lado derecho (RHS) con métrica
+            self.rhs_form = self._rhs_phi_form() + self._rhs_Pi_form()
     
     def _rhs_phi_form(self):
         """RHS para φ: ∂φ/∂t = αΠ + β·∇φ"""
@@ -192,6 +199,48 @@ class FirstOrderKGSolver:
         if beta is not None:
             term += ufl.dot(beta, ufl.grad(self.phi_c)) * self.test_phi * sqrtg * dx
         return term
+
+    def _diffusion_form(self):
+        """Forma bilineal para el término de difusión en Π."""
+        if HAS_DOLFINX:
+            dx = ufl.Measure("dx", domain=self.mesh)
+        else:
+            dx = ufl.dx
+        alpha = self._ALPHA()
+        sqrtg = self._SQRTG()
+        gammaInv = self._GAMMAINV()
+
+        u_trial = ufl.TrialFunction(self.V)
+        v_test = ufl.TestFunction(self.V)
+        phi_trial, _ = ufl.split(u_trial)
+        _, test_Pi = ufl.split(v_test)
+
+        return - alpha * ufl.inner(ufl.dot(gammaInv, ufl.grad(phi_trial)), ufl.grad(test_Pi)) * sqrtg * dx
+
+    def _rhs_Pi_transport_form(self):
+        """RHS para Π sin el término de difusión."""
+        if HAS_DOLFINX:
+            dx = ufl.Measure("dx", domain=self.mesh)
+        else:
+            dx = ufl.dx
+            
+        alpha = self._ALPHA()
+        beta  = self._BETA()
+        sqrtg = self._SQRTG()
+        K = self._K()
+
+        # Término de potencial
+        Vp = self.potential.derivative(self.phi_c)
+
+        # Transporte + curvatura extrínseca + potencial
+        transport = (alpha*K*self.Pi_c - alpha*Vp) * self.test_Pi * sqrtg * dx
+        if beta is not None:
+            transport += ufl.dot(beta, ufl.grad(self.Pi_c)) * self.test_Pi * sqrtg * dx
+
+        # Aporte de borde de Sommerfeld (si está habilitado)
+        boundary_term = self._sommerfeld_boundary_term()
+
+        return transport + boundary_term
 
     def _rhs_Pi_form(self):
         """RHS para Π: ∂Π/∂t = α∇·(γ⁻¹∇φ) + αKΠ - αV'(φ)"""
@@ -221,6 +270,15 @@ class FirstOrderKGSolver:
         boundary_term = self._sommerfeld_boundary_term()
 
         return diffusion + transport + boundary_term
+
+    def _setup_diffusion_matrix(self):
+        """Pre-ensambla la matriz de difusión si está habilitado."""
+        if HAS_DOLFINX:
+            self.diffusion_mat = fem.petsc.assemble_matrix(fem.form(self.diffusion_form))
+            self.diffusion_mat.assemble()
+            self.diffusion_out = self.diffusion_mat.createVecLeft()
+        else:
+            self.diffusion_mat = fe.assemble(self.diffusion_form)
     
     def _setup_sommerfeld_bc(self):
         """
@@ -421,12 +479,24 @@ class FirstOrderKGSolver:
         if HAS_DOLFINX:
             self.rhs_vec.zeroEntries()
             fem.petsc.assemble_vector(self.rhs_vec, fem.form(rhs_form_with_bc))
+            if self.preassemble_stiffness:
+                try:
+                    u_vec = PETSc.Vec().createWithArray(self.u.x.array, comm=self.mesh.comm)
+                    self.diffusion_mat.mult(u_vec, self.diffusion_out)
+                    self.rhs_vec.axpy(1.0, self.diffusion_out)
+                except Exception:
+                    fem.petsc.assemble_vector(self.rhs_vec, fem.form(self._diffusion_form()))
             self.rhs_vec.assemble()
             self.mass_solver.solve(self.rhs_vec, self.sol_vec)
             # Copiar solución a self.du
             self.du.x.array[:] = self.sol_vec.getArray(readonly=True)
         else:
             b = fe.assemble(rhs_form_with_bc)
+            if self.preassemble_stiffness:
+                try:
+                    b.axpy(1.0, self.diffusion_mat * self.u.vector())
+                except Exception:
+                    b.axpy(1.0, fe.assemble(self._diffusion_form()))
             self.mass_solver.solve(self.du.vector(), b)
     
     def ssp_rk3_step(self, dt):
