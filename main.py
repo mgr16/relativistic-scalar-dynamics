@@ -91,6 +91,7 @@ def main():
     from psyop.physics.initial_conditions import GaussianBump
     from psyop.physics.metrics import make_background
     from psyop.utils.utils import compute_dt_cfl
+    from psyop.analysis.qnm import compute_qnm, estimate_peak
 
     # Config
     if args.config and os.path.exists(args.config):
@@ -140,10 +141,33 @@ def main():
                             A=ic["A"], r0=ic["r0"], w=ic["w"], v0=ic["v0"]) 
         solver.set_initial_conditions(phi0.get_function())
 
+    # Utilidades de muestreo
+    sample_cfg = cfg.get("analysis", {})
+    sample_point = np.array(sample_cfg.get("sample_point", [ic.get("r0", 0.0), 0.0, 0.0]), dtype=float)
+    time_series = []
+    energy_series = []
+    flux_series = []
+
+    def sample_phi(phi_fn):
+        if HAS_DOLFINX:
+            from dolfinx import geometry
+            point = sample_point.reshape(1, 3)
+            tree = geometry.bb_tree(mesh, mesh.topology.dim)
+            candidates = geometry.compute_collisions_points(tree, point)
+            cells = geometry.compute_colliding_cells(mesh, candidates, point)
+            if len(cells.links(0)) == 0:
+                return None
+            cell = cells.links(0)[0]
+            val = phi_fn.eval(point[0], cell)
+            return float(val[0]) if np.ndim(val) > 0 else float(val)
+        else:
+            return float(phi_fn(fe.Point(*sample_point)))
+
     # Evolución básica con salida
     t, step = 0.0, 0
     t_end = cfg["evolution"]["t_end"]
     output_every = cfg["evolution"]["output_every"]
+    diagnostics = cfg.get("output", {}).get("diagnostics", True)
 
     if HAS_DOLFINX:
         with dolfinx.io.XDMFFile(mesh.comm, os.path.join(outdir, "phi_evolution.xdmf"), "w") as xdmf:
@@ -155,6 +179,12 @@ def main():
                 if step % output_every == 0:
                     phi, Pi = solver.get_fields()
                     xdmf.write_function(phi, t)
+                    sample_val = sample_phi(phi)
+                    if sample_val is not None:
+                        time_series.append((t, sample_val))
+                    if diagnostics:
+                        energy_series.append((t, solver.energy()))
+                        flux_series.append((t, solver.boundary_flux()))
     else:
         phi_file = fe.File(os.path.join(outdir, "phi_evolution.pvd"))
         while t < t_end:
@@ -164,6 +194,37 @@ def main():
             if step % output_every == 0:
                 phi, Pi = solver.get_fields()
                 phi_file << (phi, t)
+                sample_val = sample_phi(phi)
+                if sample_val is not None:
+                    time_series.append((t, sample_val))
+                if diagnostics:
+                    energy_series.append((t, solver.energy()))
+                    flux_series.append((t, solver.boundary_flux()))
+
+    if time_series:
+        ts_path = os.path.join(outdir, "time_series.txt")
+        with open(ts_path, "w") as f:
+            for t_val, phi_val in time_series:
+                f.write(f"{t_val:.12e} {phi_val:.12e}\n")
+    if diagnostics and energy_series:
+        energy_path = os.path.join(outdir, "energy_series.txt")
+        with open(energy_path, "w") as f:
+            for t_val, e_val in energy_series:
+                f.write(f"{t_val:.12e} {e_val:.12e}\n")
+    if diagnostics and flux_series:
+        flux_path = os.path.join(outdir, "flux_series.txt")
+        with open(flux_path, "w") as f:
+            for t_val, f_val in flux_series:
+                f.write(f"{t_val:.12e} {f_val:.12e}\n")
+
+    if cfg.get("output", {}).get("qnm_analysis", False) and len(time_series) > 8:
+        dt_sample = time_series[1][0] - time_series[0][0]
+        signal = [v for _, v in time_series]
+        freqs, spec = compute_qnm(signal, dt_sample)
+        f_peak, s_peak = estimate_peak(freqs, spec)
+        np.savetxt(os.path.join(outdir, "qnm_spectrum.txt"), np.column_stack([freqs, spec]))
+        with open(os.path.join(outdir, "qnm_peak.txt"), "w") as f:
+            f.write(f"{f_peak:.12e} {s_peak:.12e}\n")
 
     print(f"✓ Simulación completada: t_final={t:.3f}")
     return 0

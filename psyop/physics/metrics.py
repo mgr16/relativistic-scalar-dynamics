@@ -1,6 +1,6 @@
 from typing import Tuple
 import ufl
-from fem_backend import is_dolfinx, Constant
+from psyop.backends.fem import Constant, is_dolfinx
 
 
 class BackgroundCoeffs:
@@ -27,8 +27,18 @@ class SchwarzschildIsotropicCoeffs(BackgroundCoeffs):
         self.M = float(M)
 
     def build(self, mesh):
-        # Placeholder físico razonable (mejora futura: α(r), γ⁻¹(r))
-        return FlatBackgroundCoeffs().build(mesh)
+        dim = mesh.topology.dim if is_dolfinx() else mesh.geometric_dimension()
+        x = ufl.SpatialCoordinate(mesh)
+        eps = Constant(mesh, 1.0e-12)
+        r = ufl.sqrt(x[0] ** 2 + x[1] ** 2 + x[2] ** 2 + eps)
+        m_over_2r = Constant(mesh, self.M) / (2.0 * r)
+        psi = 1.0 + m_over_2r
+        alpha_f = (1.0 - m_over_2r) / (1.0 + m_over_2r)
+        beta_f = None  # sin shift en coordenadas isotrópicas
+        gammaInv_f = (psi ** -4) * ufl.Identity(dim)
+        sqrtg_f = psi ** 6
+        K_f = Constant(mesh, 0.0)
+        return alpha_f, beta_f, gammaInv_f, sqrtg_f, K_f
 
     def max_characteristic_speed(self, mesh) -> float:
         # En práctica ≤ 1; con placeholder dejamos 1.0
