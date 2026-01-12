@@ -59,9 +59,13 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         dim = mesh.topology.dim if is_dolfinx() else mesh.geometric_dimension()
         if dim != 3:
             raise ValueError("Kerr-Schild requiere dominio 3D.")
+ codex/review-entire-project-3o17p8
+
+
  codex/review-entire-project-dviqdj
 
 
+ main
  main
         x = ufl.SpatialCoordinate(mesh)
         a = Constant(mesh, self.a)
@@ -78,17 +82,23 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         l = ufl.as_vector(((r * x0 + a * y0) / denom,
                            (r * y0 - a * x0) / denom,
                            z0 / r))
+ codex/review-entire-project-3o17p8
+
  codex/review-entire-project-dviqdj
+ main
         H = M * r**3 / (r**4 + a2 * z0**2 + Constant(mesh, 1.0e-15))
         l2 = ufl.dot(l, l)
         l = l / ufl.sqrt(l2 + Constant(mesh, 1.0e-15))
         l2 = ufl.dot(l, l)
+
+ codex/review-entire-project-3o17p8
 
         
 
         H = M * r**3 / (r**4 + a2 * z0**2 + Constant(mesh, 1.0e-15))
 
         l2 = ufl.dot(l, l)
+ main
  main
         factor = 2.0 * H
 
