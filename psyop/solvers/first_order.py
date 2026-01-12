@@ -69,6 +69,14 @@ class FirstOrderKGSolver:
         self.cfl_factor = cfl_factor
         self.domain_radius = domain_radius
         
+        # Flags de BC y métricas
+        self.has_sommerfeld = False
+        self.alpha_f = None
+        self.beta_f = None
+        self.gammaInv_f = None
+        self.sqrtg_f = None
+        self.K_f = None
+
         # Configurar espacios de funciones
         self._setup_function_spaces()
         
@@ -91,13 +99,6 @@ class FirstOrderKGSolver:
         self.current_dt = None
         # Registrar config completa si fue pasada (para flags como solver.sommerfeld)
         self.cfg = kwargs.get("cfg", {})
-        # Flags de BC y métricas
-        self.has_sommerfeld = False
-        self.alpha_f = None
-        self.beta_f  = None
-        self.gammaInv_f = None
-        self.sqrtg_f   = None
-        self.K_f       = None
         # Función derivada temporal (du/dt)
         if HAS_DOLFINX:
             self.du = fem.Function(self.V, name="du")
@@ -288,33 +289,24 @@ class FirstOrderKGSolver:
         # Crear medida de integración
         self.ds_outer = fe.Measure("ds", domain=mesh, subdomain_data=boundary_markers, subdomain_id=2)
     
-    def _add_sommerfeld_terms(self, phi, Pi, test_phi, test_Pi):
+    def _sommerfeld_boundary_term(self):
         """
-        Añade términos de Sommerfeld a las formas variacionales.
+        Término de Sommerfeld con velocidad característica saliente.
         
-        Condición: ∂φ/∂n + (1/r)φ = 0 en la frontera
-        Se implementa débilmente en la ecuación de evolución de Π.
+        Usamos condición característica: Π + c_out ∂n φ = 0
+        con c_out = α - β·n.
         """
         if not self.has_sommerfeld:
             return ufl.Constant(self.mesh, 0.0) if HAS_DOLFINX else fe.Constant(0.0)
         
-        # Coordenadas en la frontera
-        if HAS_DOLFINX:
-            x = ufl.SpatialCoordinate(self.mesh)
-        else:
-            x = ufl.SpatialCoordinate(self.mesh)
-        
-        # Radio en la frontera
-        r = ufl.sqrt(x[0]**2 + x[1]**2 + x[2]**2)
-        
-        # Vector normal exterior
         n = ufl.FacetNormal(self.mesh)
-        
-        # Término de Sommerfeld: -∫ (∂φ/∂n + φ/r) * test_Pi * ds
-        # Usando la condición ∂φ/∂n = -φ/r
-        sommerfeld_term = -(phi / r) * test_Pi * self.ds_outer
-        
-        return sommerfeld_term
+        alpha = self._ALPHA()
+        beta = self._BETA()
+        c_out = alpha
+        if beta is not None:
+            c_out = alpha - ufl.dot(beta, n)
+        flux_term = -(self.Pi_c + c_out * ufl.dot(ufl.grad(self.phi_c), n)) * self.test_Pi * self.ds_outer
+        return flux_term
     
     def _setup_mass_matrix_solver(self):
         """Configura el solver de la matriz de masa con métrica."""
@@ -378,6 +370,50 @@ class FirstOrderKGSolver:
             fe.assign(self.u.sub(0), phi_init)
             fe.assign(self.u.sub(1), Pi_init)
         print("✓ Condiciones iniciales establecidas")
+
+    def set_background(self, alpha=None, beta=None, gammaInv=None, sqrtg=None, K=None):
+        """Configura coeficientes de fondo (α, β, γ⁻¹, √γ, K)."""
+        self.alpha_f = alpha
+        self.beta_f = beta
+        self.gammaInv_f = gammaInv
+        self.sqrtg_f = sqrtg
+        self.K_f = K
+
+    def enable_sommerfeld(self, facet_tags, outer_tag: int = 2):
+        """Habilita Sommerfeld usando facet_tags externos ya definidos."""
+        self._outer_tag = int(outer_tag)
+        if HAS_DOLFINX:
+            self.facet_tags = facet_tags
+            self.ds_outer = ufl.Measure("ds", domain=self.mesh, subdomain_data=facet_tags, subdomain_id=self._outer_tag)
+        else:
+            self.ds_outer = fe.Measure("ds", domain=self.mesh, subdomain_data=facet_tags, subdomain_id=self._outer_tag)
+        self.has_sommerfeld = True
+
+    def get_fields(self):
+        """Devuelve (phi, Pi) en espacio escalar."""
+        if HAS_DOLFINX:
+            phi = fem.Function(self.V_scalar, name="phi")
+            Pi = fem.Function(self.V_scalar, name="Pi")
+            phi.x.array[:] = self.u.x.array[0::2]
+            Pi.x.array[:] = self.u.x.array[1::2]
+            return phi, Pi
+        else:
+            phi, Pi = self.u.split(deepcopy=True)
+            return phi, Pi
+
+    def evolve(self, t_final=1.0, dt=None, output_every=None, verbose=False):
+        """Evoluciona el sistema hasta t_final."""
+        if dt is None:
+            dt = compute_dt_cfl(self.mesh, cfl=self.cfl_factor)
+        t = 0.0
+        step = 0
+        while t < t_final:
+            self.ssp_rk3_step(dt)
+            t += dt
+            step += 1
+            if verbose and output_every and step % output_every == 0:
+                print(f"t={t:.6f}")
+        return t
     
     def _assemble_rhs_and_solve_du(self):
         """Ensamblar RHS(u) y resolver M du = RHS, dejando du en self.du."""
@@ -455,10 +491,34 @@ class FirstOrderKGSolver:
         n = ufl.FacetNormal(self.mesh)
         flux_density = self.Pi_c * ufl.dot(ufl.grad(self.phi_c), n)
         if HAS_DOLFINX:
-            formF = fem.form(flux_density * self._ds(self._outer_tag))
+            formF = fem.form(flux_density * self.ds_outer)
             return float(fem.assemble_scalar(formF))
         else:
-            return float(fe.assemble(flux_density * self._ds(self._outer_tag)))
+            return float(fe.assemble(flux_density * self.ds_outer))
+
+    def _ALPHA(self):
+        if self.alpha_f is not None:
+            return self.alpha_f
+        return fem.Constant(self.mesh, 1.0) if HAS_DOLFINX else fe.Constant(1.0)
+
+    def _BETA(self):
+        return self.beta_f
+
+    def _GAMMAINV(self):
+        if self.gammaInv_f is not None:
+            return self.gammaInv_f
+        dim = self.mesh.topology.dim if HAS_DOLFINX else self.mesh.geometric_dimension()
+        return ufl.Identity(dim)
+
+    def _SQRTG(self):
+        if self.sqrtg_f is not None:
+            return self.sqrtg_f
+        return fem.Constant(self.mesh, 1.0) if HAS_DOLFINX else fe.Constant(1.0)
+
+    def _K(self):
+        if self.K_f is not None:
+            return self.K_f
+        return fem.Constant(self.mesh, 0.0) if HAS_DOLFINX else fe.Constant(0.0)
 
 if __name__ == "__main__":
     # Prueba básica

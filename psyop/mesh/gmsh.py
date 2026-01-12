@@ -8,6 +8,7 @@ Crea geometrías esféricas con etiqueta "outer_boundary" para BC absorbentes.
 """
 
 import numpy as np
+from psyop.backends.fem import create_ds_with_outer_tag
 
 # Importar Gmsh si está disponible
 try:
@@ -88,9 +89,7 @@ def build_ball_mesh(R, lc, comm=None):
         else:
             # Fallback a FEniCS legacy
             print("DOLFINx no disponible. Usando fallback a FEniCS...")
-            mesh = _create_simple_ball_mesh(R, comm)
-            cell_tags = None
-            facet_tags = None
+            mesh, cell_tags, facet_tags = _create_simple_ball_mesh(R, comm)
     
     finally:
         gmsh.finalize()
@@ -110,14 +109,13 @@ def _create_simple_ball_mesh(R, comm=None):
             [16, 16, 16]
         )
         cell_tags = None
-        # Crear facet_tags dummy
-        facet_tags = None
+        _, _, facet_tags = create_ds_with_outer_tag(mesh, R=None)
     else:
         # FEniCS legacy
         import fenics as fe
         mesh = fe.BoxMesh(fe.Point(-R, -R, -R), fe.Point(R, R, R), 16, 16, 16)
         cell_tags = None
-        facet_tags = None
+        _, _, facet_tags = create_ds_with_outer_tag(mesh, R=None)
     
     return mesh, cell_tags, facet_tags
 

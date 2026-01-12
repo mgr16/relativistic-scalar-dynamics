@@ -13,13 +13,18 @@ Este módulo proporciona funciones utilitarias para la simulación, tales como:
 Estas funciones ayudan a mantener el código principal limpio y a reutilizar código en otros proyectos.
 """
 
-import fenics as fe
 import numpy as np
 import os
 import json
 import datetime
 
-from fem_backend import is_dolfinx
+from psyop.backends.fem import is_dolfinx
+
+try:
+    import fenics as fe
+    HAS_FENICS = True
+except Exception:
+    HAS_FENICS = False
 
 def create_mesh(domain_min=(-20, -20, -20), domain_max=(20, 20, 20), nx=15, ny=15, nz=15):
     """
@@ -34,6 +39,8 @@ def create_mesh(domain_min=(-20, -20, -20), domain_max=(20, 20, 20), nx=15, ny=1
     Retorna:
         mesh (Mesh): Malla creada con FEniCS.
     """
+    if not HAS_FENICS:
+        raise RuntimeError("FEniCS legacy no está disponible para create_mesh().")
     return fe.BoxMesh(fe.Point(*domain_min), fe.Point(*domain_max), nx, ny, nz)
 
 def save_solution(solution, filename, time=None):
@@ -45,6 +52,8 @@ def save_solution(solution, filename, time=None):
         filename (str): Ruta base del archivo (sin extensión).
         time (float, opcional): Tiempo actual de la solución para etiquetar la salida.
     """
+    if not HAS_FENICS:
+        raise RuntimeError("FEniCS legacy no está disponible para save_solution().")
     # Asegurarse de que el directorio de destino existe
     folder = os.path.dirname(filename)
     if folder and not os.path.exists(folder):
@@ -68,6 +77,8 @@ def compute_norm(solution, norm_type='L2'):
     Retorna:
         norm_value (float): Valor numérico de la norma.
     """
+    if not HAS_FENICS:
+        raise RuntimeError("FEniCS legacy no está disponible para compute_norm().")
     if norm_type == 'L2':
         return fe.norm(solution, 'L2')
     elif norm_type == 'H1':
@@ -95,6 +106,8 @@ def compute_energy(phi, Vh, potential_params):
     Retorna:
         energy (float): Energía total calculada en el dominio.
     """
+    if not HAS_FENICS:
+        raise RuntimeError("FEniCS legacy no está disponible para compute_energy().")
     lam = potential_params.get('lam', 0.1)
     v0  = potential_params.get('v0', 1.0)
     # Definir un potencial de ejemplo
@@ -222,16 +235,7 @@ def compute_dt_cfl(mesh, cfl=0.3, c_max=1.0):
     - FEniCS: usa hmin(mesh)
     """
     if is_dolfinx():
-        x = mesh.geometry.x
-        dofmap = mesh.geometry.dofmap.array.reshape(-1, mesh.geometry.cmap.dim)
-        take = min(dofmap.shape[0], 2000)
-        ids = np.linspace(0, dofmap.shape[0] - 1, num=take, dtype=np.int32)
-        hs = []
-        for cid in ids:
-            pts = x[dofmap[cid]]
-            h = np.linalg.norm(pts.max(0) - pts.min(0))
-            hs.append(h)
-        hmin = float(np.min(hs)) if hs else 1.0
+        hmin = _approx_hmin(mesh)
     else:
         import fenics as fe
         # FEniCS legacy: usar fe.hmin si existe; si no, usar mesh.hmin()
