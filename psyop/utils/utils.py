@@ -235,7 +235,19 @@ def compute_dt_cfl(mesh, cfl=0.3, c_max=1.0):
     - FEniCS: usa hmin(mesh)
     """
     if is_dolfinx():
-        hmin = _approx_hmin(mesh)
+        try:
+            from mpi4py import MPI
+            from dolfinx.cpp.mesh import h as cpp_h
+            tdim = mesh.topology.dim
+            num_cells = mesh.topology.index_map(tdim).size_local
+            h_vals = cpp_h(mesh, tdim, np.arange(num_cells, dtype=np.int32))
+            hmin_local = float(np.min(h_vals)) if h_vals.size > 0 else 1.0
+            try:
+                hmin = float(mesh.comm.allreduce(hmin_local, op=MPI.MIN))
+            except Exception:
+                hmin = hmin_local
+        except Exception:
+            hmin = _approx_hmin(mesh)
     else:
         import fenics as fe
         # FEniCS legacy: usar fe.hmin si existe; si no, usar mesh.hmin()
