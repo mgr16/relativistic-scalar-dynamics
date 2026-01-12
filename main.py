@@ -220,11 +220,21 @@ def main():
     if cfg.get("output", {}).get("qnm_analysis", False) and len(time_series) > 8:
         dt_sample = time_series[1][0] - time_series[0][0]
         signal = [v for _, v in time_series]
-        freqs, spec = compute_qnm(signal, dt_sample)
-        f_peak, s_peak = estimate_peak(freqs, spec)
-        np.savetxt(os.path.join(outdir, "qnm_spectrum.txt"), np.column_stack([freqs, spec]))
-        with open(os.path.join(outdir, "qnm_peak.txt"), "w") as f:
-            f.write(f"{f_peak:.12e} {s_peak:.12e}\n")
+        qnm_method = cfg.get("analysis", {}).get("qnm_method", "fft").lower()
+        if qnm_method == "prony":
+            from psyop.analysis.qnm import estimate_qnm_prony
+            modes = int(cfg.get("analysis", {}).get("qnm_modes", 1))
+            prony_results = estimate_qnm_prony(signal, dt_sample, modes=modes)
+            if prony_results:
+                np.savetxt(os.path.join(outdir, "qnm_prony.txt"),
+                           np.array(prony_results),
+                           header="freq_real decay_rate", comments="")
+        else:
+            freqs, spec = compute_qnm(signal, dt_sample)
+            f_peak, s_peak = estimate_peak(freqs, spec)
+            np.savetxt(os.path.join(outdir, "qnm_spectrum.txt"), np.column_stack([freqs, spec]))
+            with open(os.path.join(outdir, "qnm_peak.txt"), "w") as f:
+                f.write(f"{f_peak:.12e} {s_peak:.12e}\n")
 
     print(f"✓ Simulación completada: t_final={t:.3f}")
     return 0
