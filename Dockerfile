@@ -7,7 +7,6 @@ COPY --chown=$MAMBA_USER:$MAMBA_USER requirements.txt /tmp/requirements.txt
 
 RUN micromamba create -y -n ${CONDA_ENV} -c conda-forge \
     python=3.10 \
-    fenics \
     dolfinx \
     gmsh \
     numpy \
@@ -15,6 +14,8 @@ RUN micromamba create -y -n ${CONDA_ENV} -c conda-forge \
     matplotlib \
     petsc4py \
     mpi4py \
+    pytest \
+    pytest-cov \
     && micromamba clean -a -y
 
 WORKDIR /workspace/psyop
