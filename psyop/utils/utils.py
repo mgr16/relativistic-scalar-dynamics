@@ -111,7 +111,7 @@ def load_config(filename):
     return config
 
 if __name__ == "__main__":
-    log_message("utils.py: helpers legacy de FEniCS removidos; disponible compute_dt_cfl() para DOLFINx.")
+    log_message("utils.py: módulo de utilidades activo (DOLFINx).")
 
 def _approx_hmin(mesh, sample: int = 4000) -> float:
     """
