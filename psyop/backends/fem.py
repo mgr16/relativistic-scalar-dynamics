@@ -15,7 +15,7 @@ except Exception as e:
     _DOLFINX_IMPORT_ERROR = e
 
 if not HAS_DOLFINX:
-    raise ImportError("DOLFINx is required by psyop.backends.fem") from _DOLFINX_IMPORT_ERROR
+    raise ImportError("DOLFINx is required by psyop.backends.fem. Install with: conda install -c conda-forge dolfinx") from _DOLFINX_IMPORT_ERROR
 
 
 def is_dolfinx() -> bool:
@@ -53,4 +53,3 @@ def create_ds_with_outer_tag(mesh, R: float | None = None, atol: float = 0.1):
     facet_tags = femx.meshtags(mesh, facet_dim, facets, tags)
     ds = ufl.Measure("ds", domain=mesh, subdomain_data=facet_tags)
     return ds, 2, facet_tags
-
