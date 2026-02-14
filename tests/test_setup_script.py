@@ -1,6 +1,7 @@
 """
 Test the setup_environment.sh script structure and content
 """
+import os
 from pathlib import Path
 
 
@@ -15,7 +16,6 @@ def test_setup_script_is_executable():
     """Verify setup_environment.sh is executable"""
     repo_root = Path(__file__).resolve().parent.parent
     setup_script = repo_root / "setup_environment.sh"
-    import os
     assert os.access(setup_script, os.X_OK), "setup_environment.sh should be executable"
 
 

@@ -36,7 +36,7 @@ echo ""
 
 # Verificar si el entorno ya existe
 echo -e "${YELLOW}[2/6] Verificando entorno existente...${NC}"
-if conda env list | grep -q "^${ENV_NAME} "; then
+if conda env list | grep -qw "^${ENV_NAME}"; then
     echo -e "${YELLOW}⚠ El entorno '${ENV_NAME}' ya existe.${NC}"
     read -p "¿Desea eliminarlo y crear uno nuevo? (s/N): " -n 1 -r
     echo
@@ -53,7 +53,7 @@ echo ""
 
 # Crear el entorno conda
 echo -e "${YELLOW}[3/6] Creando entorno conda '${ENV_NAME}'...${NC}"
-if ! conda env list | grep -q "^${ENV_NAME} "; then
+if ! conda env list | grep -qw "^${ENV_NAME}"; then
     echo "Esto puede tomar varios minutos..."
     conda create -n ${ENV_NAME} python=3.10 -y
     echo -e "${GREEN}✓ Entorno creado${NC}"
