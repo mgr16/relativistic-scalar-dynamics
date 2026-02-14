@@ -5,6 +5,8 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+TIME_TOLERANCE = 1e-12
+CONVERGENCE_TOLERANCE_FACTOR = 1.1
 
 
 @pytest.mark.slow
@@ -28,7 +30,7 @@ def test_temporal_refinement_reduces_solution_error():
         ic = GaussianBump(mesh, A=0.01, r0=1.4, w=0.8, v0=0.0)
         solver.set_initial_conditions(ic.get_function())
         t = 0.0
-        while t < 0.12 - 1e-12:
+        while t < 0.12 - TIME_TOLERANCE:
             solver.ssp_rk3_step(dt)
             t += dt
         phi, _ = solver.get_fields()
@@ -39,4 +41,4 @@ def test_temporal_refinement_reduces_solution_error():
     fine = evolve(0.01)
     err_coarse = np.linalg.norm(coarse - ref)
     err_fine = np.linalg.norm(fine - ref)
-    assert err_fine <= 1.1 * err_coarse
+    assert err_fine <= CONVERGENCE_TOLERANCE_FACTOR * err_coarse
