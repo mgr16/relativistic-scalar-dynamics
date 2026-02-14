@@ -9,6 +9,7 @@ Condiciones iniciales para campos escalares.
 from typing import List
 import numpy as np
 import dolfinx.fem as fem
+import dolfinx.mesh as dmesh
 import ufl
 
 from psyop.utils.logger import get_logger
@@ -23,7 +24,7 @@ class GaussianBump:
     
     def __init__(
         self, 
-        mesh: fem.Mesh, 
+        mesh: dmesh.Mesh, 
         V: fem.FunctionSpace, 
         A: float = 1e-3, 
         r0: float = 8.0, 
@@ -87,7 +88,7 @@ class PlaneWave:
     
     def __init__(
         self, 
-        mesh: fem.Mesh, 
+        mesh: dmesh.Mesh, 
         V: fem.FunctionSpace, 
         A: float = 0.1, 
         k: List[float] = None, 

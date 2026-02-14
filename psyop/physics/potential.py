@@ -163,11 +163,11 @@ class ZeroPotential:
     def __init__(self):
         logger.debug("ZeroPotential creado")
     
-    def evaluate(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.Constant:
+    def evaluate(self, phi: fem.Function) -> ufl.Constant:
         """Evalúa V(φ) = 0."""
         return ufl.Constant(phi.function_space.mesh, 0.0)
     
-    def derivative(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.Constant:
+    def derivative(self, phi: fem.Function) -> ufl.Constant:
         """Evalúa V'(φ) = 0."""
         return ufl.Constant(phi.function_space.mesh, 0.0)
     

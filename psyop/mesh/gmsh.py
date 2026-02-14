@@ -31,7 +31,7 @@ def build_ball_mesh(
     R: float, 
     lc: float, 
     comm: Optional[MPI.Comm] = None
-) -> Tuple[dmesh.Mesh, Optional[dmesh.MeshTags], dmesh.MeshTags]:
+) -> Tuple[dmesh.Mesh, Optional[dmesh.MeshTags], Optional[dmesh.MeshTags]]:
     """
     Crea una malla esférica con radio R y tamaño característico lc.
     
@@ -43,7 +43,7 @@ def build_ball_mesh(
     Retorna:
         mesh: Malla del dominio
         cell_tags: Etiquetas de celdas (opcional)
-        facet_tags: Etiquetas de facetas con outer_boundary=2
+        facet_tags: Etiquetas de facetas con outer_boundary=2 (opcional)
     """
     if not HAS_GMSH:
         logger.warning("Gmsh no disponible. Creando malla esférica simple...")
@@ -97,7 +97,7 @@ def build_ball_mesh(
 def _create_simple_ball_mesh(
     R: float, 
     comm: Optional[MPI.Comm] = None
-) -> Tuple[dmesh.Mesh, Optional[dmesh.MeshTags], dmesh.MeshTags]:
+) -> Tuple[dmesh.Mesh, Optional[dmesh.MeshTags], Optional[dmesh.MeshTags]]:
     """
     Fallback: crear malla esférica simple sin Gmsh.
     """
