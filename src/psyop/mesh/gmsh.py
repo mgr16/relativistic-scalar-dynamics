@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-gmsh_helpers.py
+gmsh.py
 
 Funciones para generar mallas con Gmsh y etiquetar fronteras.
 Crea geometrías esféricas con etiqueta "outer_boundary" para BC absorbentes.

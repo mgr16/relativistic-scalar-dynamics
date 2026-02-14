@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-solver_first_order.py
+first_order.py
 
 Solver de primer orden para la ecuación de Klein-Gordon usando formulación (φ, Π).
 Implementa SSP-RK3 con condiciones de frontera Sommerfeld.

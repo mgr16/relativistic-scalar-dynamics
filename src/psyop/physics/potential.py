@@ -235,8 +235,10 @@ def get_potential(potential_type: str = "higgs", **kwargs: Any) -> Union[
     }
     
     if potential_type not in potential_map:
-        raise ValueError(f"Unknown potential type '{potential_type}'. "
-                        f"Opciones disponibles: {list(potential_map.keys())}")
+        raise ValueError(
+            f"Unknown potential type '{potential_type}'. "
+            f"Available options: {list(potential_map.keys())}"
+        )
     
     potential_class = potential_map[potential_type]
     
