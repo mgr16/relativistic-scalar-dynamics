@@ -13,12 +13,14 @@ try:
     HAS_DOLFINX = True
 except ImportError:
     HAS_DOLFINX = False
-    import fenics as fe
     import ufl
 
 import numpy as np
 import os
 import sys
+import pytest
+
+pytestmark = pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")
 
 # Añadir directorio del proyecto al path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -45,10 +47,7 @@ def run_case(use_sommerfeld: bool, R=15.0, t_end=10.0):
     
     try:
         # Crear malla pequeña para test rápido
-        if HAS_DOLFINX:
-            comm = MPI.COMM_WORLD
-        else:
-            comm = None
+        comm = MPI.COMM_WORLD
             
         mesh, cell_tags, facet_tags = build_ball_mesh(R=R, lc=3.0, comm=comm)
         
@@ -125,10 +124,7 @@ def run_case(use_sommerfeld: bool, R=15.0, t_end=10.0):
         energia_final = solver.energy()
         phi_final, _ = solver.get_fields()
         
-        if HAS_DOLFINX:
-            norma_final = float(fem.norm(phi_final))
-        else:
-            norma_final = float(fe.norm(phi_final))
+        norma_final = float(fem.norm(phi_final))
             
         flujo_promedio = np.mean(flujos) if flujos else 0.0
         

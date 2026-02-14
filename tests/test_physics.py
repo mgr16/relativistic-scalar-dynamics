@@ -1,6 +1,7 @@
 import json
 import os
 import numpy as np
+import pytest
 
 try:
     import dolfinx.fem as fem
@@ -8,7 +9,8 @@ try:
     HAS_DOLFINX = True
 except Exception:
     HAS_DOLFINX = False
-    import fenics as fe
+
+pytestmark = pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")
 
 from metrics import make_background, FlatBackgroundCoeffs
 from solver_first_order import FirstOrderKGSolver
@@ -16,19 +18,13 @@ from gmsh_helpers import build_ball_mesh, get_outer_tag
 
 
 def _eval_at_origin(func):
-    if HAS_DOLFINX:
-        coords = func.function_space.tabulate_dof_coordinates()
-        idx = int(np.argmin(np.linalg.norm(coords, axis=1)))
-        return float(func.x.array[idx])
-    else:
-        return float(func(0.0, 0.0, 0.0))
+    coords = func.function_space.tabulate_dof_coordinates()
+    idx = int(np.argmin(np.linalg.norm(coords, axis=1)))
+    return float(func.x.array[idx])
 
 
 def run_solver(cfg):
-    if HAS_DOLFINX:
-        comm = MPI.COMM_WORLD
-    else:
-        comm = None
+    comm = MPI.COMM_WORLD
 
     R = float(cfg["mesh"]["R"]) if "mesh" in cfg else 10.0
     lc = float(cfg["mesh"].get("lc", 1.0)) if "mesh" in cfg else 1.0
@@ -139,5 +135,4 @@ def test_reflection_reduction(tmp_path):
     amp_no = run_solver(cfg_no)["amp_center"]
     amp_yes = run_solver(cfg_yes)["amp_center"]
     assert amp_yes < 0.5 * amp_no
-
 

@@ -14,17 +14,10 @@ Estas funciones ayudan a mantener el código principal limpio y a reutilizar có
 """
 
 import numpy as np
-import os
 import json
 import datetime
 
 from psyop.backends.fem import is_dolfinx
-
-try:
-    import fenics as fe
-    HAS_FENICS = True
-except Exception:
-    HAS_FENICS = False
 
 def create_mesh(domain_min=(-20, -20, -20), domain_max=(20, 20, 20), nx=15, ny=15, nz=15):
     """
@@ -37,54 +30,33 @@ def create_mesh(domain_min=(-20, -20, -20), domain_max=(20, 20, 20), nx=15, ny=1
         nx, ny, nz (int): Número de divisiones en cada dirección.
 
     Retorna:
-        mesh (Mesh): Malla creada con FEniCS.
+        mesh (Mesh): Malla del solver (helper legacy deshabilitado).
     """
-    if not HAS_FENICS:
-        raise RuntimeError("FEniCS legacy no está disponible para create_mesh().")
-    return fe.BoxMesh(fe.Point(*domain_min), fe.Point(*domain_max), nx, ny, nz)
+    raise RuntimeError("create_mesh() legacy helper removed. Use psyop.mesh.gmsh/build_ball_mesh for DOLFINx meshes.")
 
 def save_solution(solution, filename, time=None):
     """
-    Guarda una solución de FEniCS en un archivo .pvd.
+    Guarda una solución del solver en disco (helper legacy deshabilitado).
 
     Parámetros:
         solution (Function): Solución a guardar.
         filename (str): Ruta base del archivo (sin extensión).
         time (float, opcional): Tiempo actual de la solución para etiquetar la salida.
     """
-    if not HAS_FENICS:
-        raise RuntimeError("FEniCS legacy no está disponible para save_solution().")
-    # Asegurarse de que el directorio de destino existe
-    folder = os.path.dirname(filename)
-    if folder and not os.path.exists(folder):
-        os.makedirs(folder)
-    
-    file = fe.File(f"{filename}.pvd")
-    if time is not None:
-        # Permite etiquetar la solución con el tiempo
-        file << (solution, time)
-    else:
-        file << solution
+    raise RuntimeError("save_solution() legacy helper removed. Use DOLFINx XDMF output APIs.")
 
 def compute_norm(solution, norm_type='L2'):
     """
-    Calcula la norma de una solución de FEniCS.
+    Calcula la norma de una solución (helper legacy deshabilitado).
 
     Parámetros:
-        solution (Function): Función de FEniCS a evaluar.
+        solution (Function): Función a evaluar.
         norm_type (str): Tipo de norma a calcular ('L2' o 'H1').
 
     Retorna:
         norm_value (float): Valor numérico de la norma.
     """
-    if not HAS_FENICS:
-        raise RuntimeError("FEniCS legacy no está disponible para compute_norm().")
-    if norm_type == 'L2':
-        return fe.norm(solution, 'L2')
-    elif norm_type == 'H1':
-        return fe.norm(solution, 'H1')
-    else:
-        raise ValueError("norm_type debe ser 'L2' o 'H1'.")
+    raise RuntimeError("compute_norm() legacy helper removed. Use DOLFINx/PETSc vector norms.")
 
 def compute_energy(phi, Vh, potential_params):
     """
@@ -106,15 +78,7 @@ def compute_energy(phi, Vh, potential_params):
     Retorna:
         energy (float): Energía total calculada en el dominio.
     """
-    if not HAS_FENICS:
-        raise RuntimeError("FEniCS legacy no está disponible para compute_energy().")
-    lam = potential_params.get('lam', 0.1)
-    v0  = potential_params.get('v0', 1.0)
-    # Definir un potencial de ejemplo
-    V = lam * (phi**4 / 4.0 - v0**2 * phi**2 / 2.0)
-    grad_phi = fe.grad(phi)
-    energy = fe.assemble(0.5 * fe.dot(grad_phi, grad_phi) * fe.dx + V * fe.dx)
-    return energy
+    raise RuntimeError("compute_energy() legacy helper removed. Use solver.energy() with DOLFINx forms.")
 
 def log_message(message, logfile="simulation.log"):
     """
@@ -147,40 +111,15 @@ def load_config(filename):
     return config
 
 if __name__ == "__main__":
-    # Bloque de pruebas para verificar el funcionamiento de utils.py
-
-    # Prueba de creación de malla
-    mesh = create_mesh()
-    print("Malla creada:", mesh)
-    
-    # Crear un espacio de funciones y una función de prueba
-    V = fe.FunctionSpace(mesh, 'CG', 1)
-    u = fe.Function(V)
-    u.interpolate(fe.Constant(1.0))
-    print("Norma L2 de u:", compute_norm(u, norm_type='L2'))
-    
-    # Calcular energía usando parámetros de ejemplo
-    energy = compute_energy(u, V, {'lam': 0.1, 'v0': 1.0})
-    print("Energía estimada:", energy)
-    
-    # Registrar un mensaje de log
-    log_message("Prueba de utils.py completada.")
-    
-    # Guardar una configuración de ejemplo (opcional)
-    config_example = {"param1": 1, "param2": 2}
-    config_filename = "example_config.json"
-    with open(config_filename, "w") as f:
-        json.dump(config_example, f, indent=4)
-    log_message(f"Archivo de configuración '{config_filename}' guardado.")
+    log_message("utils.py: módulo de utilidades activo (DOLFINx).")
 
 def _approx_hmin(mesh, sample: int = 4000) -> float:
     """
     Estima h_min muestreando longitudes de aristas locales. Suficiente para CFL.
-    Compatible con FEniCS legacy y DOLFINx.
+    Estimación robusta para mallas DOLFINx.
     """
     try:
         if is_dolfinx() and hasattr(mesh, 'topology'):
-            # DOLFINx - método robusto por aristas
             topo = mesh.topology
             topo.create_connectivity(1, 0)  # edges->vertices
             e2v = topo.connectivity(1, 0)
@@ -202,27 +141,7 @@ def _approx_hmin(mesh, sample: int = 4000) -> float:
             return float(h_min) if h_min != np.inf else 1.0
             
         else:
-            # FEniCS legacy - estimación mejorada
-            if hasattr(mesh, 'coordinates'):
-                coords = mesh.coordinates()
-            elif hasattr(mesh, 'geometry'):
-                coords = mesh.geometry.x
-            else:
-                return 1.0  # fallback seguro
-                
-            # Calcular estimación basada en volumen y número de celdas
-            bbox = np.max(coords, axis=0) - np.min(coords, axis=0)
-            volume = np.prod(bbox)
-            
-            if hasattr(mesh, 'num_cells'):
-                num_cells = mesh.num_cells()
-            else:
-                num_cells = 1000  # estimación conservadora
-                
-            # h ≈ (volume/num_cells)^(1/dim)
-            dim = len(bbox)
-            h_est = (volume / max(num_cells, 1))**(1.0/dim)
-            return float(max(h_est, 1e-6))  # evitar h muy pequeño
+            return 1.0
             
     except Exception:
         # Fallback ultra-seguro
@@ -231,8 +150,7 @@ def _approx_hmin(mesh, sample: int = 4000) -> float:
 def compute_dt_cfl(mesh, cfl=0.3, c_max=1.0):
     """
     dt = cfl * h_min / c_max
-    - DOLFINx: estimación rápida de h_min por bounding box local
-    - FEniCS: usa hmin(mesh)
+    - DOLFINx: h mínimo por celdas locales + reducción MPI
     """
     if is_dolfinx():
         try:
@@ -249,25 +167,5 @@ def compute_dt_cfl(mesh, cfl=0.3, c_max=1.0):
         except Exception:
             hmin = _approx_hmin(mesh)
     else:
-        import fenics as fe
-        # FEniCS legacy: usar fe.hmin si existe; si no, usar mesh.hmin()
-        try:
-            hmin_local = float(getattr(fe, "hmin")(mesh))
-        except Exception:
-            try:
-                hmin_local = float(mesh.hmin())
-            except Exception:
-                # Fallback por bounding box
-                if hasattr(mesh, "coordinates"):
-                    coords = mesh.coordinates()
-                    bbox = coords.max(0) - coords.min(0)
-                    hmin_local = float(np.min(bbox) / 10.0) if coords.size > 0 else 1.0
-                else:
-                    hmin_local = 1.0
-        # Intentar reducción MPI si disponible
-        try:
-            comm = mesh.mpi_comm()
-            hmin = fe.MPI.min(comm, hmin_local)
-        except Exception:
-            hmin = hmin_local
+        hmin = _approx_hmin(mesh)
     return float(cfl) * float(hmin) / max(float(c_max), 1e-12)

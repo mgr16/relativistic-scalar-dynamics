@@ -55,20 +55,7 @@ Los documentos de revisión y mejoras se movieron a `docs/reviews/` para mantene
 
 ## Instalación
 
-### Opción 1: FEniCS Legacy (Recomendado para estabilidad)
-```bash
-# Crear entorno conda
-conda create -n psyop python=3.9
-conda activate psyop
-
-# Instalar FEniCS
-conda install -c conda-forge fenics
-
-# Dependencias adicionales
-conda install -c conda-forge gmsh numpy matplotlib scipy
-```
-
-### Opción 2: DOLFINx (Experimental, última versión)
+### Entorno recomendado (DOLFINx-only)
 ```bash
 # Crear entorno conda
 conda create -n psyop-dolfinx python=3.10
@@ -81,36 +68,13 @@ conda install -c conda-forge dolfinx
 conda install -c conda-forge gmsh numpy matplotlib scipy petsc4py
 ```
 
-### Opción 3: Configuración Dual (Recomendado para investigación)
-```bash
-# Crear entorno conda con ambos frameworks
-conda create -n psyop-dual python=3.10
-conda activate psyop-dual
-
-# Instalar ambos frameworks
-conda install -c conda-forge fenics dolfinx
-
-# Dependencias adicionales
-conda install -c conda-forge gmsh numpy matplotlib scipy petsc4py mpi4py
-
-# Verificar instalación dual
-python test_dual_frameworks.py
-```
-
-**Ventajas de la configuración dual:**
-- Máxima compatibilidad y flexibilidad
-- Migración gradual FEniCS → DOLFINx
-- Validación cruzada de resultados
-- Acceso a todas las características
-- Framework detection automático
-
 ### Verificación de la instalación
 ```bash
-# Probar lógica sin FEniCS
-python test_standalone_logic.py
+# Probar lógica base sin dependencias FEM pesadas
+python tests/test_standalone_logic.py
 
-# Probar sistema completo (requiere FEniCS/DOLFINx)
-python test_complete_system.py
+# Probar sistema completo (requiere DOLFINx)
+python tests/test_complete_system.py
 ```
 
 ## Uso Rápido
@@ -189,7 +153,7 @@ donde `h_min` es el tamaño mínimo de celda y `c_max = 1` (velocidad de la luz)
 
 ### Generación de Mallas
 - **Gmsh**: Mallas esféricas con etiquetas de frontera automáticas
-- **Fallback**: Mallas cúbicas de FEniCS si Gmsh no está disponible
+- **Fallback**: Mallas cúbicas básicas si Gmsh no está disponible
 - **Etiquetas**: Frontera externa marcada con `tag=2` para condiciones Sommerfeld
 
 ### Análisis de Modos Quasi-Normales
@@ -197,10 +161,10 @@ donde `h_min` es el tamaño mínimo de celda y `c_max = 1` (velocidad de la luz)
 - **FFT**: Análisis espectral para identificar frecuencias características
 - **Visualización**: Gráficos automáticos del espectro de frecuencias
 
-### Compatibilidad Multi-Framework
-- **Detección automática**: El código detecta si DOLFINx o FEniCS legacy está disponible
-- **API unificada**: Misma interfaz para ambos frameworks
-- **Importaciones condicionales**: Sin errores si un framework no está instalado
+### Compatibilidad
+- **Framework numérico**: DOLFINx
+- **Paralelización**: MPI + PETSc
+- **Salida**: XDMF para postprocesado
 
 ## 🔧 Desarrollo y Extensiones
 
@@ -244,8 +208,6 @@ El solver principal está en `solver_first_order.py`. Métodos clave:
 ### Archivos generados
 ```
 results/
-├── phi_final.pvd          # Campo φ final (FEniCS legacy)
-├── Pi_final.pvd           # Campo Π final (FEniCS legacy)  
 ├── phi_final.xdmf         # Campo φ final (DOLFINx)
 ├── Pi_final.xdmf          # Campo Π final (DOLFINx)
 ├── time_series.txt        # Series temporales
@@ -268,11 +230,9 @@ results/
 ##  Solución de Problemas
 
 ### Error común: "Import could not be resolved"
-**Causa**: FEniCS/DOLFINx no instalado
+**Causa**: DOLFINx no instalado
 **Solución**: 
 ```bash
-conda install -c conda-forge fenics
-# o
 conda install -c conda-forge dolfinx
 ```
 
