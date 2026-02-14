@@ -67,22 +67,67 @@ def estimate_qnm_prony(signal, dt, modes=1, svd_rank=None):
 
 
 def estimate_qnm_prony_modes(signal, dt, modes=1, svd_rank=None):
-    """Versión extendida con amplitud/fase/score para post-procesado."""
-    basic = estimate_qnm_prony(signal, dt, modes=modes, svd_rank=svd_rank)
+    """
+    Extended version with amplitude/phase/score and spurious-mode filtering.
+    Multiple nearby orders are evaluated and stable modes across orders are retained.
+    """
     x = np.asarray(signal, dtype=float)
     amp = float(np.max(np.abs(x))) if x.size else 0.0
+    orders = sorted(set([max(1, int(modes)), max(1, int(modes) + 1), max(1, int(modes) + 2)]))
+    candidates = []
+    for order in orders:
+        for freq, decay in estimate_qnm_prony(signal, dt, modes=order, svd_rank=svd_rank):
+            if not np.isfinite(freq) or not np.isfinite(decay):
+                continue
+            if decay < 0:
+                continue
+            candidates.append((float(freq), float(decay), order))
+
+    if not candidates:
+        return []
+
+    # Simple clustering by frequency proximity
+    freq_tol = 0.05 / max(dt, 1e-12)
+    clusters = []
+    for freq, decay, order in candidates:
+        assigned = False
+        for c in clusters:
+            if abs(c["freq_mean"] - freq) <= freq_tol:
+                c["freqs"].append(freq)
+                c["decays"].append(decay)
+                c["orders"].add(order)
+                c["freq_mean"] = float(np.mean(c["freqs"]))
+                c["decay_mean"] = float(np.mean(c["decays"]))
+                assigned = True
+                break
+        if not assigned:
+            clusters.append(
+                {
+                    "freqs": [freq],
+                    "decays": [decay],
+                    "orders": {order},
+                    "freq_mean": freq,
+                    "decay_mean": decay,
+                }
+            )
+
     out = []
-    for freq, decay in basic:
+    for c in clusters:
+        stability = len(c["orders"]) / len(orders)
+        score = stability / (1.0 + abs(c["decay_mean"]))
         out.append(
             {
-                "frequency": float(freq),
-                "decay": float(decay),
+                "frequency": float(c["freq_mean"]),
+                "decay": float(c["decay_mean"]),
                 "amplitude": amp,
                 "phase": 0.0,
-                "score": 1.0 / (1.0 + abs(decay)),
+                "score": float(score),
+                "stability": float(stability),
             }
         )
-    return out
+
+    out.sort(key=lambda m: m["score"], reverse=True)
+    return out[: max(1, int(modes))]
 
 
 def estimate_peak(freqs, spec):

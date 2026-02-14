@@ -31,6 +31,7 @@ def test_qnm_detrend_and_extended_prony():
     assert freqs.shape == spec.shape
     modes = estimate_qnm_prony_modes(signal, t[1] - t[0], modes=1)
     assert modes and "frequency" in modes[0] and "score" in modes[0]
+    assert "stability" in modes[0]
 
 
 def test_potential_numpy_api_aliases():

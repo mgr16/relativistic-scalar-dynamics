@@ -100,6 +100,7 @@ class FirstOrderKGSolver:
         
         # Configurar solver de matriz de masa
         self._setup_mass_matrix_solver()
+        self._setup_filter_matrix()
         
         # Variables de estado
         self.current_time = 0.0
@@ -280,6 +281,24 @@ class FirstOrderKGSolver:
         # Vectores PETSc para resolver A w = b
         self.rhs_vec = self.mass_matrix.createVecRight()
         self.sol_vec = self.mass_matrix.createVecLeft()
+
+    def _setup_filter_matrix(self):
+        """Configure explicit diffusion matrix for controlled dissipation."""
+        u_trial = ufl.TrialFunction(self.V)
+        v_test = ufl.TestFunction(self.V)
+        phi_trial, Pi_trial = ufl.split(u_trial)
+        test_phi, test_Pi = ufl.split(v_test)
+        gammaInv = self._GAMMAINV()
+        sqrtg = self._SQRTG()
+        dx = ufl.Measure("dx", domain=self.mesh)
+        self.filter_form = (
+            ufl.inner(ufl.dot(gammaInv, ufl.grad(phi_trial)), ufl.grad(test_phi))
+            + ufl.inner(ufl.dot(gammaInv, ufl.grad(Pi_trial)), ufl.grad(test_Pi))
+        ) * sqrtg * dx
+        self.filter_mat = fem.petsc.assemble_matrix(fem.form(self.filter_form))
+        self.filter_mat.assemble()
+        self.filter_rhs = self.filter_mat.createVecLeft()
+        self.filter_du = self.mass_matrix.createVecLeft()
     
     def set_initial_conditions(self, phi_init: Optional[fem.Function] = None, 
                                Pi_init: Optional[fem.Function] = None) -> None:
@@ -399,12 +418,26 @@ class FirstOrderKGSolver:
         self.u_new.x.array[:] = (1.0/3.0 * self.u1.x.array[:] + 2.0/3.0 * self.u2.x.array[:] + 2.0/3.0 * dt * self.du.x.array[:])
         self.u.x.array[:] = self.u_new.x.array[:]
         if self.ko_eps > 0:
-            self.u.x.array[:] = (1.0 - self.ko_eps) * self.u.x.array[:] + self.ko_eps * self.u2.x.array[:]
+            self._apply_ko_dissipation(dt)
         self.u.x.scatter_forward()
         self.current_time += dt
+
+    def _apply_ko_dissipation(self, dt: float) -> None:
+        """
+        Explicit dissipation via diffusive filter controlled by ko_eps.
+        u <- u - ko_eps * dt * M^{-1} K u
+        """
+        self.u.x.scatter_forward()
+        self.filter_mat.mult(self.u.x.petsc_vec, self.filter_rhs)
+        self.mass_solver.solve(self.filter_rhs, self.filter_du)
+        self.u.x.array[:] -= self.ko_eps * dt * self.filter_du.getArray(readonly=True)
     
     def energy(self) -> float:
-        """E = ∫ sqrtg [ 1/2 (γ^{ij}∂_i φ ∂_j φ) + 1/2 Π^2 + V(φ) ] dx"""
+        """
+        Energía física medida por observadores normales:
+        E = ∫ sqrt(γ) ρ d^3x, con ρ = T_{μν} n^μ n^ν
+          = 1/2 Π^2 + 1/2 D_iφ D^iφ + V(φ)
+        """
         sqrtg = self._SQRTG()
         gammaInv = self._GAMMAINV()
         gradphi = ufl.dot(gammaInv, ufl.grad(self.phi_c))
@@ -418,14 +451,14 @@ class FirstOrderKGSolver:
         return float(self.mesh.comm.allreduce(local_e))
 
     def boundary_flux(self) -> float:
-        """Flujo aproximado en Γ_out: F ≈ ∫ Π (∂n φ) ds"""
+        """
+        Flujo normal físico basado en T_{μν}:
+        S_i = -T_{μν} n^μ γ^ν{}_i,  F_out = -∫ S_i n^i dS = ∫ Π D_n φ dS
+        """
         if not getattr(self, 'has_sommerfeld', False):
             return 0.0
         n = ufl.FacetNormal(self.mesh)
-        alpha = self._ALPHA()
-        beta = self._BETA()
-        c_out = alpha if beta is None else alpha - ufl.dot(beta, n)
-        flux_density = c_out * self.Pi_c * self.Pi_c
+        flux_density = self.Pi_c * ufl.dot(ufl.grad(self.phi_c), n)
         formF = fem.form(flux_density * self.ds_outer)
         local_flux = float(fem.assemble_scalar(formF))
         return float(self.mesh.comm.allreduce(local_flux))

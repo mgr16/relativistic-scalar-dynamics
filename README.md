@@ -135,6 +135,7 @@ c_out = α − β·n
 Se implementa como flujo saliente en el término de borde del RHS.
 
 Ver derivación y convenciones completas en: `docs/math/3p1_scalar_field.md`.
+Resumen de validación y reproducibilidad: `docs/validation/summary.md`.
 
 **Potencial de Higgs:**
 ```

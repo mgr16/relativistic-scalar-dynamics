@@ -38,4 +38,12 @@ Using the normal observer \(n^\mu\):
 \[
 \rho = T_{\mu\nu}n^\mu n^\nu,\qquad S_i=-T_{\mu\nu}n^\mu\gamma^\nu{}_i
 \]
+For the scalar field in first-order variables:
+\[
+\rho = \tfrac12\Pi^2 + \tfrac12 D_i\phi D^i\phi + V(\phi),\qquad
+F_{\text{out}} = -\int_{\partial\Omega} S_i n^i\,dS
+= \int_{\partial\Omega}\Pi D_n\phi\,dS.
+\]
 The solver reports volume energy and outgoing boundary flux using MPI global reductions.
+In stationary backgrounds, without radiative losses, \(E(t)\) should be approximately conserved;
+with outgoing BC, \(E(t)\) should decay consistently with positive outgoing flux.
