@@ -7,7 +7,7 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 ##  Mejoras Implementadas (Versión 2.1)
 
 ### **Mejora 1: Formulación de Primer Orden con SSP-RK3**
-- **Sistema de primer orden**: (φ, Π) donde Π = ∂φ/∂t
+- **Sistema de primer orden**: (φ, Π) con Π como momento 3+1, \(\Pi=(\partial_t\phi-\beta^i\partial_i\phi)/\alpha\)
 - **Integración temporal SSP-RK3**: Strong Stability Preserving Runge-Kutta de orden 3
 - **CFL adaptativo**: Paso de tiempo automático basado en el tamaño de malla
 - **Solver de matriz de masa**: Inversión eficiente usando PETSc/HYPRE
@@ -28,7 +28,7 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 ```
 PSYOP/
 ├── main.py                    # Script principal
-├── psyop/                     # Paquete principal
+├── src/psyop/                 # Paquete principal
 │   ├── analysis/              # Análisis (QNM, espectros)
 │   ├── backends/              # Abstracciones numéricas DOLFINx
 │   ├── mesh/                  # Generación de mallas (Gmsh, cajas)
@@ -81,7 +81,12 @@ python tests/test_complete_system.py
 
 ### Simulación básica
 ```bash
-python main.py
+psyop-run --config config_example.json --output results
+```
+
+### Basic QNM postprocessing
+```bash
+psyop-postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft --plots
 ```
 
 ### Configuración personalizada
@@ -118,8 +123,9 @@ sim_params = {
 
 **Sistema de primer orden:**
 ```
-∂φ/∂t = Π
-∂Π/∂t = ∇²φ - V'(φ)
+Π = (∂tφ - β·∇φ)/α
+∂tφ = αΠ + β·∇φ
+∂tΠ = αDᵢDⁱφ + DⁱαDᵢφ + β·∇Π + αKΠ - αV'(φ)
 ```
 
 **Condición de salida Sommerfeld (característica):**
@@ -127,6 +133,9 @@ sim_params = {
 c_out = α − β·n
 ```
 Se implementa como flujo saliente en el término de borde del RHS.
+
+Ver derivación y convenciones completas en: `docs/math/3p1_scalar_field.md`.
+Resumen de validación y reproducibilidad: `docs/validation/summary.md`.
 
 **Potencial de Higgs:**
 ```
@@ -192,10 +201,10 @@ class CustomInitialCondition:
 ```
 
 ### Modificar el solver
-El solver principal está en `solver_first_order.py`. Métodos clave:
+El solver principal está en `src/psyop/solvers/first_order.py`. Métodos clave:
 - `ssp_rk3_step()`: Integración temporal
-- `_setup_sommerfeld_bc()`: Condiciones de frontera
-- `_compute_rhs()`: Evaluación del lado derecho
+- `_sommerfeld_boundary_term()`: Condiciones de frontera
+- `_assemble_rhs_and_solve_du()`: Evaluación/solve del lado derecho
 
 ## Resultados y Validación
 
@@ -207,11 +216,19 @@ El solver principal está en `solver_first_order.py`. Métodos clave:
 
 ### Archivos generados
 ```
-results/
-├── phi_final.xdmf         # Campo φ final (DOLFINx)
-├── Pi_final.xdmf          # Campo Π final (DOLFINx)
-├── time_series.txt        # Series temporales
-└── qnm_spectrum.png       # Espectro de modos quasi-normales
+results/run_YYYYmmdd_HHMMSS/
+├── config.json
+├── manifest.json
+├── fields/
+│   └── phi_evolution.xdmf
+├── series/
+│   ├── time_series.csv
+│   ├── energy.csv
+│   ├── flux.csv
+│   ├── qnm_spectrum.csv / qnm_peak.json
+│   └── qnm_modes.json (prony)
+└── plots/
+    └── qnm_spectrum.png   # opcional (postprocess --plots)
 ```
 
 ##  Rendimiento

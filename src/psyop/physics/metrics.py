@@ -1,11 +1,26 @@
+from dataclasses import dataclass
 from typing import Tuple
+import numpy as np
 import ufl
 from psyop.backends.fem import Constant, is_dolfinx
+
+
+@dataclass(frozen=True)
+class Background:
+    alpha: object
+    beta: object
+    gamma_inv: object
+    sqrt_gamma: object
+    K: object
 
 
 class BackgroundCoeffs:
     def build(self, mesh) -> Tuple:
         raise NotImplementedError
+
+    def build_background(self, mesh) -> Background:
+        alpha, beta, gamma_inv, sqrt_gamma, K = self.build(mesh)
+        return Background(alpha=alpha, beta=beta, gamma_inv=gamma_inv, sqrt_gamma=sqrt_gamma, K=K)
 
     def max_characteristic_speed(self, mesh) -> float:
         return 1.0
@@ -20,6 +35,9 @@ class FlatBackgroundCoeffs(BackgroundCoeffs):
         sqrtg_f = Constant(mesh, 1.0)
         K_f = Constant(mesh, 0.0)
         return alpha_f, beta_f, gammaInv_f, sqrtg_f, K_f
+
+    def max_characteristic_speed(self, mesh) -> float:
+        return 1.0
 
 
 class SchwarzschildIsotropicCoeffs(BackgroundCoeffs):
@@ -41,8 +59,16 @@ class SchwarzschildIsotropicCoeffs(BackgroundCoeffs):
         return alpha_f, beta_f, gammaInv_f, sqrtg_f, K_f
 
     def max_characteristic_speed(self, mesh) -> float:
-        # En práctica ≤ 1; con placeholder dejamos 1.0
-        return 1.0
+        if not is_dolfinx():
+            return 1.0
+        x = mesh.geometry.x
+        if x.shape[1] < 3 or x.shape[0] == 0:
+            return 1.0
+        r = np.sqrt(np.sum(x[:, :3] ** 2, axis=1))
+        r = np.maximum(r, 1e-12)
+        m_over_2r = self.M / (2.0 * r)
+        alpha = (1.0 - m_over_2r) / (1.0 + m_over_2r)
+        return float(np.max(np.abs(alpha)))
 
 
 class KerrSchildCoeffs(BackgroundCoeffs):
@@ -91,7 +117,21 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         return alpha_f, beta_f, gammaInv_f, sqrtg_f, K_f
 
     def max_characteristic_speed(self, mesh) -> float:
-        return 1.0
+        if not is_dolfinx():
+            return 1.0
+        x = mesh.geometry.x
+        if x.shape[1] < 3 or x.shape[0] == 0:
+            return 1.0
+        x0, y0, z0 = x[:, 0], x[:, 1], x[:, 2]
+        rho2 = x0**2 + y0**2 + z0**2
+        a2 = self.a * self.a
+        r2 = 0.5 * (rho2 - a2 + np.sqrt((rho2 - a2) ** 2 + 4.0 * a2 * z0**2))
+        r = np.sqrt(r2 + 1.0e-15)
+        H = self.M * r**3 / (r**4 + a2 * z0**2 + 1.0e-15)
+        factor = 2.0 * H
+        alpha = 1.0 / np.sqrt(1.0 + factor)
+        beta_norm = np.abs(factor / (1.0 + factor))
+        return float(np.max(alpha + beta_norm))
 
 
 def make_background(metric_cfg: dict) -> BackgroundCoeffs:

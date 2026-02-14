@@ -70,13 +70,13 @@ jobs:
     
     - name: Check code formatting with Black
       run: |
-        black --check --diff psyop/ tests/ || true
+        black --check --diff src/psyop/ tests/ || true
     
     - name: Check import ordering with isort
       run: |
-        isort --check-only --diff psyop/ tests/ || true
+        isort --check-only --diff src/psyop/ tests/ || true
     
     - name: Lint with flake8
       run: |
-        flake8 psyop/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics || true
-        flake8 psyop/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+        flake8 src/psyop/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics || true
+        flake8 src/psyop/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics

@@ -2,6 +2,10 @@ import json
 import os
 import numpy as np
 import pytest
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 try:
     import dolfinx.fem as fem
@@ -12,9 +16,10 @@ except Exception:
 
 pytestmark = pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")
 
-from metrics import make_background, FlatBackgroundCoeffs
-from solver_first_order import FirstOrderKGSolver
-from gmsh_helpers import build_ball_mesh, get_outer_tag
+if HAS_DOLFINX:
+    from psyop.physics.metrics import make_background
+    from psyop.solvers.first_order import FirstOrderKGSolver
+    from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
 
 
 def _eval_at_origin(func):
@@ -135,4 +140,3 @@ def test_reflection_reduction(tmp_path):
     amp_no = run_solver(cfg_no)["amp_center"]
     amp_yes = run_solver(cfg_yes)["amp_center"]
     assert amp_yes < 0.5 * amp_no
-

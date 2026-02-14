@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 try:
     import dolfinx
@@ -137,6 +137,29 @@ class TestEnergyConservation:
         # Zero potential should conserve very well
         rel_error = abs(Ef - E0) / E0
         assert rel_error < 0.05, f"Energy drift for zero potential: {rel_error:.2%}"
+
+    def test_ko_filter_keeps_solution_finite(self):
+        """KO/filter path should run without NaNs for small epsilon."""
+        from psyop.solvers.first_order import FirstOrderKGSolver
+        from psyop.mesh.gmsh import build_ball_mesh
+        from psyop.physics.initial_conditions import GaussianBump
+
+        mesh, _, _ = build_ball_mesh(R=5.0, lc=2.5, comm=MPI.COMM_WORLD)
+        solver = FirstOrderKGSolver(
+            mesh=mesh,
+            domain_radius=5.0,
+            degree=1,
+            potential_type="quadratic",
+            potential_params={"m_squared": 1.0},
+            cfl_factor=0.2,
+            ko_eps=0.02,
+        )
+        ic = GaussianBump(mesh, A=0.01, r0=2.0, w=1.0, v0=0.0)
+        solver.set_initial_conditions(ic.get_function())
+        for _ in range(10):
+            solver.ssp_rk3_step(0.01)
+        E = solver.energy()
+        assert np.isfinite(E)
 
 
 @pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")

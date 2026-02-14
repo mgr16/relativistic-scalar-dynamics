@@ -9,8 +9,11 @@ Potenciales para campos escalares.
 from typing import Union, Dict, Any
 import inspect
 import numpy as np
-import dolfinx.fem as fem
 import ufl
+try:
+    import dolfinx.fem as fem
+except Exception:  # pragma: no cover - permite tests sin DOLFINx
+    fem = None
 
 from psyop.utils.logger import get_logger
 
@@ -31,9 +34,11 @@ class HiggsPotential:
         """
         self.m_squared = float(m_squared)
         self.lambda_coupling = float(lambda_coupling)
+        if self.lambda_coupling < 0:
+            raise ValueError("lambda_coupling must be >= 0 (0 disables quartic self-coupling)")
         logger.debug(f"HiggsPotential: m²={m_squared}, λ={lambda_coupling}")
     
-    def evaluate(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
+    def evaluate_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
         """
         Evalúa V(φ).
         
@@ -45,7 +50,7 @@ class HiggsPotential:
         """
         return 0.5 * self.m_squared * phi**2 + 0.25 * self.lambda_coupling * phi**4
     
-    def derivative(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
+    def derivative_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
         """
         Evalúa V'(φ).
         
@@ -57,7 +62,7 @@ class HiggsPotential:
         """
         return self.m_squared * phi + self.lambda_coupling * phi**3
     
-    def evaluate_numpy(self, phi_values: np.ndarray) -> np.ndarray:
+    def evaluate_np(self, phi_values: np.ndarray) -> np.ndarray:
         """
         Evalúa V(φ) para arrays numpy.
         
@@ -70,7 +75,7 @@ class HiggsPotential:
         phi = np.asarray(phi_values)
         return 0.5 * self.m_squared * phi**2 + 0.25 * self.lambda_coupling * phi**4
     
-    def derivative_numpy(self, phi_values: np.ndarray) -> np.ndarray:
+    def derivative_np(self, phi_values: np.ndarray) -> np.ndarray:
         """
         Evalúa V'(φ) para arrays numpy.
         
@@ -82,6 +87,12 @@ class HiggsPotential:
         """
         phi = np.asarray(phi_values)
         return self.m_squared * phi + self.lambda_coupling * phi**3
+
+    # backward compatibility
+    evaluate = evaluate_ufl
+    derivative = derivative_ufl
+    evaluate_numpy = evaluate_np
+    derivative_numpy = derivative_np
 
 class QuadraticPotential:
     """
@@ -98,23 +109,28 @@ class QuadraticPotential:
         self.m_squared = float(m_squared)
         logger.debug(f"QuadraticPotential: m²={m_squared}")
     
-    def evaluate(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
+    def evaluate_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
         """Evalúa V(φ)."""
         return 0.5 * self.m_squared * phi**2
     
-    def derivative(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
+    def derivative_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
         """Evalúa V'(φ)."""
         return self.m_squared * phi
     
-    def evaluate_numpy(self, phi_values: np.ndarray) -> np.ndarray:
+    def evaluate_np(self, phi_values: np.ndarray) -> np.ndarray:
         """Evalúa V(φ) para arrays numpy."""
         phi = np.asarray(phi_values)
         return 0.5 * self.m_squared * phi**2
     
-    def derivative_numpy(self, phi_values: np.ndarray) -> np.ndarray:
+    def derivative_np(self, phi_values: np.ndarray) -> np.ndarray:
         """Evalúa V'(φ) para arrays numpy."""
         phi = np.asarray(phi_values)
         return self.m_squared * phi
+
+    evaluate = evaluate_ufl
+    derivative = derivative_ufl
+    evaluate_numpy = evaluate_np
+    derivative_numpy = derivative_np
 
 class MexicanHatPotential:
     """
@@ -124,34 +140,46 @@ class MexicanHatPotential:
     La derivada es: V'(φ) = λ φ (φ² - v²)
     """
     
-    def __init__(self, lambda_coupling: float = 0.1, vacuum_value: float = 1.0):
+    def __init__(self, m_squared: float = -0.1, lambda_coupling: float = 0.1, vacuum_value: float = 1.0):
         """
         Parámetros:
             lambda_coupling: Constante de auto-acoplamiento
             vacuum_value: Valor de vacío v
         """
+        self.m_squared = float(m_squared)
         self.lambda_coupling = float(lambda_coupling)
+        if self.lambda_coupling < 0:
+            raise ValueError("lambda_coupling must be >= 0 (0 collapses this interaction potential)")
         self.vacuum_value = float(vacuum_value)
-        self.v_squared = self.vacuum_value**2
+        if vacuum_value == 1.0:
+            # compatibilidad con parametrización previa basada en m_squared/lambda
+            self.v_squared = abs(self.m_squared) / max(self.lambda_coupling, 1e-15)
+        else:
+            self.v_squared = self.vacuum_value**2
         logger.debug(f"MexicanHatPotential: λ={lambda_coupling}, v={vacuum_value}")
     
-    def evaluate(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
+    def evaluate_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
         """Evalúa V(φ)."""
         return 0.25 * self.lambda_coupling * (phi**2 - self.v_squared)**2
     
-    def derivative(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
+    def derivative_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
         """Evalúa V'(φ)."""
         return self.lambda_coupling * phi * (phi**2 - self.v_squared)
     
-    def evaluate_numpy(self, phi_values: np.ndarray) -> np.ndarray:
+    def evaluate_np(self, phi_values: np.ndarray) -> np.ndarray:
         """Evalúa V(φ) para arrays numpy."""
         phi = np.asarray(phi_values)
         return 0.25 * self.lambda_coupling * (phi**2 - self.v_squared)**2
     
-    def derivative_numpy(self, phi_values: np.ndarray) -> np.ndarray:
+    def derivative_np(self, phi_values: np.ndarray) -> np.ndarray:
         """Evalúa V'(φ) para arrays numpy."""
         phi = np.asarray(phi_values)
         return self.lambda_coupling * phi * (phi**2 - self.v_squared)
+
+    evaluate = evaluate_ufl
+    derivative = derivative_ufl
+    evaluate_numpy = evaluate_np
+    derivative_numpy = derivative_np
 
 class ZeroPotential:
     """
@@ -163,33 +191,28 @@ class ZeroPotential:
     def __init__(self):
         logger.debug("ZeroPotential creado")
     
-    def evaluate(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.Constant:
+    def evaluate_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]):
         """Evalúa V(φ) = 0."""
-        if isinstance(phi, fem.Function):
-            mesh = phi.function_space.mesh
-        else:
-            # For UFL expressions, we need a mesh - this is a limitation
-            # In practice, ZeroPotential is typically used with fem.Function
-            raise TypeError("ZeroPotential.evaluate() requires a fem.Function with mesh access")
-        return ufl.Constant(mesh, 0.0)
+        return 0.0 * phi
     
-    def derivative(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.Constant:
+    def derivative_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]):
         """Evalúa V'(φ) = 0."""
-        if isinstance(phi, fem.Function):
-            mesh = phi.function_space.mesh
-        else:
-            raise TypeError("ZeroPotential.derivative() requires a fem.Function with mesh access")
-        return ufl.Constant(mesh, 0.0)
+        return 0.0 * phi
     
-    def evaluate_numpy(self, phi_values: np.ndarray) -> np.ndarray:
+    def evaluate_np(self, phi_values: np.ndarray) -> np.ndarray:
         """Evalúa V(φ) = 0 para arrays numpy."""
         phi = np.asarray(phi_values)
         return np.zeros_like(phi)
     
-    def derivative_numpy(self, phi_values: np.ndarray) -> np.ndarray:
+    def derivative_np(self, phi_values: np.ndarray) -> np.ndarray:
         """Evalúa V'(φ) = 0 para arrays numpy."""
         phi = np.asarray(phi_values)
         return np.zeros_like(phi)
+
+    evaluate = evaluate_ufl
+    derivative = derivative_ufl
+    evaluate_numpy = evaluate_np
+    derivative_numpy = derivative_np
 
 def get_potential(potential_type: str = "higgs", **kwargs: Any) -> Union[
     HiggsPotential, QuadraticPotential, MexicanHatPotential, ZeroPotential
@@ -212,8 +235,10 @@ def get_potential(potential_type: str = "higgs", **kwargs: Any) -> Union[
     }
     
     if potential_type not in potential_map:
-        raise ValueError(f"Tipo de potencial '{potential_type}' no reconocido. "
-                        f"Opciones disponibles: {list(potential_map.keys())}")
+        raise ValueError(
+            f"Unknown potential type '{potential_type}'. "
+            f"Available options: {list(potential_map.keys())}"
+        )
     
     potential_class = potential_map[potential_type]
     
