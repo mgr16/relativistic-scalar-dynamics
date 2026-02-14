@@ -55,7 +55,30 @@ Los documentos de revisión y mejoras se movieron a `docs/reviews/` para mantene
 
 ## Instalación
 
-### Entorno recomendado (DOLFINx-only)
+### 🚀 Instalación Automática (Recomendada)
+
+El método más fácil es usar el script de instalación automática que configura todo el entorno:
+
+**Linux/macOS:**
+```bash
+bash scripts/install_environment.sh
+```
+
+**Windows:**
+```batch
+scripts\install_environment.bat
+```
+
+El script automáticamente:
+- ✅ Crea un entorno conda `psyop-dolfinx` con Python 3.10
+- ✅ Instala DOLFINx y todas sus dependencias
+- ✅ Instala gmsh, numpy, scipy, matplotlib, pytest, PyYAML
+- ✅ Instala el paquete PSYOP en modo desarrollo
+
+### 📋 Instalación Manual (Alternativa)
+
+Si prefieres instalar manualmente:
+
 ```bash
 # Crear entorno conda
 conda create -n psyop-dolfinx python=3.10
@@ -65,11 +88,17 @@ conda activate psyop-dolfinx
 conda install -c conda-forge dolfinx
 
 # Dependencias adicionales
-conda install -c conda-forge gmsh numpy matplotlib scipy petsc4py
+conda install -c conda-forge gmsh numpy matplotlib scipy pytest pytest-cov pyyaml
+
+# Instalar paquete en modo desarrollo
+pip install -e .
 ```
 
-### Verificación de la instalación
+### ✅ Verificación de la instalación
 ```bash
+# Activar el entorno
+conda activate psyop-dolfinx
+
 # Probar lógica base sin dependencias FEM pesadas
 python tests/test_standalone_logic.py
 
@@ -246,6 +275,12 @@ results/run_YYYYmmdd_HHMMSS/
 
 ##  Solución de Problemas
 
+### Error: "conda: command not found"
+**Causa**: Conda no está instalado en el sistema
+**Solución**: 
+- Descarga e instala Miniconda desde: https://docs.conda.io/en/latest/miniconda.html
+- O Anaconda desde: https://www.anaconda.com/download
+
 ### Error común: "Import could not be resolved"
 **Causa**: DOLFINx no instalado
 **Solución**: 
@@ -267,6 +302,18 @@ conda install -c conda-forge gmsh
 ### Memoria insuficiente
 **Causa**: Malla demasiado fina
 **Solución**: Aumentar `resolution` en parámetros de malla
+
+### Error: "Environment already exists"
+**Causa**: Ya existe un entorno con el mismo nombre
+**Solución**: 
+```bash
+# Opción 1: Eliminar el entorno existente
+conda env remove -n psyop-dolfinx
+
+# Opción 2: Usar el entorno existente
+conda activate psyop-dolfinx
+pip install -e .
+```
 
 ## Referencias Técnicas
 
