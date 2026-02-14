@@ -28,7 +28,7 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 ```
 PSYOP/
 ├── main.py                    # Script principal
-├── psyop/                     # Paquete principal
+├── src/psyop/                 # Paquete principal
 │   ├── analysis/              # Análisis (QNM, espectros)
 │   ├── backends/              # Abstracciones numéricas DOLFINx
 │   ├── mesh/                  # Generación de mallas (Gmsh, cajas)

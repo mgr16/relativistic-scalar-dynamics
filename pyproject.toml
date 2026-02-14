@@ -27,8 +27,11 @@ psyop-run = "main:main"
 psyop-postprocess = "psyop.cli:postprocess_main"
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["src"]
 include = ["psyop*"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
 
 [tool.black]
 line-length = 100

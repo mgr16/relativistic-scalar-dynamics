@@ -15,7 +15,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/mgr16/relativistic-scalar-dynamics",
-    packages=find_packages(),
+    package_dir={"": "src"},
+    packages=find_packages(where="src"),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
