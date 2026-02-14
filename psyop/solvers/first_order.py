@@ -223,7 +223,10 @@ class FirstOrderKGSolver:
 
         # Difusión: - ∫ √γ * α * (γ^{ij} ∂_i φ ∂_j test_Pi) dx
         diffusion = - alpha * ufl.inner(ufl.dot(gammaInv, ufl.grad(self.phi_c)), ufl.grad(self.test_Pi)) * sqrtg * dx
-        lapse_gradient = ufl.inner(ufl.dot(gammaInv, ufl.grad(alpha)), ufl.grad(self.phi_c)) * self.test_Pi * sqrtg * dx
+        if isinstance(alpha, fem.Constant):
+            lapse_gradient = ufl.Constant(self.mesh, 0.0) * self.test_Pi * dx
+        else:
+            lapse_gradient = ufl.inner(ufl.dot(gammaInv, ufl.grad(alpha)), ufl.grad(self.phi_c)) * self.test_Pi * sqrtg * dx
 
         # Transporte + curvatura extrínseca + potencial
         transport = (alpha*K*self.Pi_c - alpha*Vp) * self.test_Pi * sqrtg * dx

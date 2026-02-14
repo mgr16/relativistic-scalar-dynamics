@@ -35,7 +35,7 @@ class HiggsPotential:
         self.m_squared = float(m_squared)
         self.lambda_coupling = float(lambda_coupling)
         if self.lambda_coupling < 0:
-            raise ValueError("lambda_coupling must be >= 0")
+            raise ValueError("lambda_coupling must be >= 0 (0 disables quartic self-coupling)")
         logger.debug(f"HiggsPotential: m²={m_squared}, λ={lambda_coupling}")
     
     def evaluate_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
@@ -149,7 +149,7 @@ class MexicanHatPotential:
         self.m_squared = float(m_squared)
         self.lambda_coupling = float(lambda_coupling)
         if self.lambda_coupling < 0:
-            raise ValueError("lambda_coupling must be >= 0")
+            raise ValueError("lambda_coupling must be >= 0 (0 collapses this interaction potential)")
         self.vacuum_value = float(vacuum_value)
         if vacuum_value == 1.0:
             # compatibilidad con parametrización previa basada en m_squared/lambda

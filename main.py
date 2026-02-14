@@ -12,6 +12,7 @@ import time
 import argparse
 import logging
 import sys
+from datetime import datetime, timezone
 from typing import Dict, Any, Tuple, Optional
 
 import numpy as np
@@ -179,7 +180,7 @@ def main() -> int:
         with open(os.path.join(outdir, 'config.json'), 'w') as g:
             json.dump(cfg, g, indent=2)
         manifest = {
-            "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "created_at": datetime.now(timezone.utc).isoformat(),
             "python": sys.version,
             "mpi_size": mesh.comm.size,
         }
