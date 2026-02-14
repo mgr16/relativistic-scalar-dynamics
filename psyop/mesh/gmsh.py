@@ -25,7 +25,7 @@ try:
     HAS_GMSH = True
 except ImportError:
     HAS_GMSH = False
-    logger.warning("Gmsh no disponible. Usando mallas de FEniCS básicas.")
+    logger.warning("Gmsh no disponible. Usando mallas cúbicas básicas.")
 
 def build_ball_mesh(
     R: float, 
