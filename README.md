@@ -4,7 +4,7 @@
 
 PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros negros usando elementos finitos. El proyecto ha sido completamente renovado con una arquitectura modular avanzada y métodos numéricos de alto orden.
 
-##  Mejoras Implementadas (Versión 2.0)
+##  Mejoras Implementadas (Versión 2.1)
 
 ### **Mejora 1: Formulación de Primer Orden con SSP-RK3**
 - **Sistema de primer orden**: (φ, Π) donde Π = ∂φ/∂t
@@ -18,7 +18,7 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 - **Absorción de ondas**: reduce reflexiones sin Robin ad-hoc
 
 ### **Mejora 3: Arquitectura Modular Avanzada**
-- **Compatibilidad dual**: FEniCS legacy y DOLFINx
+- **Implementación DOLFINx-only**: migración completa desde soporte dual
 - **Generación de mallas**: Gmsh con etiquetas de frontera automáticas
 - **Potenciales generalizados**: Higgs, cuadrático, sombrero mexicano
 - **Condiciones iniciales flexibles**: Gaussian bump, ondas planas, etc.
@@ -30,15 +30,28 @@ PSYOP/
 ├── main.py                    # Script principal
 ├── psyop/                     # Paquete principal
 │   ├── analysis/              # Análisis (QNM, espectros)
-│   ├── backends/              # Abstracciones FEniCS/DOLFINx
+│   ├── backends/              # Abstracciones numéricas DOLFINx
 │   ├── mesh/                  # Generación de mallas (Gmsh, cajas)
 │   ├── physics/               # Métricas, potenciales, condiciones iniciales
 │   ├── solvers/               # Solvers numéricos
 │   └── utils/                 # Utilidades (CFL, análisis de malla)
+├── docs/reviews/              # Documentación consolidada (PR #7)
 ├── scripts/                   # Scripts auxiliares
 ├── tests/                     # Pruebas
 └── README.md                  # Esta documentación
 ```
+
+## Documentación consolidada (PR #7)
+
+Los documentos de revisión y mejoras se movieron a `docs/reviews/` para mantener la raíz del proyecto más limpia:
+
+- [IMPLEMENTATION_SUMMARY](docs/reviews/IMPLEMENTATION_SUMMARY.md)
+- [IMPROVEMENT_ROADMAP](docs/reviews/IMPROVEMENT_ROADMAP.md)
+- [PROJECT_REVIEW](docs/reviews/PROJECT_REVIEW.md)
+- [QUICK_START_IMPROVEMENTS](docs/reviews/QUICK_START_IMPROVEMENTS.md)
+- [REVIEW_INDEX](docs/reviews/REVIEW_INDEX.md)
+- [REVIEW_SUMMARY](docs/reviews/REVIEW_SUMMARY.md)
+- [UPDATE_NOTES](docs/reviews/UPDATE_NOTES.md)
 
 ## Instalación
 
@@ -293,7 +306,7 @@ conda install -c conda-forge gmsh
 
 ---
 
-**Versión**: 2.0 (Renovación completa)  
-**Compatibilidad**: FEniCS legacy 2019.1+ / DOLFINx 0.6+  
-**Python**: 3.8+  
+**Versión**: 2.1 (incluye cambios del PR #7)  
+**Compatibilidad**: DOLFINx 0.6+  
+**Python**: 3.9+  
 **Licencia**: Proyecto de investigación académica
