@@ -12,6 +12,7 @@ import time
 import argparse
 import logging
 import sys
+import subprocess
 from datetime import datetime, timezone
 from typing import Dict, Any, Tuple, Optional
 
@@ -171,18 +172,38 @@ def main() -> int:
         cfg.get("output", {}).get("dir", args.output), 
         time.strftime("run_%Y%m%d_%H%M%S")
     )
+    series_dir = os.path.join(outdir, "series")
+    fields_dir = os.path.join(outdir, "fields")
+    plots_dir = os.path.join(outdir, "plots")
     if mesh.comm.rank == 0:
         os.makedirs(outdir, exist_ok=True)
+        os.makedirs(series_dir, exist_ok=True)
+        os.makedirs(fields_dir, exist_ok=True)
+        os.makedirs(plots_dir, exist_ok=True)
     logger.info(f"Output directory: {outdir}")
     
     # Save configuration
     if mesh.comm.rank == 0:
         with open(os.path.join(outdir, 'config.json'), 'w') as g:
             json.dump(cfg, g, indent=2)
+        try:
+            git_commit = subprocess.check_output(
+                ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL, timeout=10
+            ).strip()
+        except Exception:
+            git_commit = "unknown"
+        try:
+            host_name = os.uname().nodename if hasattr(os, "uname") else "unknown"
+        except (AttributeError, OSError):
+            host_name = "unknown"
         manifest = {
             "created_at": datetime.now(timezone.utc).isoformat(),
+            "git_commit": git_commit,
             "python": sys.version,
             "mpi_size": mesh.comm.size,
+            "dolfinx": getattr(dolfinx, "__version__", "unknown"),
+            "petsc4py": getattr(__import__("petsc4py"), "__version__", "unknown"),
+            "host": host_name,
         }
         with open(os.path.join(outdir, 'manifest.json'), 'w') as g:
             json.dump(manifest, g, indent=2)
@@ -241,7 +262,7 @@ def main() -> int:
     logger.info(f"Starting evolution: t_end={t_end}, dt={dt:.6e}, output_every={output_every}")
     
     # Main evolution loop
-    with dolfinx.io.XDMFFile(mesh.comm, os.path.join(outdir, "phi_evolution.xdmf"), "w") as xdmf:
+    with dolfinx.io.XDMFFile(mesh.comm, os.path.join(fields_dir, "phi_evolution.xdmf"), "w") as xdmf:
         xdmf.write_mesh(mesh)
         
         while t < t_end:
@@ -270,21 +291,36 @@ def main() -> int:
 
     # Save output data
     if time_series and mesh.comm.rank == 0:
-        ts_path = os.path.join(outdir, "time_series.txt")
+        ts_csv_path = os.path.join(series_dir, "time_series.csv")
+        ts_path = os.path.join(outdir, "time_series.txt")  # compatibility legacy
+        with open(ts_csv_path, "w") as fcsv:
+            fcsv.write("t,phi\n")
+            for t_val, phi_val in time_series:
+                fcsv.write(f"{t_val:.12e},{phi_val:.12e}\n")
         with open(ts_path, "w") as f:
             for t_val, phi_val in time_series:
                 f.write(f"{t_val:.12e} {phi_val:.12e}\n")
         logger.info(f"Time series saved: {len(time_series)} samples")
     
     if diagnostics and energy_series and mesh.comm.rank == 0:
-        energy_path = os.path.join(outdir, "energy_series.txt")
+        energy_csv_path = os.path.join(series_dir, "energy.csv")
+        energy_path = os.path.join(outdir, "energy_series.txt")  # compatibility legacy
+        with open(energy_csv_path, "w") as fcsv:
+            fcsv.write("t,energy\n")
+            for t_val, e_val in energy_series:
+                fcsv.write(f"{t_val:.12e},{e_val:.12e}\n")
         with open(energy_path, "w") as f:
             for t_val, e_val in energy_series:
                 f.write(f"{t_val:.12e} {e_val:.12e}\n")
         logger.info(f"Energy series saved: {len(energy_series)} samples")
     
     if diagnostics and flux_series and mesh.comm.rank == 0:
-        flux_path = os.path.join(outdir, "flux_series.txt")
+        flux_csv_path = os.path.join(series_dir, "flux.csv")
+        flux_path = os.path.join(outdir, "flux_series.txt")  # compatibility legacy
+        with open(flux_csv_path, "w") as fcsv:
+            fcsv.write("t,flux\n")
+            for t_val, f_val in flux_series:
+                fcsv.write(f"{t_val:.12e},{f_val:.12e}\n")
         with open(flux_path, "w") as f:
             for t_val, f_val in flux_series:
                 f.write(f"{t_val:.12e} {f_val:.12e}\n")
@@ -298,26 +334,33 @@ def main() -> int:
         qnm_method = cfg.get("analysis", {}).get("qnm_method", "fft").lower()
         
         if qnm_method == "prony":
-            from psyop.analysis.qnm import estimate_qnm_prony
+            from psyop.analysis.qnm import estimate_qnm_prony, estimate_qnm_prony_modes
             modes = int(cfg.get("analysis", {}).get("qnm_modes", 1))
             prony_results = estimate_qnm_prony(signal, dt_sample, modes=modes)
+            prony_modes = estimate_qnm_prony_modes(signal, dt_sample, modes=modes)
             if prony_results:
                 np.savetxt(
-                    os.path.join(outdir, "qnm_prony.txt"),
+                    os.path.join(series_dir, "qnm_prony.csv"),
                     np.array(prony_results),
-                    header="freq_real decay_rate", 
-                    comments=""
+                    header="freq_real,decay_rate",
+                    comments="",
+                    delimiter=","
                 )
+                with open(os.path.join(series_dir, "qnm_modes.json"), "w", encoding="utf-8") as f:
+                    json.dump(prony_modes, f, indent=2)
                 logger.info(f"QNM Prony analysis saved ({modes} modes)")
         else:
             freqs, spec = compute_qnm(signal, dt_sample)
             f_peak, s_peak = estimate_peak(freqs, spec)
             np.savetxt(
-                os.path.join(outdir, "qnm_spectrum.txt"), 
-                np.column_stack([freqs, spec])
+                os.path.join(series_dir, "qnm_spectrum.csv"), 
+                np.column_stack([freqs, spec]),
+                delimiter=",",
+                header="freq,spectrum",
+                comments=""
             )
-            with open(os.path.join(outdir, "qnm_peak.txt"), "w") as f:
-                f.write(f"{f_peak:.12e} {s_peak:.12e}\n")
+            with open(os.path.join(series_dir, "qnm_peak.json"), "w", encoding="utf-8") as f:
+                json.dump({"frequency": f_peak, "spectrum": s_peak}, f, indent=2)
             logger.info(f"QNM FFT analysis saved (peak at f={f_peak:.6e})")
     
     logger.info(f"Simulation completed successfully!")

@@ -84,6 +84,11 @@ python tests/test_complete_system.py
 psyop-run --config config_example.json --output results
 ```
 
+### Basic QNM postprocessing
+```bash
+psyop-postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft --plots
+```
+
 ### Configuración personalizada
 ```python
 # En main.py, modificar sim_params:
@@ -195,10 +200,10 @@ class CustomInitialCondition:
 ```
 
 ### Modificar el solver
-El solver principal está en `solver_first_order.py`. Métodos clave:
+El solver principal está en `src/psyop/solvers/first_order.py`. Métodos clave:
 - `ssp_rk3_step()`: Integración temporal
-- `_setup_sommerfeld_bc()`: Condiciones de frontera
-- `_compute_rhs()`: Evaluación del lado derecho
+- `_sommerfeld_boundary_term()`: Condiciones de frontera
+- `_assemble_rhs_and_solve_du()`: Evaluación/solve del lado derecho
 
 ## Resultados y Validación
 
@@ -210,11 +215,19 @@ El solver principal está en `solver_first_order.py`. Métodos clave:
 
 ### Archivos generados
 ```
-results/
-├── phi_final.xdmf         # Campo φ final (DOLFINx)
-├── Pi_final.xdmf          # Campo Π final (DOLFINx)
-├── time_series.txt        # Series temporales
-└── qnm_spectrum.png       # Espectro de modos quasi-normales
+results/run_YYYYmmdd_HHMMSS/
+├── config.json
+├── manifest.json
+├── fields/
+│   └── phi_evolution.xdmf
+├── series/
+│   ├── time_series.csv
+│   ├── energy.csv
+│   ├── flux.csv
+│   ├── qnm_spectrum.csv / qnm_peak.json
+│   └── qnm_modes.json (prony)
+└── plots/
+    └── qnm_spectrum.png   # opcional (postprocess --plots)
 ```
 
 ##  Rendimiento
