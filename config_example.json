@@ -1,14 +1,21 @@
 {
-  "schema_version": 1,
-  "mesh": { "type": "gmsh", "R": 15.0, "lc": 0.75 },
-  "metric": { "type": "flat", "M": 1.0 },
+  "mesh": {
+    "R": 30.0,
+    "lc": 1.5,
+    "mesh_type": "gmsh"
+  },
   "solver": {
     "degree": 1,
-    "cfl": 0.30,
-    "potential_type": "higgs",
-    "potential_params": { "m_squared": 1.0, "lambda_coupling": 0.1 },
-    "sponge": { "enabled": true, "r_start": 12.0, "strength": 0.15 },
-    "sommerfeld": true
+    "cfl": 0.3,
+    "potential_type": "quadratic",
+    "potential_params": {
+      "m_squared": 1.0
+    },
+    "ko_eps": 0.0
+  },
+  "metric": {
+    "type": "flat",
+    "M": 1.0
   },
   "initial_conditions": {
     "type": "gaussian",
@@ -17,6 +24,13 @@
     "w": 3.0,
     "v0": 1.0
   },
-  "evolution": { "t_end": 50.0, "output_every": 10, "checkpoint_every": 100 },
-  "output": { "dir": "results", "qnm_analysis": true, "save_series": true }
+  "evolution": {
+    "t_end": 50.0,
+    "output_every": 10,
+    "verbose": true
+  },
+  "output": {
+    "dir": "results",
+    "qnm_analysis": true
+  }
 }

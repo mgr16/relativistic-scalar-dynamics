@@ -19,17 +19,19 @@ from typing import Dict, Any, Tuple, Optional
 
 import numpy as np
 
-# DOLFINx imports (required)
+# DOLFINx imports (required for full simulation)
+HAS_DOLFINX = False
 try:
     import dolfinx.fem as fem
     import dolfinx.io
     import dolfinx.geometry
     import ufl
     from mpi4py import MPI
+    HAS_DOLFINX = True
 except ImportError as e:
-    print("ERROR: DOLFINx is required but not installed.")
-    print("Install with: conda install -c conda-forge dolfinx")
-    raise ImportError("DOLFINx is required to run PSYOP") from e
+    # DOLFINx will only be required for full simulation
+    # Test mode can proceed without it
+    pass
 
 # Import logging utilities
 from psyop.utils.logger import setup_logger, get_logger
@@ -132,10 +134,25 @@ def main() -> int:
     if args.test:
         logger.info("=== TEST MODE ===")
         logger.info(f"NumPy version: {np.__version__}")
-        logger.info("DOLFINx: Available")
-        logger.info("Ready to run simulations")
+        if HAS_DOLFINX:
+            logger.info("DOLFINx: Available")
+            try:
+                logger.info(f"DOLFINx version: {dolfinx.__version__}")
+            except:
+                pass
+        else:
+            logger.warning("DOLFINx: Not Available - Install with: conda install -c conda-forge dolfinx")
+        logger.info("SciPy: Available" if 'scipy' in sys.modules or __import__('scipy') else "SciPy: Not Available")
+        logger.info("Ready for basic tests" if not HAS_DOLFINX else "Ready to run full simulations")
         return 0
 
+    # Check DOLFINx availability for full simulation
+    if not HAS_DOLFINX:
+        logger.error("ERROR: DOLFINx is required to run full simulations but not installed.")
+        logger.error("Install with: conda install -c conda-forge dolfinx")
+        logger.error("Or use Docker: docker build -t psyop . && docker run psyop")
+        logger.error("Run with --test flag to verify basic setup")
+        return 1
 
     # Import components
     from psyop.solvers.first_order import FirstOrderKGSolver
