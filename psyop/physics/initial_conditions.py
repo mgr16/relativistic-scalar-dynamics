@@ -91,7 +91,7 @@ class PlaneWave:
         mesh: dmesh.Mesh, 
         V: fem.FunctionSpace, 
         A: float = 0.1, 
-        k: List[float] = None, 
+        k: Optional[List[float]] = None, 
         v0: float = 1.0
     ):
         """

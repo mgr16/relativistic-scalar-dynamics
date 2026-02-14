@@ -163,13 +163,23 @@ class ZeroPotential:
     def __init__(self):
         logger.debug("ZeroPotential creado")
     
-    def evaluate(self, phi: fem.Function) -> ufl.Constant:
+    def evaluate(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.Constant:
         """Evalúa V(φ) = 0."""
-        return ufl.Constant(phi.function_space.mesh, 0.0)
+        if isinstance(phi, fem.Function):
+            mesh = phi.function_space.mesh
+        else:
+            # For UFL expressions, we need a mesh - this is a limitation
+            # In practice, ZeroPotential is typically used with fem.Function
+            raise TypeError("ZeroPotential.evaluate() requires a fem.Function with mesh access")
+        return ufl.Constant(mesh, 0.0)
     
-    def derivative(self, phi: fem.Function) -> ufl.Constant:
+    def derivative(self, phi: Union[fem.Function, ufl.core.expr.Expr]) -> ufl.Constant:
         """Evalúa V'(φ) = 0."""
-        return ufl.Constant(phi.function_space.mesh, 0.0)
+        if isinstance(phi, fem.Function):
+            mesh = phi.function_space.mesh
+        else:
+            raise TypeError("ZeroPotential.derivative() requires a fem.Function with mesh access")
+        return ufl.Constant(mesh, 0.0)
     
     def evaluate_numpy(self, phi_values: np.ndarray) -> np.ndarray:
         """Evalúa V(φ) = 0 para arrays numpy."""
