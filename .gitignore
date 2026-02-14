@@ -6,3 +6,17 @@ __pycache__/
 .mypy_cache/
 build/
 dist/
+
+# Conda environments
+psyop-dolfinx/
+envs/
+
+# Output directories
+results/
+output/
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store

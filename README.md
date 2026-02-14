@@ -55,7 +55,30 @@ Los documentos de revisión y mejoras se movieron a `docs/reviews/` para mantene
 
 ## Instalación
 
-### Entorno recomendado (DOLFINx-only)
+### 🚀 Instalación Rápida (Recomendado)
+
+Usa el script automatizado de instalación:
+
+```bash
+bash setup_environment.sh
+```
+
+Este script automáticamente:
+- ✅ Verifica que conda esté instalado
+- ✅ Crea un entorno conda nuevo (`psyop-dolfinx`)
+- ✅ Instala DOLFINx y todas las dependencias necesarias
+- ✅ Instala el paquete psyop en modo desarrollo
+- ✅ Verifica que todo funcione correctamente
+
+Después de la instalación, activa el entorno:
+```bash
+conda activate psyop-dolfinx
+```
+
+### 📝 Instalación Manual
+
+Si prefieres instalar manualmente:
+
 ```bash
 # Crear entorno conda
 conda create -n psyop-dolfinx python=3.10
@@ -65,7 +88,10 @@ conda activate psyop-dolfinx
 conda install -c conda-forge dolfinx
 
 # Dependencias adicionales
-conda install -c conda-forge gmsh numpy matplotlib scipy petsc4py
+conda install -c conda-forge gmsh numpy matplotlib scipy pytest pytest-cov pyyaml
+
+# Instalar el paquete en modo desarrollo
+pip install -e .
 ```
 
 ### Verificación de la instalación
