@@ -5,11 +5,6 @@ Verifies that invalid inputs are properly rejected with clear error messages.
 """
 
 import pytest
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
-
 try:
     import dolfinx
     from mpi4py import MPI
