@@ -8,28 +8,27 @@ reducen la reflexión comparado con condiciones de frontera básicas.
 
 try:
     import dolfinx.fem as fem
-    import ufl
     from mpi4py import MPI
     HAS_DOLFINX = True
 except ImportError:
     HAS_DOLFINX = False
-    import ufl
 
 import numpy as np
 import os
 import sys
 import pytest
+from pathlib import Path
 
 pytestmark = pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")
 
-# Añadir directorio del proyecto al path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from solver_first_order import FirstOrderKGSolver
-from gmsh_helpers import build_ball_mesh, get_outer_tag
-from initial_conditions import GaussianBump
-from metrics import FlatBackgroundCoeffs
-from utils import compute_dt_cfl
+if HAS_DOLFINX:
+    from psyop.solvers.first_order import FirstOrderKGSolver
+    from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
+    from psyop.physics.initial_conditions import GaussianBump
+    from psyop.physics.metrics import FlatBackgroundCoeffs
+    from psyop.utils.utils import compute_dt_cfl
 
 def run_case(use_sommerfeld: bool, R=15.0, t_end=10.0):
     """
