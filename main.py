@@ -138,11 +138,18 @@ def main() -> int:
             logger.info("DOLFINx: Available")
             try:
                 logger.info(f"DOLFINx version: {dolfinx.__version__}")
-            except:
+            except AttributeError:
                 pass
         else:
             logger.warning("DOLFINx: Not Available - Install with: conda install -c conda-forge dolfinx")
-        logger.info("SciPy: Available" if 'scipy' in sys.modules or __import__('scipy') else "SciPy: Not Available")
+        
+        # Check SciPy availability
+        try:
+            import scipy
+            logger.info(f"SciPy: Available - version {scipy.__version__}")
+        except ImportError:
+            logger.info("SciPy: Not Available")
+        
         logger.info("Ready for basic tests" if not HAS_DOLFINX else "Ready to run full simulations")
         return 0
 

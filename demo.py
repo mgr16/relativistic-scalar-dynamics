@@ -59,7 +59,7 @@ key_dirs = ['psyop', 'tests', 'docs', 'benchmarks', 'scripts']
 for dir_name in key_dirs:
     dir_path = os.path.join(base_dir, dir_name)
     if os.path.exists(dir_path):
-        file_count = len([f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))])
+        file_count = sum(1 for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f)))
         print(f"✓ {dir_name}/ ({file_count} files)")
     else:
         print(f"✗ {dir_name}/ (missing)")
