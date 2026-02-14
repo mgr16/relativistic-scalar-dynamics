@@ -341,10 +341,11 @@ class FirstOrderKGSolver:
             self.u.x.array[1::2] = Pi_init.x.array[:]
         except (ValueError, IndexError) as e:
             # Fallback genérico: si falla el intercalado, copia por longitud común
-            logger.warning(f"Error intercalando arrays, usando fallback: {e}")
+            logger.warning(f"Array interleaving failed, using fallback approach: {e}")
             n = min(self.u.x.array.size//2, phi_init.x.array.size, Pi_init.x.array.size)
             self.u.x.array[0:2*n:2] = phi_init.x.array[:n]
             self.u.x.array[1:2*n:2] = Pi_init.x.array[:n]
+            logger.info(f"Fallback successful: copied {n} DOFs for each field")
         logger.info("Condiciones iniciales establecidas")
 
     def set_background(self, alpha=None, beta=None, gammaInv=None, sqrtg=None, K=None):
