@@ -58,13 +58,13 @@ class FirstOrderKGSolver:
         """
         # Input validation
         if not (0 < cfl_factor <= 1):
-            raise ValueError(f"cfl_factor debe estar en (0, 1], got {cfl_factor}")
+            raise ValueError(f"CFL factor must be in (0, 1], got {cfl_factor}")
         
         if domain_radius <= 0:
-            raise ValueError(f"domain_radius debe ser > 0, got {domain_radius}")
+            raise ValueError(f"domain_radius must be positive, got {domain_radius}")
         
         if degree not in [1, 2, 3, 4, 5]:
-            raise ValueError(f"degree debe estar en [1, 5], got {degree}")
+            raise ValueError(f"degree must be in [1, 5], got {degree}")
         
         if potential_type not in VALID_POTENTIAL_TYPES:
             raise ValueError(f"Unknown potential type '{potential_type}'. options={VALID_POTENTIAL_TYPES}")
