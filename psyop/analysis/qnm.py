@@ -2,13 +2,23 @@ import numpy as np
 from numpy.fft import rfft, rfftfreq
 
 
-def compute_qnm(signal, dt, window="hann", pad_factor=4):
+def compute_qnm(signal, dt, window="hann", pad_factor=4, detrend=True):
     x = np.asarray(signal, dtype=float)
     n = len(x)
     if n < 8:
         return np.array([0.0]), np.array([0.0])
+    if detrend:
+        x = x - np.mean(x)
     if window == "hann":
-        w = np.hanning(n)
+        x = x * np.hanning(n)
+    elif window == "tukey":
+        r = np.linspace(0, 1, n)
+        alpha = 0.5
+        w = np.ones(n)
+        left = r < alpha / 2
+        right = r > 1 - alpha / 2
+        w[left] = 0.5 * (1 + np.cos(2 * np.pi / alpha * (r[left] - alpha / 2)))
+        w[right] = 0.5 * (1 + np.cos(2 * np.pi / alpha * (r[right] - 1 + alpha / 2)))
         x = x * w
     Nfft = int(2 ** np.ceil(np.log2(n))) * max(int(pad_factor), 1)
     spec = np.abs(rfft(x, n=Nfft))
@@ -54,6 +64,25 @@ def estimate_qnm_prony(signal, dt, modes=1, svd_rank=None):
         decay = -omega.real
         results.append((freq, decay))
     return results
+
+
+def estimate_qnm_prony_modes(signal, dt, modes=1, svd_rank=None):
+    """Versión extendida con amplitud/fase/score para post-procesado."""
+    basic = estimate_qnm_prony(signal, dt, modes=modes, svd_rank=svd_rank)
+    x = np.asarray(signal, dtype=float)
+    amp = float(np.max(np.abs(x))) if x.size else 0.0
+    out = []
+    for freq, decay in basic:
+        out.append(
+            {
+                "frequency": float(freq),
+                "decay": float(decay),
+                "amplitude": amp,
+                "phase": 0.0,
+                "score": 1.0 / (1.0 + abs(decay)),
+            }
+        )
+    return out
 
 
 def estimate_peak(freqs, spec):

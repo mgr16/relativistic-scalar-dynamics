@@ -7,7 +7,7 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 ##  Mejoras Implementadas (Versión 2.1)
 
 ### **Mejora 1: Formulación de Primer Orden con SSP-RK3**
-- **Sistema de primer orden**: (φ, Π) donde Π = ∂φ/∂t
+- **Sistema de primer orden**: (φ, Π) con Π como momento 3+1, \(\Pi=(\partial_t\phi-\beta^i\partial_i\phi)/\alpha\)
 - **Integración temporal SSP-RK3**: Strong Stability Preserving Runge-Kutta de orden 3
 - **CFL adaptativo**: Paso de tiempo automático basado en el tamaño de malla
 - **Solver de matriz de masa**: Inversión eficiente usando PETSc/HYPRE
@@ -81,7 +81,7 @@ python tests/test_complete_system.py
 
 ### Simulación básica
 ```bash
-python main.py
+psyop-run --config config_example.json --output results
 ```
 
 ### Configuración personalizada
@@ -118,8 +118,9 @@ sim_params = {
 
 **Sistema de primer orden:**
 ```
-∂φ/∂t = Π
-∂Π/∂t = ∇²φ - V'(φ)
+Π = (∂tφ - β·∇φ)/α
+∂tφ = αΠ + β·∇φ
+∂tΠ = αDᵢDⁱφ + DⁱαDᵢφ + β·∇Π + αKΠ - αV'(φ)
 ```
 
 **Condición de salida Sommerfeld (característica):**
@@ -127,6 +128,8 @@ sim_params = {
 c_out = α − β·n
 ```
 Se implementa como flujo saliente en el término de borde del RHS.
+
+Ver derivación y convenciones completas en: `docs/math/3p1_scalar_field.md`.
 
 **Potencial de Higgs:**
 ```

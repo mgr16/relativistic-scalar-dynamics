@@ -6,15 +6,12 @@ Main entry point for PSYOP scalar field simulator.
 This version requires DOLFINx (FEniCS legacy support removed).
 """
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
 import json
 import os
 import time
 import argparse
 import logging
+import sys
 from typing import Dict, Any, Tuple, Optional
 
 import numpy as np
@@ -33,6 +30,7 @@ except ImportError as e:
 
 # Import logging utilities
 from psyop.utils.logger import setup_logger, get_logger
+from psyop.config import load_config, validate_config
 
 
 def create_example_config(filename: str = "config_example.json") -> None:
@@ -44,7 +42,10 @@ def create_example_config(filename: str = "config_example.json") -> None:
             "cfl": 0.3,
             "potential_type": "quadratic",
             "potential_params": {"m_squared": 1.0},
-            "ko_eps": 0.0
+            "ko_eps": 0.0,
+            "bc_type": "characteristic",
+            "outer_tag": 2,
+            "enable_sommerfeld": True,
         },
         "metric": {"type": "flat", "M": 1.0},
         "initial_conditions": {"type": "gaussian", "A": 0.01, "r0": 10.0, "w": 3.0, "v0": 1.0},
@@ -55,26 +56,6 @@ def create_example_config(filename: str = "config_example.json") -> None:
     with open(filename, 'w') as f:
         json.dump(cfg, f, indent=2)
     logger.info(f"Example configuration created: {filename}")
-
-
-def validate_config(cfg: Dict[str, Any]) -> None:
-    """
-    Validate configuration dictionary.
-    
-    Args:
-        cfg: Configuration dictionary
-        
-    Raises:
-        ValueError: If required keys are missing
-    """
-    required = ["mesh", "metric", "solver", "initial_conditions", "evolution", "output"]
-    for k in required:
-        if k not in cfg:
-            raise ValueError(f"Missing required config key: {k}")
-    if "R" not in cfg["mesh"]:
-        raise ValueError("mesh.R is required")
-    if "cfl" not in cfg["solver"]:
-        raise ValueError("solver.cfl is required")
 
 
 def sample_phi_at_point(phi_fn, point: np.ndarray, mesh) -> Optional[float]:
@@ -147,8 +128,7 @@ def main() -> int:
     
     # Load configuration
     if args.config and os.path.exists(args.config):
-        with open(args.config, 'r') as f:
-            cfg = json.load(f)
+        cfg = load_config(args.config)
         logger.info(f"Loaded configuration from: {args.config}")
     else:
         config_file = 'config_example.json'
@@ -156,8 +136,7 @@ def main() -> int:
             logger.warning(f"Config file not found: {config_file}")
             logger.info("Creating default configuration...")
             create_example_config(config_file)
-        with open(config_file, 'r') as f:
-            cfg = json.load(f)
+        cfg = load_config(config_file)
         logger.info(f"Loaded default configuration from: {config_file}")
     
     # Normalize config
@@ -166,7 +145,7 @@ def main() -> int:
         if "dir" not in out and "results_dir" in out:
             out["dir"] = out["results_dir"]
     
-    validate_config(cfg)
+    cfg = validate_config(cfg)
     logger.info("Configuration validated successfully")
     
     # Build mesh and metric
@@ -191,12 +170,21 @@ def main() -> int:
         cfg.get("output", {}).get("dir", args.output), 
         time.strftime("run_%Y%m%d_%H%M%S")
     )
-    os.makedirs(outdir, exist_ok=True)
+    if mesh.comm.rank == 0:
+        os.makedirs(outdir, exist_ok=True)
     logger.info(f"Output directory: {outdir}")
     
     # Save configuration
-    with open(os.path.join(outdir, 'config.json'), 'w') as g:
-        json.dump(cfg, g, indent=2)
+    if mesh.comm.rank == 0:
+        with open(os.path.join(outdir, 'config.json'), 'w') as g:
+            json.dump(cfg, g, indent=2)
+        manifest = {
+            "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "python": sys.version,
+            "mpi_size": mesh.comm.size,
+        }
+        with open(os.path.join(outdir, 'manifest.json'), 'w') as g:
+            json.dump(manifest, g, indent=2)
 
 
     # Initialize solver
@@ -212,9 +200,11 @@ def main() -> int:
     )
     solver.set_background(alpha=alpha_f, beta=beta_f, gammaInv=gammaInv_f, sqrtg=sqrtg_f, K=K_f)
     
-    if facet_tags is not None:
+    if cfg["solver"].get("enable_sommerfeld", True):
+        if facet_tags is None:
+            raise ValueError("enable_sommerfeld=True requires facet_tags from mesh generation")
         outer_tag = get_outer_tag(facet_tags, default=2)
-        solver.enable_sommerfeld(facet_tags, outer_tag)
+        solver.enable_sommerfeld(facet_tags, outer_tag=cfg["solver"].get("outer_tag", outer_tag))
         logger.info(f"Sommerfeld boundary conditions enabled (tag={outer_tag})")
     
     # Set initial conditions
@@ -278,21 +268,21 @@ def main() -> int:
     logger.info(f"Evolution complete: final time t={t:.3f}")
 
     # Save output data
-    if time_series:
+    if time_series and mesh.comm.rank == 0:
         ts_path = os.path.join(outdir, "time_series.txt")
         with open(ts_path, "w") as f:
             for t_val, phi_val in time_series:
                 f.write(f"{t_val:.12e} {phi_val:.12e}\n")
         logger.info(f"Time series saved: {len(time_series)} samples")
     
-    if diagnostics and energy_series:
+    if diagnostics and energy_series and mesh.comm.rank == 0:
         energy_path = os.path.join(outdir, "energy_series.txt")
         with open(energy_path, "w") as f:
             for t_val, e_val in energy_series:
                 f.write(f"{t_val:.12e} {e_val:.12e}\n")
         logger.info(f"Energy series saved: {len(energy_series)} samples")
     
-    if diagnostics and flux_series:
+    if diagnostics and flux_series and mesh.comm.rank == 0:
         flux_path = os.path.join(outdir, "flux_series.txt")
         with open(flux_path, "w") as f:
             for t_val, f_val in flux_series:

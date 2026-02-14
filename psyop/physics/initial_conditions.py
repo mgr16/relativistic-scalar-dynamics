@@ -6,7 +6,7 @@ initial_conditions.py
 Condiciones iniciales para campos escalares.
 """
 
-from typing import List
+from typing import List, Optional
 import numpy as np
 import dolfinx.fem as fem
 import dolfinx.mesh as dmesh
@@ -25,7 +25,7 @@ class GaussianBump:
     def __init__(
         self, 
         mesh: dmesh.Mesh, 
-        V: fem.FunctionSpace, 
+        V: Optional[fem.FunctionSpace] = None, 
         A: float = 1e-3, 
         r0: float = 8.0, 
         w: float = 2.0, 
@@ -41,14 +41,14 @@ class GaussianBump:
             v0: Valor de vacío del campo
         """
         self.mesh = mesh
-        self.V = V
+        self.V = V if V is not None else fem.FunctionSpace(mesh, ("Lagrange", 1))
         self.A = float(A)
         self.r0 = float(r0)
         self.w = float(w)
         self.v0 = float(v0)
         
         logger.debug(f"Creando GaussianBump: A={A}, r0={r0}, w={w}, v0={v0}")
-        self.phi = fem.Function(V, name="phi_initial")
+        self.phi = fem.Function(self.V, name="phi_initial")
         self._set_dolfinx_values()
     
     def _gaussian_expr(self, x: np.ndarray) -> np.ndarray:

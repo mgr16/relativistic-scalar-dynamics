@@ -18,6 +18,7 @@ from psyop.backends.fem import create_ds_with_outer_tag
 from psyop.utils.logger import get_logger
 
 logger = get_logger(__name__)
+OUTER_BOUNDARY_TAG = 2
 
 # Importar Gmsh si está disponible
 try:
@@ -69,7 +70,7 @@ def build_ball_mesh(
         # outer_boundary = 2 (superficie exterior)
         surfaces = gmsh.model.getEntities(2)
         for surface in surfaces:
-            gmsh.model.addPhysicalGroup(2, [surface[1]], 2)  # tag=2 para outer_boundary
+            gmsh.model.addPhysicalGroup(2, [surface[1]], OUTER_BOUNDARY_TAG)
         
         # Etiquetar volumen  
         volumes = gmsh.model.getEntities(3)
@@ -144,7 +145,7 @@ def build_box_mesh(
     )
     # Para caja, todas las fronteras son outer_boundary
     cell_tags = None
-    facet_tags = None
+    _, _, facet_tags = create_ds_with_outer_tag(mesh, R=None)
     
     return mesh, cell_tags, facet_tags
 
@@ -165,7 +166,7 @@ def get_outer_tag(
                     return int(k)
     except (AttributeError, KeyError, TypeError) as e:
         logger.debug(f"No se pudo obtener tag de metadata: {e}")
-    return int(default)
+    return int(default if default is not None else OUTER_BOUNDARY_TAG)
 
 if __name__ == "__main__":
     # Prueba básica
