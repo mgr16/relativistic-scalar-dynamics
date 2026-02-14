@@ -1,0 +1,3 @@
+[console_scripts]
+psyop-postprocess = psyop.cli:postprocess_main
+psyop-run = main:main
