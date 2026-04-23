@@ -6,9 +6,9 @@ to within acceptable tolerances for different CFL factors.
 """
 
 import pytest
-import numpy as np
 import sys
 from pathlib import Path
+np = pytest.importorskip("numpy")
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
@@ -21,6 +21,8 @@ except ImportError:
     HAS_DOLFINX = False
 
 
+@pytest.mark.requires_numpy
+@pytest.mark.requires_dolfinx
 @pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")
 class TestEnergyConservation:
     """Test suite for energy conservation."""

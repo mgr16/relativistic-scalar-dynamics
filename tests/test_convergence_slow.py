@@ -1,15 +1,15 @@
 import sys
 from pathlib import Path
 
-import numpy as np
 import pytest
+np = pytest.importorskip("numpy")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 TIME_TOLERANCE = 1e-12
 CONVERGENCE_TOLERANCE_FACTOR = 1.1
+pytestmark = [pytest.mark.slow, pytest.mark.requires_numpy, pytest.mark.requires_dolfinx]
 
 
-@pytest.mark.slow
 def test_temporal_refinement_reduces_solution_error():
     pytest.importorskip("dolfinx")
     from mpi4py import MPI

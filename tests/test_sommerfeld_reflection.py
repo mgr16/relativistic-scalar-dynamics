@@ -13,13 +13,17 @@ try:
 except ImportError:
     HAS_DOLFINX = False
 
-import numpy as np
 import os
 import sys
 import pytest
 from pathlib import Path
+np = pytest.importorskip("numpy")
 
-pytestmark = pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")
+pytestmark = [
+    pytest.mark.requires_numpy,
+    pytest.mark.requires_dolfinx,
+    pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available"),
+]
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 

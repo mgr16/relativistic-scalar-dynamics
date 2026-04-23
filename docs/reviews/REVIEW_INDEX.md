@@ -136,6 +136,21 @@ Plan estructurado con:
 
 ---
 
+### 5. PROJECT_AUDIT_2026-04-23.md (5 KB)
+**Contenido:**
+- 🧪 Estado de ejecución real en entorno restringido
+- ⚠️ Fallos de colección por dependencia de `numpy`
+- 🌐 Limitaciones de instalación por proxy/conectividad
+- ✅ Verificación de layout/compilación sintáctica
+- 🎯 Priorización de acciones inmediatas
+- 🔬 Plan de mejora científico (MMS, energía, reflexión, QNM)
+- 💻 Plan de mejora computacional (CI por niveles, reproducibilidad, performance)
+
+**Audiencia:** Maintainers, CI owners, release managers  
+**Tiempo de lectura:** 8-10 minutos
+
+---
+
 ## 🎯 Flujo de Trabajo Recomendado / Recommended Workflow
 
 ### Para Implementar Mejoras
