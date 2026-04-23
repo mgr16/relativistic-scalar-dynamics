@@ -1,0 +1,24 @@
+name: HPC CI
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  dolfinx-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: dolfinx/dolfinx:stable
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install package and test deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev,analysis]
+      - name: Run DOLFINx/HPC tests
+        run: |
+          pytest -q -m "requires_dolfinx"
