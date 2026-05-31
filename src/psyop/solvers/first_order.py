@@ -9,8 +9,7 @@ DOLFINx-only implementation.
 """
 
 from typing import Optional, Tuple, Dict, Any
-import numpy as np
-import time
+import math
 
 import dolfinx.fem as fem
 import dolfinx.fem.petsc
@@ -77,9 +76,13 @@ class FirstOrderKGSolver:
         self.bc_type = kwargs.get("bc_type", self.cfg.get("solver", {}).get("bc_type", "characteristic")).lower()
         self._outer_tag = int(kwargs.get("outer_tag", self.cfg.get("solver", {}).get("outer_tag", 2)))
         self.ko_eps = float(kwargs.get("ko_eps", self.cfg.get("solver", {}).get("ko_eps", 0.0)))
+        if self.bc_type not in {"characteristic", "sommerfeld_spherical"}:
+            raise ValueError("bc_type must be characteristic or sommerfeld_spherical")
         
         # Flags de BC y métricas
         self.has_sommerfeld = False
+        self.facet_tags = None
+        self.ds_outer = None
         self.alpha_f = None
         self.beta_f = None
         self.gammaInv_f = None
@@ -94,13 +97,8 @@ class FirstOrderKGSolver:
             potential_params = {}
         self.potential = get_potential(potential_type, **potential_params)
         
-        # Configurar formas variacionales
         self.preassemble_stiffness = bool(self.cfg.get("optimization", {}).get("preassemble", True))
-        self._setup_variational_forms()
-        
-        # Configurar solver de matriz de masa
-        self._setup_mass_matrix_solver()
-        self._setup_filter_matrix()
+        self._setup_operators()
         
         # Variables de estado
         self.current_time = 0.0
@@ -108,15 +106,24 @@ class FirstOrderKGSolver:
         # Función derivada temporal (du/dt)
         self.du = fem.Function(self.V, name="du")
         logger.info(f"FirstOrderKGSolver inicializado (grado={degree}, CFL={cfl_factor})")
+
+    def _setup_operators(self) -> None:
+        """Rebuild forms, matrices and PETSc solvers from the current metric/BC state."""
+        self._setup_variational_forms()
+        self._setup_mass_matrix_solver()
+        self._setup_filter_matrix()
     
     def _setup_function_spaces(self):
         """Configura los espacios de funciones."""
         # Espacio vectorial para (φ, Π)
-        element = ufl.VectorElement("Lagrange", self.mesh.ufl_cell(), self.degree, dim=2)
-        self.V = fem.FunctionSpace(self.mesh, element)
+        try:
+            element = ufl.VectorElement("Lagrange", self.mesh.ufl_cell(), self.degree, dim=2)
+            self.V = fem.FunctionSpace(self.mesh, element)
+        except AttributeError:
+            self.V = fem.functionspace(self.mesh, ("Lagrange", self.degree, (2,)))
         
         # Espacio escalar auxiliar
-        self.V_scalar = fem.FunctionSpace(self.mesh, ("Lagrange", self.degree))
+        self.V_scalar = fem.functionspace(self.mesh, ("Lagrange", self.degree))
         
         # Funciones de prueba
         v = ufl.TestFunction(self.V)
@@ -253,7 +260,7 @@ class FirstOrderKGSolver:
         con c_out = α - β·n.
         """
         if not self.has_sommerfeld:
-            return ufl.Constant(self.mesh, 0.0)
+            return 0 * self.test_Pi * ufl.Measure("dx", domain=self.mesh)
         
         n = ufl.FacetNormal(self.mesh)
         alpha = self._ALPHA()
@@ -326,6 +333,7 @@ class FirstOrderKGSolver:
         self.gammaInv_f = gammaInv
         self.sqrtg_f = sqrtg
         self.K_f = K
+        self._setup_operators()
 
     def enable_sommerfeld(self, facet_tags, outer_tag: int = 2) -> None:
         """Habilita Sommerfeld usando facet_tags externos ya definidos."""
@@ -335,6 +343,7 @@ class FirstOrderKGSolver:
         self.facet_tags = facet_tags
         self.ds_outer = ufl.Measure("ds", domain=self.mesh, subdomain_data=facet_tags, subdomain_id=self._outer_tag)
         self.has_sommerfeld = True
+        self._setup_operators()
 
     def get_fields(self) -> Tuple[fem.Function, fem.Function]:
         """Devuelve (phi, Pi) en espacio escalar."""
@@ -405,17 +414,30 @@ class FirstOrderKGSolver:
         u^(2) = (3/4) * u^n + (1/4) * u^(1) + (1/4) * dt * L(u^(1))
         u^(n+1) = (1/3) * u^n + (2/3) * u^(2) + (2/3) * dt * L(u^(2))
         """
+        if not math.isfinite(dt) or dt <= 0:
+            raise ValueError(f"dt must be a positive finite number, got {dt}")
+
+        u0 = self.u.x.array.copy()
+
         # Etapa 1
         self._assemble_rhs_and_solve_du()
-        self.u1.x.array[:] = self.u.x.array[:] + dt * self.du.x.array[:]
+        self.u1.x.array[:] = u0 + dt * self.du.x.array[:]
+
         # Etapa 2
         self.u.x.array[:] = self.u1.x.array[:]
+        self.u.x.scatter_forward()
         self._assemble_rhs_and_solve_du()
-        self.u2.x.array[:] = (0.75 * self.u1.x.array[:] + 0.25 * self.u.x.array[:] + 0.25 * dt * self.du.x.array[:])
+        self.u2.x.array[:] = 0.75 * u0 + 0.25 * (
+            self.u1.x.array[:] + dt * self.du.x.array[:]
+        )
+
         # Etapa 3
         self.u.x.array[:] = self.u2.x.array[:]
+        self.u.x.scatter_forward()
         self._assemble_rhs_and_solve_du()
-        self.u_new.x.array[:] = (1.0/3.0 * self.u1.x.array[:] + 2.0/3.0 * self.u2.x.array[:] + 2.0/3.0 * dt * self.du.x.array[:])
+        self.u_new.x.array[:] = (1.0 / 3.0) * u0 + (2.0 / 3.0) * (
+            self.u2.x.array[:] + dt * self.du.x.array[:]
+        )
         self.u.x.array[:] = self.u_new.x.array[:]
         if self.ko_eps > 0:
             self._apply_ko_dissipation(dt)

@@ -24,6 +24,25 @@ def test_config_validation_and_json_loading(tmp_path: Path):
     assert validated["solver"]["bc_type"] == "characteristic"
 
 
+def test_config_legacy_aliases_are_normalized(tmp_path: Path):
+    cfg = {
+        "mesh": {"mesh_type": "gmsh", "R": 10.0, "lc": 1.0},
+        "metric": {"type": "flat"},
+        "solver": {"cfl": 0.2, "degree": 1, "sommerfeld": False},
+        "initial_conditions": {"type": "gaussian"},
+        "evolution": {"t_end": 1.0, "output_every": 1},
+        "output": {"results_dir": "out"},
+    }
+    p = tmp_path / "legacy_cfg.json"
+    p.write_text(json.dumps(cfg), encoding="utf-8")
+
+    validated = validate_config(load_config(str(p)))
+
+    assert validated["mesh"]["type"] == "gmsh"
+    assert validated["solver"]["enable_sommerfeld"] is False
+    assert validated["output"]["dir"] == "out"
+
+
 def test_qnm_detrend_and_extended_prony():
     t = np.linspace(0, 10, 500)
     signal = np.cos(2 * np.pi * 1.2 * t) * np.exp(-0.1 * t) + 0.01

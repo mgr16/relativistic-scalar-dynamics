@@ -5,7 +5,7 @@ run_simulation.py – Envoltura para ejecutar simulaciones con perfiles.
 Ubicación oficial: scripts/run_simulation.py
 """
 
-import argparse, json, os, sys, tempfile
+import argparse, json, subprocess, sys, tempfile
 from pathlib import Path
 
 DEFAULT_CONFIG = "config_example.json"
@@ -29,7 +29,7 @@ def apply_overrides(cfg: dict, mode: str) -> dict:
     cfg.setdefault("solver", {})
     cfg.setdefault("evolution", {})
     cfg.setdefault("output", {})
-    cfg["solver"].setdefault("sommerfeld", True)
+    cfg["solver"].setdefault("enable_sommerfeld", True)
 
     if mode == "quick":
         cfg["mesh"]["lc"] = max(2.0, float(cfg["mesh"].get("lc", 1.0)) * 2.0)
@@ -37,13 +37,11 @@ def apply_overrides(cfg: dict, mode: str) -> dict:
         cfg["evolution"]["output_every"] = max(2, int(cfg["evolution"].get("output_every", 10)//2))
         cfg["output"]["qnm_analysis"] = False
         cfg["output"]["save_series"] = False
-        cfg["solver"]["sponge"] = {"enabled": False}
 
     elif mode == "medium":
         cfg["mesh"]["lc"] = float(cfg["mesh"].get("lc", 1.0)) * 1.5
         cfg["evolution"]["t_end"] = float(cfg["evolution"].get("t_end", 30.0)) * 0.5
         cfg["evolution"]["output_every"] = max(5, int(cfg["evolution"].get("output_every", 10)))
-        cfg["solver"].setdefault("sponge", {"enabled": True, "r_start": 0.8*cfg["mesh"]["R"], "strength": 0.1})
 
     elif mode == "full":
         pass
@@ -65,11 +63,11 @@ def run_main_with_config(config_path: str) -> int:
             rc = main_mod.main()
             return int(rc) if isinstance(rc, int) else 0
         except Exception:
-            return os.system(f"{sys.executable} {project_root / 'main.py'} --config {config_path}")
+            return subprocess.call([sys.executable, str(project_root / "main.py"), "--config", config_path])
         finally:
             sys.argv = argv_backup
     except Exception:
-        return os.system(f"{sys.executable} {project_root / 'main.py'} --config {config_path}")
+        return subprocess.call([sys.executable, str(project_root / "main.py"), "--config", config_path])
 
 
 def main():

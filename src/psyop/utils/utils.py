@@ -18,6 +18,7 @@ import json
 import datetime
 
 from psyop.backends.fem import is_dolfinx
+from psyop.utils.logger import get_logger
 
 def create_mesh(domain_min=(-20, -20, -20), domain_max=(20, 20, 20), nx=15, ny=15, nz=15):
     """
@@ -93,8 +94,7 @@ def log_message(message, logfile="simulation.log"):
     # Escribir en el archivo de log
     with open(logfile, "a") as f:
         f.write(full_message + "\n")
-    # Imprimir el mensaje en consola
-    print(full_message)
+    get_logger(__name__).info(full_message)
 
 def load_config(filename):
     """

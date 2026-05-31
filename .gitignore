@@ -6,3 +6,12 @@ __pycache__/
 .mypy_cache/
 build/
 dist/
+
+# OS/editor noise
+.DS_Store
+
+# Generated simulation outputs
+results/
+
+# Legacy/generated package tree outside the src layout
+psyop/

@@ -24,6 +24,8 @@ docs = ["sphinx>=5.0", "sphinx-rtd-theme>=1.0"]
 
 [project.scripts]
 psyop = "psyop.cli:main"
+psyop-run = "psyop.cli:run_main"
+psyop-postprocess = "psyop.cli:postprocess_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

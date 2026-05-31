@@ -11,7 +11,7 @@ from typing import Optional, Tuple
 import numpy as np
 import dolfinx
 import dolfinx.mesh as dmesh
-from dolfinx.io import gmshio
+from dolfinx.io import gmsh as dolfinx_gmsh
 from mpi4py import MPI
 
 from psyop.backends.fem import create_ds_with_outer_tag
@@ -86,9 +86,15 @@ def build_ball_mesh(
         logger.info("Malla generada con Gmsh")
         
         # Importar a DOLFINx
-        mesh, cell_tags, facet_tags = gmshio.model_to_mesh(
+        mesh_data = dolfinx_gmsh.model_to_mesh(
             gmsh.model, comm, rank=0, gdim=3
         )
+        if all(hasattr(mesh_data, attr) for attr in ("mesh", "cell_tags", "facet_tags")):
+            mesh = mesh_data.mesh
+            cell_tags = mesh_data.cell_tags
+            facet_tags = mesh_data.facet_tags
+        else:
+            mesh, cell_tags, facet_tags = mesh_data
     
     finally:
         gmsh.finalize()

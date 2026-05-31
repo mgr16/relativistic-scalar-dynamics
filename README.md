@@ -55,6 +55,18 @@ Los documentos de revisión y mejoras se movieron a `docs/reviews/` para mantene
 
 ## Instalación
 
+### Instalación automatizada (Opción A)
+```bash
+# Desde la raíz del proyecto
+./scripts/setup_conda_env.sh --yes
+
+# Alternativas útiles
+./scripts/setup_conda_env.sh --env-name psyop-dolfinx --python 3.10 --yes
+./scripts/setup_conda_env.sh --install-dev --yes
+```
+
+El script crea (o reutiliza) un entorno conda, instala `fenics-dolfinx` (módulo `dolfinx`) y dependencias desde `conda-forge`, instala el paquete local en modo editable y valida imports críticos.
+
 ### Entorno recomendado (DOLFINx-only)
 ```bash
 # Crear entorno conda
@@ -70,49 +82,55 @@ conda install -c conda-forge gmsh numpy matplotlib scipy petsc4py
 
 ### Verificación de la instalación
 ```bash
-# Probar lógica base sin dependencias FEM pesadas
-python tests/test_standalone_logic.py
+# Probar imports, configuración y postproceso liviano
+pytest -q
 
-# Probar sistema completo (requiere DOLFINx)
-python tests/test_complete_system.py
+# Probar la CLI instalada
+psyop --test
 ```
 
 ## Uso Rápido
 
 ### Simulación básica
 ```bash
-psyop-run --config config_example.json --output results
+psyop run --config config_example.json --output results
 ```
 
-### Basic QNM postprocessing
+También quedan instalados los aliases compatibles:
 ```bash
-psyop-postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft --plots
+psyop-run --config config_example.json --output results
+psyop-postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft
+```
+
+### Postproceso QNM
+```bash
+psyop postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft --plots
 ```
 
 ### Configuración personalizada
-```python
-# En main.py, modificar sim_params:
-sim_params = {
+Edita `config_example.json` o crea un JSON propio con las mismas claves:
+
+```json
+{
     "mesh": {
-        "mesh_type": "gmsh",    # "gmsh" o "builtin"
-        "radius": 15.0,         # Radio del dominio
-        "resolution": 1.0       # Resolución (menor = más fino)
+        "type": "gmsh",
+        "R": 15.0,
+        "lc": 1.0
     },
-    
     "solver": {
-        "degree": 1,            # Grado de elementos finitos
-        "potential_type": "higgs",  # "higgs", "quadratic", "mexican_hat"
+        "degree": 1,
+        "cfl": 0.3,
+        "potential_type": "higgs",
         "potential_params": {
             "m_squared": 1.0,
             "lambda_coupling": 0.1
         },
-        "cfl_factor": 0.3       # Factor CFL para estabilidad
+        "bc_type": "characteristic",
+        "enable_sommerfeld": true
     },
-    
     "evolution": {
-        "t_final": 20.0,        # Tiempo final
-        "dt": None,             # None = adaptativo
-        "verbose": True
+        "t_end": 20.0,
+        "output_every": 10
     }
 }
 ```
@@ -262,11 +280,11 @@ conda install -c conda-forge gmsh
 
 ### Error de convergencia en el solver
 **Causa**: Paso de tiempo demasiado grande o malla muy gruesa
-**Solución**: Reducir `cfl_factor` o aumentar resolución de malla
+**Solución**: Reducir `solver.cfl` o reducir `mesh.lc`
 
 ### Memoria insuficiente
 **Causa**: Malla demasiado fina
-**Solución**: Aumentar `resolution` en parámetros de malla
+**Solución**: Aumentar `mesh.lc`
 
 ## Referencias Técnicas
 

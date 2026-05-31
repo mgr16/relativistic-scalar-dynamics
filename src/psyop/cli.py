@@ -1,4 +1,5 @@
 import argparse
+from copy import deepcopy
 import json
 import logging
 import os
@@ -11,29 +12,13 @@ from typing import Optional
 import numpy as np
 
 from psyop.analysis.qnm import compute_qnm, estimate_peak, estimate_qnm_prony_modes
-from psyop.config import load_config, validate_config
+from psyop.config import DEFAULT_CONFIG, load_config, validate_config
 from psyop.utils.logger import get_logger, setup_logger
 
 
 def create_example_config(filename: str = "config_example.json") -> None:
     """Create example configuration file."""
-    cfg = {
-        "mesh": {"R": 30.0, "lc": 1.5, "mesh_type": "gmsh"},
-        "solver": {
-            "degree": 1,
-            "cfl": 0.3,
-            "potential_type": "quadratic",
-            "potential_params": {"m_squared": 1.0},
-            "ko_eps": 0.0,
-            "bc_type": "characteristic",
-            "outer_tag": 2,
-            "enable_sommerfeld": True,
-        },
-        "metric": {"type": "flat", "M": 1.0},
-        "initial_conditions": {"type": "gaussian", "A": 0.01, "r0": 10.0, "w": 3.0, "v0": 1.0},
-        "evolution": {"t_end": 50.0, "output_every": 10, "verbose": True},
-        "output": {"dir": "results", "qnm_analysis": True},
-    }
+    cfg = deepcopy(DEFAULT_CONFIG)
     logger = get_logger()
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=2)
@@ -59,7 +44,7 @@ def sample_phi_at_point(phi_fn, point: np.ndarray, mesh) -> Optional[float]:
 
 def _build_run_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument("--config", type=str, default=None, help="Configuration JSON file")
-    parser.add_argument("--output", type=str, default="results", help="Output directory")
+    parser.add_argument("--output", type=str, default=None, help="Override output directory")
     parser.add_argument(
         "--create-config", action="store_true", help="Create example configuration file"
     )
@@ -88,8 +73,8 @@ def run_main(argv=None) -> int:
         import dolfinx.io
         from mpi4py import MPI
     except ImportError as e:
-        print("ERROR: DOLFINx is required but not installed.")
-        print("Install with: conda install -c conda-forge dolfinx")
+        sys.stderr.write("ERROR: DOLFINx is required but not installed.\n")
+        sys.stderr.write("Install with: conda install -c conda-forge dolfinx\n")
         raise ImportError("DOLFINx is required to run PSYOP") from e
 
     # Setup logging
@@ -129,13 +114,9 @@ def run_main(argv=None) -> int:
         cfg = load_config(config_file)
         logger.info(f"Loaded default configuration from: {config_file}")
 
-    # Normalize config
-    if isinstance(cfg, dict) and isinstance(cfg.get("output"), dict):
-        out = cfg["output"]
-        if "dir" not in out and "results_dir" in out:
-            out["dir"] = out["results_dir"]
-
     cfg = validate_config(cfg)
+    if args.output is not None:
+        cfg["output"]["dir"] = args.output
     logger.info("Configuration validated successfully")
 
     # Build mesh and metric
@@ -154,9 +135,7 @@ def run_main(argv=None) -> int:
     dt = compute_dt_cfl(mesh, cfl=cfg["solver"]["cfl"], c_max=c_max)
     logger.info(f"CFL timestep: dt = {dt:.6e}")
 
-    outdir = os.path.join(
-        cfg.get("output", {}).get("dir", args.output), time.strftime("run_%Y%m%d_%H%M%S")
-    )
+    outdir = os.path.join(cfg["output"]["dir"], time.strftime("run_%Y%m%d_%H%M%S"))
     series_dir = os.path.join(outdir, "series")
     fields_dir = os.path.join(outdir, "fields")
     plots_dir = os.path.join(outdir, "plots")
@@ -209,8 +188,8 @@ def run_main(argv=None) -> int:
     if cfg["solver"].get("enable_sommerfeld", True):
         if facet_tags is None:
             raise ValueError("enable_sommerfeld=True requires facet_tags from mesh generation")
-        outer_tag = get_outer_tag(facet_tags, default=2)
-        solver.enable_sommerfeld(facet_tags, outer_tag=cfg["solver"].get("outer_tag", outer_tag))
+        outer_tag = int(cfg["solver"].get("outer_tag", get_outer_tag(facet_tags, default=2)))
+        solver.enable_sommerfeld(facet_tags, outer_tag=outer_tag)
         logger.info(f"Sommerfeld boundary conditions enabled (tag={outer_tag})")
 
     # Set initial conditions
@@ -241,6 +220,7 @@ def run_main(argv=None) -> int:
     t_end = cfg["evolution"]["t_end"]
     output_every = cfg["evolution"]["output_every"]
     diagnostics = cfg.get("output", {}).get("diagnostics", True)
+    save_series = cfg.get("output", {}).get("save_series", True)
 
     logger.info(f"Starting evolution: t_end={t_end}, dt={dt:.6e}, output_every={output_every}")
 
@@ -251,8 +231,9 @@ def run_main(argv=None) -> int:
         xdmf.write_mesh(mesh)
 
         while t < t_end:
-            solver.ssp_rk3_step(dt)
-            t += dt
+            step_dt = min(dt, t_end - t)
+            solver.ssp_rk3_step(step_dt)
+            t += step_dt
             step += 1
 
             if step % output_every == 0:
@@ -275,7 +256,7 @@ def run_main(argv=None) -> int:
     logger.info(f"Evolution complete: final time t={t:.3f}")
 
     # Save output data
-    if time_series and mesh.comm.rank == 0:
+    if save_series and time_series and mesh.comm.rank == 0:
         ts_csv_path = os.path.join(series_dir, "time_series.csv")
         ts_path = os.path.join(outdir, "time_series.txt")  # compatibility legacy
         with open(ts_csv_path, "w", encoding="utf-8") as fcsv:
@@ -287,7 +268,7 @@ def run_main(argv=None) -> int:
                 f.write(f"{t_val:.12e} {phi_val:.12e}\n")
         logger.info(f"Time series saved: {len(time_series)} samples")
 
-    if diagnostics and energy_series and mesh.comm.rank == 0:
+    if save_series and diagnostics and energy_series and mesh.comm.rank == 0:
         energy_csv_path = os.path.join(series_dir, "energy.csv")
         energy_path = os.path.join(outdir, "energy_series.txt")  # compatibility legacy
         with open(energy_csv_path, "w", encoding="utf-8") as fcsv:
@@ -299,7 +280,7 @@ def run_main(argv=None) -> int:
                 f.write(f"{t_val:.12e} {e_val:.12e}\n")
         logger.info(f"Energy series saved: {len(energy_series)} samples")
 
-    if diagnostics and flux_series and mesh.comm.rank == 0:
+    if save_series and diagnostics and flux_series and mesh.comm.rank == 0:
         flux_csv_path = os.path.join(series_dir, "flux.csv")
         flux_path = os.path.join(outdir, "flux_series.txt")  # compatibility legacy
         with open(flux_csv_path, "w", encoding="utf-8") as fcsv:
@@ -430,8 +411,8 @@ def postprocess_main(argv=None) -> int:
                     os.path.join(plots_dir, "qnm_spectrum.png"), dpi=150, bbox_inches="tight"
                 )
                 plt.close(fig)
-            except Exception:
-                pass
+            except Exception as exc:
+                get_logger(__name__).warning(f"Could not write QNM plot: {exc}")
     return 0
 
 
