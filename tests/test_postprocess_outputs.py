@@ -1,9 +1,11 @@
 import sys
 from pathlib import Path
 
-import numpy as np
+import pytest
+np = pytest.importorskip("numpy")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+pytestmark = pytest.mark.requires_numpy
 
 
 def _write_series(run_dir: Path):

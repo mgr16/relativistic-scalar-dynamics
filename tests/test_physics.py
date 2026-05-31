@@ -1,9 +1,9 @@
 import json
 import os
-import numpy as np
 import pytest
 import sys
 from pathlib import Path
+np = pytest.importorskip("numpy")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
@@ -14,7 +14,11 @@ try:
 except Exception:
     HAS_DOLFINX = False
 
-pytestmark = pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")
+pytestmark = [
+    pytest.mark.requires_numpy,
+    pytest.mark.requires_dolfinx,
+    pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available"),
+]
 
 if HAS_DOLFINX:
     from psyop.physics.metrics import make_background

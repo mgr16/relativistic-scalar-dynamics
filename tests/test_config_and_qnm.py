@@ -1,11 +1,13 @@
 import json
 from pathlib import Path
 
-import numpy as np
 import pytest
+np = pytest.importorskip("numpy")
 
 from psyop.config import load_config, validate_config
 from psyop.analysis.qnm import compute_qnm, estimate_qnm_prony_modes
+
+pytestmark = pytest.mark.requires_numpy
 
 
 def test_config_validation_and_json_loading(tmp_path: Path):
