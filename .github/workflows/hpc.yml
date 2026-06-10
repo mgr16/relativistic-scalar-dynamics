@@ -19,6 +19,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .[dev,analysis]
-      - name: Run DOLFINx/HPC tests
+      - name: Run full test suite (incl. slow)
         run: |
-          pytest -q -m "requires_dolfinx"
+          pytest -q

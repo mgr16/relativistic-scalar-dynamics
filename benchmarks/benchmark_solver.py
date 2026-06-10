@@ -9,7 +9,7 @@ import argparse
 
 import numpy as np
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 try:
     from mpi4py import MPI
@@ -66,7 +66,7 @@ def benchmark_solver(R, lc, degree=1, cfl=0.3, n_steps=100, warmup_steps=10):
     solver.set_initial_conditions(ic.get_function())
     
     from psyop.utils.utils import compute_dt_cfl
-    dt = compute_dt_cfl(mesh, cfl=cfl, c_max=1.0)
+    dt = compute_dt_cfl(mesh, cfl=cfl, c_max=1.0, degree=degree)
     
     logger.info(f"Warming up ({warmup_steps} steps)...")
     for _ in range(warmup_steps):

@@ -6,11 +6,14 @@ Verifies that invalid inputs are properly rejected with clear error messages.
 
 import pytest
 try:
-    import dolfinx
+    import dolfinx  # noqa: F401
     from mpi4py import MPI
     HAS_DOLFINX = True
 except ImportError:
     HAS_DOLFINX = False
+
+# Marker para que la segmentación de CI (core vs HPC) sea consistente
+pytestmark = pytest.mark.requires_dolfinx
 
 
 @pytest.mark.skipif(not HAS_DOLFINX, reason="DOLFINx not available")

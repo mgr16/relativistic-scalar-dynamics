@@ -10,11 +10,19 @@ from typing import List, Optional
 import numpy as np
 import dolfinx.fem as fem
 import dolfinx.mesh as dmesh
-import ufl
 
 from psyop.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
+
+def _scalar_functionspace(mesh: dmesh.Mesh, degree: int = 1) -> fem.FunctionSpace:
+    """Crea un espacio escalar Lagrange compatible con DOLFINx viejo y nuevo."""
+    try:
+        return fem.functionspace(mesh, ("Lagrange", degree))
+    except AttributeError:  # DOLFINx < 0.7
+        return fem.FunctionSpace(mesh, ("Lagrange", degree))
+
 
 class GaussianBump:
     """
@@ -41,40 +49,25 @@ class GaussianBump:
             v0: Valor de vacío del campo
         """
         self.mesh = mesh
-        self.V = V if V is not None else fem.FunctionSpace(mesh, ("Lagrange", 1))
+        self.V = V if V is not None else _scalar_functionspace(mesh)
         self.A = float(A)
         self.r0 = float(r0)
         self.w = float(w)
         self.v0 = float(v0)
-        
+
         logger.debug(f"Creando GaussianBump: A={A}, r0={r0}, w={w}, v0={v0}")
         self.phi = fem.Function(self.V, name="phi_initial")
-        self._set_dolfinx_values()
-    
-    def _gaussian_expr(self, x: np.ndarray) -> np.ndarray:
-        """Evaluación de la expresión gaussiana."""
-        if x.ndim == 1:
-            x = x.reshape(1, -1)
-        
-        r = np.sqrt(x[:, 0]**2 + x[:, 1]**2 + x[:, 2]**2)
-        perturbation = self.A * np.exp(-((r - self.r0)**2) / (self.w**2))
-        return self.v0 * (1.0 + perturbation)
-    
-    def _set_dolfinx_values(self) -> None:
-        """Configurar valores para DOLFINx."""
-        # Obtener coordenadas de los DOFs
-        if hasattr(self.V, 'tabulate_dof_coordinates'):
-            dof_coords = self.V.tabulate_dof_coordinates()
-        else:
-            # Fallback para versiones más nuevas
-            dof_coords = self.mesh.geometry.x
-        
-        # Evaluar la función gaussiana
-        values = self._gaussian_expr(dof_coords)
-        
-        # Asignar valores
-        self.phi.x.array[:] = values.astype(np.float64)
+        # interpolate() evalúa en los puntos correctos de cada elemento
+        # (válido en paralelo y para cualquier grado, a diferencia de copiar
+        # arrays evaluados en coordenadas de dofs)
+        self.phi.interpolate(self._profile)
         logger.info("GaussianBump inicializado")
+
+    def _profile(self, x: np.ndarray) -> np.ndarray:
+        """Perfil gaussiano; x tiene forma (gdim, npuntos) según DOLFINx."""
+        r = np.sqrt(x[0] ** 2 + x[1] ** 2 + x[2] ** 2)
+        perturbation = self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
+        return self.v0 * (1.0 + perturbation)
     
     def get_function(self) -> fem.Function:
         """Retorna la función inicializada."""
@@ -111,27 +104,13 @@ class PlaneWave:
         
         logger.debug(f"Creando PlaneWave: A={A}, k={k}, v0={v0}")
         self.phi = fem.Function(V, name="phi_wave")
-        self._set_dolfinx_wave()
-    
-    def _wave_expr(self, x: np.ndarray) -> np.ndarray:
-        """Evaluación de la onda plana."""
-        if x.ndim == 1:
-            x = x.reshape(1, -1)
-        
-        # k·x
-        k_dot_x = np.dot(x, self.k)
-        return self.v0 + self.A * np.sin(k_dot_x)
-    
-    def _set_dolfinx_wave(self) -> None:
-        """Configurar onda plana para DOLFINx."""
-        if hasattr(self.V, 'tabulate_dof_coordinates'):
-            dof_coords = self.V.tabulate_dof_coordinates()
-        else:
-            dof_coords = self.mesh.geometry.x
-        
-        values = self._wave_expr(dof_coords)
-        self.phi.x.array[:] = values.astype(np.float64)
+        self.phi.interpolate(self._profile)
         logger.info("PlaneWave inicializado")
+
+    def _profile(self, x: np.ndarray) -> np.ndarray:
+        """Onda plana; x tiene forma (gdim, npuntos) según DOLFINx."""
+        k_dot_x = self.k[0] * x[0] + self.k[1] * x[1] + self.k[2] * x[2]
+        return self.v0 + self.A * np.sin(k_dot_x)
     
     def get_function(self) -> fem.Function:
         """Retorna la función inicializada."""
@@ -153,7 +132,7 @@ if __name__ == "__main__":
         from dolfinx.mesh import create_box
         from mpi4py import MPI
         mesh = create_box(MPI.COMM_WORLD, [[-5, -5, -5], [5, 5, 5]], [8, 8, 8])
-        V = fem.FunctionSpace(mesh, ("Lagrange", 1))
+        V = _scalar_functionspace(mesh)
         
         # Prueba Gaussian Bump
         gaussian = GaussianBump(mesh, V, A=0.1, r0=2.0, w=1.0)

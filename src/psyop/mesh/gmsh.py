@@ -19,6 +19,7 @@ from psyop.utils.logger import get_logger
 
 logger = get_logger(__name__)
 OUTER_BOUNDARY_TAG = 2
+INNER_BOUNDARY_TAG = 3
 
 # Importar Gmsh si está disponible
 try:
@@ -29,62 +30,90 @@ except ImportError:
     logger.warning("Gmsh no disponible. Usando mallas cúbicas básicas.")
 
 def build_ball_mesh(
-    R: float, 
-    lc: float, 
-    comm: Optional[MPI.Comm] = None
+    R: float,
+    lc: float,
+    comm: Optional[MPI.Comm] = None,
+    r_inner: float = 0.0,
 ) -> Tuple[dmesh.Mesh, Optional[dmesh.MeshTags], Optional[dmesh.MeshTags]]:
     """
     Crea una malla esférica con radio R y tamaño característico lc.
-    
+
     Parámetros:
         R: Radio de la esfera
         lc: Tamaño característico de elemento
         comm: Comunicador MPI (para DOLFINx)
-    
+        r_inner: Si > 0, excisa una esfera interior de ese radio (cáscara).
+            El borde interior recibe la etiqueta INNER_BOUNDARY_TAG=3
+            (requerido para fondos de agujero negro).
+
     Retorna:
         mesh: Malla del dominio
         cell_tags: Etiquetas de celdas (opcional)
-        facet_tags: Etiquetas de facetas con outer_boundary=2 (opcional)
+        facet_tags: Etiquetas de facetas (outer=2, inner=3 si hay excisión)
     """
+    r_inner = float(r_inner or 0.0)
+    if r_inner < 0:
+        raise ValueError(f"r_inner must be >= 0, got {r_inner}")
+    if r_inner >= R:
+        raise ValueError(f"r_inner ({r_inner}) must be smaller than R ({R})")
+
     if not HAS_GMSH:
+        if r_inner > 0:
+            raise RuntimeError(
+                "Excision meshes (r_inner > 0) require Gmsh. "
+                "Install it with: conda install -c conda-forge gmsh"
+            )
         logger.warning("Gmsh no disponible. Creando malla esférica simple...")
-        return _create_simple_ball_mesh(R, comm)
-    
+        return _create_simple_ball_mesh(R, comm, lc=lc)
+
     if comm is None:
         comm = MPI.COMM_WORLD
-    
+
     # Inicializar Gmsh
     gmsh.initialize()
     gmsh.clear()
-    
+
     try:
         # Crear modelo
         gmsh.model.add("ball")
-        logger.debug(f"Creando malla esférica: R={R}, lc={lc}")
-        
-        # Crear geometría esférica
-        sphere = gmsh.model.occ.addSphere(0, 0, 0, R)
+        logger.debug(f"Creando malla esférica: R={R}, lc={lc}, r_inner={r_inner}")
+
+        # Crear geometría: bola sólida o cáscara excisada
+        outer_sphere = gmsh.model.occ.addSphere(0, 0, 0, R)
+        if r_inner > 0:
+            inner_sphere = gmsh.model.occ.addSphere(0, 0, 0, r_inner)
+            gmsh.model.occ.cut([(3, outer_sphere)], [(3, inner_sphere)])
         gmsh.model.occ.synchronize()
-        
-        # Etiquetar superficies
-        # outer_boundary = 2 (superficie exterior)
-        surfaces = gmsh.model.getEntities(2)
-        for surface in surfaces:
-            gmsh.model.addPhysicalGroup(2, [surface[1]], OUTER_BOUNDARY_TAG)
-        
-        # Etiquetar volumen  
+
+        # Etiquetar superficies: la exterior por extensión de bounding box
+        outer_surfaces = []
+        inner_surfaces = []
+        for dim, tag in gmsh.model.getEntities(2):
+            bbox = gmsh.model.getBoundingBox(dim, tag)
+            half_extent = max(
+                bbox[3] - bbox[0], bbox[4] - bbox[1], bbox[5] - bbox[2]
+            ) / 2.0
+            if r_inner > 0 and abs(half_extent - r_inner) < abs(half_extent - R):
+                inner_surfaces.append(tag)
+            else:
+                outer_surfaces.append(tag)
+        if outer_surfaces:
+            gmsh.model.addPhysicalGroup(2, outer_surfaces, OUTER_BOUNDARY_TAG)
+        if inner_surfaces:
+            gmsh.model.addPhysicalGroup(2, inner_surfaces, INNER_BOUNDARY_TAG)
+
+        # Etiquetar volumen
         volumes = gmsh.model.getEntities(3)
-        for volume in volumes:
-            gmsh.model.addPhysicalGroup(3, [volume[1]], 1)  # tag=1 para volumen
-        
+        gmsh.model.addPhysicalGroup(3, [v[1] for v in volumes], 1)  # tag=1 para volumen
+
         # Configurar malla
         gmsh.option.setNumber("Mesh.CharacteristicLengthMax", lc)
         gmsh.option.setNumber("Mesh.CharacteristicLengthMin", lc/3)
-        
+
         # Generar malla
         gmsh.model.mesh.generate(3)
         logger.info("Malla generada con Gmsh")
-        
+
         # Importar a DOLFINx
         mesh_data = dolfinx_gmsh.model_to_mesh(
             gmsh.model, comm, rank=0, gdim=3
@@ -95,30 +124,35 @@ def build_ball_mesh(
             facet_tags = mesh_data.facet_tags
         else:
             mesh, cell_tags, facet_tags = mesh_data
-    
+
     finally:
         gmsh.finalize()
-    
+
     return mesh, cell_tags, facet_tags
 
 def _create_simple_ball_mesh(
-    R: float, 
-    comm: Optional[MPI.Comm] = None
+    R: float,
+    comm: Optional[MPI.Comm] = None,
+    lc: Optional[float] = None,
 ) -> Tuple[dmesh.Mesh, Optional[dmesh.MeshTags], Optional[dmesh.MeshTags]]:
     """
-    Fallback: crear malla esférica simple sin Gmsh.
+    Fallback: crear malla cúbica simple sin Gmsh (resolución derivada de lc).
     """
     from dolfinx.mesh import create_box
-    
-    logger.info(f"Creando malla cúbica como aproximación de esfera con R={R}")
+
+    if lc and lc > 0:
+        n = int(np.clip(round(2.0 * R / lc), 4, 48))
+    else:
+        n = 16
+    logger.info(f"Creando malla cúbica como aproximación de esfera con R={R} ({n}^3 divisiones)")
     mesh = create_box(
         comm or MPI.COMM_WORLD,
-        [[-R, -R, -R], [R, R, R]], 
-        [16, 16, 16]
+        [[-R, -R, -R], [R, R, R]],
+        [n, n, n]
     )
     cell_tags = None
     _, _, facet_tags = create_ds_with_outer_tag(mesh, R=None)
-    
+
     return mesh, cell_tags, facet_tags
 
 def build_box_mesh(
@@ -156,22 +190,11 @@ def build_box_mesh(
     return mesh, cell_tags, facet_tags
 
 def get_outer_tag(
-    facet_tags: dmesh.MeshTags, 
-    name: str = "outer_boundary", 
-    default: int = 2
+    facet_tags: dmesh.MeshTags,
+    name: str = "outer_boundary",
+    default: int = 2,
 ) -> int:
-    """
-    Devuelve el id de la frontera externa. 
-    Si facet_tags trae nombres en metadata, busca 'outer_boundary'.
-    """
-    try:
-        md = getattr(facet_tags, "metadata", None)
-        if md and "names" in md:
-            for k, v in md["names"].items():
-                if v == name:
-                    return int(k)
-    except (AttributeError, KeyError, TypeError) as e:
-        logger.debug(f"No se pudo obtener tag de metadata: {e}")
+    """Devuelve el id de la frontera externa (convención del proyecto: 2)."""
     return int(default if default is not None else OUTER_BOUNDARY_TAG)
 
 if __name__ == "__main__":

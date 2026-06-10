@@ -6,7 +6,7 @@ potential.py
 Potenciales para campos escalares.
 """
 
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, Optional
 import inspect
 import numpy as np
 import ufl
@@ -140,23 +140,28 @@ class MexicanHatPotential:
     La derivada es: V'(φ) = λ φ (φ² - v²)
     """
     
-    def __init__(self, m_squared: float = -0.1, lambda_coupling: float = 0.1, vacuum_value: float = 1.0):
+    def __init__(self, m_squared: float = -0.1, lambda_coupling: float = 0.1,
+                 vacuum_value: Optional[float] = None):
         """
         Parámetros:
+            m_squared: Solo se usa si vacuum_value es None (parametrización
+                legacy: v² = |m²|/λ).
             lambda_coupling: Constante de auto-acoplamiento
-            vacuum_value: Valor de vacío v
+            vacuum_value: Valor de vacío v. Si se pasa explícitamente, se
+                respeta siempre (v² = vacuum_value²).
         """
         self.m_squared = float(m_squared)
         self.lambda_coupling = float(lambda_coupling)
         if self.lambda_coupling < 0:
             raise ValueError("lambda_coupling must be >= 0 (0 collapses this interaction potential)")
-        self.vacuum_value = float(vacuum_value)
-        if vacuum_value == 1.0:
-            # compatibilidad con parametrización previa basada en m_squared/lambda
+        if vacuum_value is None:
+            # parametrización basada en m_squared/lambda: v² = |m²|/λ
             self.v_squared = abs(self.m_squared) / max(self.lambda_coupling, 1e-15)
+            self.vacuum_value = float(np.sqrt(self.v_squared))
         else:
+            self.vacuum_value = float(vacuum_value)
             self.v_squared = self.vacuum_value**2
-        logger.debug(f"MexicanHatPotential: λ={lambda_coupling}, v={vacuum_value}")
+        logger.debug(f"MexicanHatPotential: λ={lambda_coupling}, v={self.vacuum_value}")
     
     def evaluate_ufl(self, phi: Union["fem.Function", ufl.core.expr.Expr]) -> ufl.core.expr.Expr:
         """Evalúa V(φ)."""

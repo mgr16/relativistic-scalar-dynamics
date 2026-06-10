@@ -1,14 +1,12 @@
 FROM mambaorg/micromamba:1.5.8
 
-ENV MAMBA_DOCKERFILE_ACTIVATE=1
-ENV CONDA_ENV=psyop
-
-COPY --chown=$MAMBA_USER:$MAMBA_USER requirements.txt /tmp/requirements.txt
-
-RUN micromamba create -y -n ${CONDA_ENV} -c conda-forge \
+# Instalar en el entorno "base": es el que activa el entrypoint de la imagen
+# (la variable que respeta micromamba es ENV_NAME, no CONDA_ENV)
+RUN micromamba install -y -n base -c conda-forge \
     python=3.10 \
-    dolfinx \
+    fenics-dolfinx \
     gmsh \
+    python-gmsh \
     numpy \
     scipy \
     matplotlib \
@@ -21,4 +19,8 @@ RUN micromamba create -y -n ${CONDA_ENV} -c conda-forge \
 WORKDIR /workspace/psyop
 COPY --chown=$MAMBA_USER:$MAMBA_USER . /workspace/psyop
 
-CMD ["python", "main.py", "--test"]
+# Activar el entorno base durante los RUN de build
+ARG MAMBA_DOCKERFILE_ACTIVATE=1
+RUN pip install --no-deps -e .
+
+CMD ["psyop", "--test"]

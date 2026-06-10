@@ -18,7 +18,7 @@ def _deep_merge(base: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
 
 DEFAULT_CONFIG: Dict[str, Any] = {
     "schema_version": 1,
-    "mesh": {"type": "gmsh", "R": 30.0, "lc": 1.5},
+    "mesh": {"type": "gmsh", "R": 30.0, "lc": 1.5, "r_inner": 0.0},
     "solver": {
         "degree": 1,
         "cfl": 0.3,
@@ -75,6 +75,12 @@ def _normalize_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
     return normalized
 
 
+# R/lc bound above which a 3D ball mesh becomes computationally intractable
+MAX_RESOLUTION_RATIO = 1000.0
+
+VALID_METRIC_TYPES = {"flat", "schwarzschild", "kerr"}
+
+
 def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
     cfg = _normalize_config(cfg)
     required = ["mesh", "metric", "solver", "initial_conditions", "evolution", "output"]
@@ -84,13 +90,49 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
     mesh_type = str(cfg["mesh"].get("type", "gmsh")).lower()
     if mesh_type not in {"gmsh", "ball"}:
         raise ValueError("mesh.type must be gmsh or ball")
-    if float(cfg["mesh"]["R"]) <= 0:
+    R = float(cfg["mesh"]["R"])
+    if R <= 0:
         raise ValueError("mesh.R must be > 0")
-    if float(cfg["mesh"].get("lc", 0)) <= 0:
+    lc = float(cfg["mesh"].get("lc", 0))
+    if lc <= 0:
         raise ValueError("mesh.lc must be > 0")
+    if R / lc > MAX_RESOLUTION_RATIO:
+        raise ValueError(
+            f"mesh.R/mesh.lc = {R / lc:.0f} exceeds {MAX_RESOLUTION_RATIO:.0f}; "
+            "a 3D ball at this resolution is computationally intractable. "
+            "Increase mesh.lc or decrease mesh.R."
+        )
+    r_inner = float(cfg["mesh"].get("r_inner", 0.0) or 0.0)
+    if r_inner < 0:
+        raise ValueError("mesh.r_inner must be >= 0 (0 disables excision)")
+    if r_inner >= R:
+        raise ValueError("mesh.r_inner must be smaller than mesh.R")
+
+    metric_type = str(cfg["metric"].get("type", "flat")).lower()
+    if metric_type not in VALID_METRIC_TYPES:
+        raise ValueError(f"metric.type must be one of {sorted(VALID_METRIC_TYPES)}")
+    M = float(cfg["metric"].get("M", 1.0))
+    if metric_type != "flat":
+        if M <= 0:
+            raise ValueError("metric.M must be > 0 for black hole backgrounds")
+        if r_inner <= 0:
+            raise ValueError(
+                f"metric.type={metric_type!r} requires an excised inner boundary: "
+                "set mesh.r_inner > 0. Suggested values: r_inner ~ M for kerr "
+                "(Kerr-Schild, horizon-penetrating) and r_inner ~ M/2 for "
+                "schwarzschild (isotropic coordinates, horizon at r = M/2)."
+            )
+    if metric_type == "kerr":
+        a = float(cfg["metric"].get("a", 0.0))
+        if abs(a) > M:
+            raise ValueError("metric.a must satisfy |a| <= M (no naked singularities)")
+
     degree = int(cfg["solver"].get("degree", 1))
-    if degree < 1:
-        raise ValueError("solver.degree must be >= 1")
+    if not (1 <= degree <= 5):
+        raise ValueError("solver.degree must be in [1, 5]")
+    ko_eps = float(cfg["solver"].get("ko_eps", 0.0))
+    if ko_eps < 0:
+        raise ValueError("solver.ko_eps must be >= 0")
     cfl = float(cfg["solver"].get("cfl", 0.0))
     if not (0.0 < cfl <= 1.0):
         raise ValueError("solver.cfl must be in (0,1]")

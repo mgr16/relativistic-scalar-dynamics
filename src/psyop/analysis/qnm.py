@@ -26,10 +26,10 @@ def compute_qnm(signal, dt, window="hann", pad_factor=4, detrend=True):
     return freqs, spec
 
 
-def estimate_qnm_prony(signal, dt, modes=1, svd_rank=None):
+def _prony_modes_raw(signal, dt, modes=1, svd_rank=None):
     """
-    Estima frecuencias complejas usando método tipo Prony/matrix-pencil.
-    Retorna lista de (freq_real, decay_rate).
+    Núcleo Prony/matrix-pencil. Devuelve lista de dicts con
+    frequency, decay, amplitude y phase, ordenada por amplitud descendente.
     """
     x = np.asarray(signal, dtype=float)
     n = len(x)
@@ -55,72 +55,102 @@ def estimate_qnm_prony(signal, dt, modes=1, svd_rank=None):
     pencil = u.T @ hankel1 @ vh.T @ s_inv
     eigvals = np.linalg.eigvals(pencil)
 
+    # Filtrar autovalores no informativos o explosivos (|λ| >> 1 desborda
+    # la Vandermonde y no corresponde a un modo QNM decayente)
+    eigvals = np.array([
+        lam for lam in eigvals
+        if np.isfinite(lam) and abs(lam) > 1e-12 and abs(lam) < 1.5
+    ])
+    if eigvals.size == 0:
+        return []
+
+    # Amplitudes complejas por mínimos cuadrados sobre la Vandermonde
+    steps = np.arange(n)[:, None]
+    vander = eigvals[None, :] ** steps
+    amps, *_ = np.linalg.lstsq(vander, x, rcond=None)
+
     results = []
-    for lam in eigvals[:modes]:
-        if lam == 0:
-            continue
+    for lam, a in zip(eigvals, amps):
         omega = np.log(lam) / dt
-        freq = omega.imag / (2.0 * np.pi)
-        decay = -omega.real
-        results.append((freq, decay))
+        results.append(
+            {
+                "frequency": float(omega.imag / (2.0 * np.pi)),
+                "decay": float(-omega.real),
+                "amplitude": float(abs(a)),
+                "phase": float(np.angle(a)),
+            }
+        )
+    # Modos dominantes primero (antes el orden era el arbitrario de eigvals)
+    results.sort(key=lambda mode: mode["amplitude"], reverse=True)
     return results
+
+
+def estimate_qnm_prony(signal, dt, modes=1, svd_rank=None):
+    """
+    Estima frecuencias complejas usando método tipo Prony/matrix-pencil.
+    Retorna lista de (freq_real, decay_rate) de los modos dominantes.
+    """
+    raw = _prony_modes_raw(signal, dt, modes=modes, svd_rank=svd_rank)
+    return [(m["frequency"], m["decay"]) for m in raw[:modes]]
 
 
 def estimate_qnm_prony_modes(signal, dt, modes=1, svd_rank=None):
     """
     Extended version with amplitude/phase/score and spurious-mode filtering.
     Multiple nearby orders are evaluated and stable modes across orders are retained.
+    Amplitude and phase are fitted by least squares (no longer placeholders).
     """
-    x = np.asarray(signal, dtype=float)
-    amp = float(np.max(np.abs(x))) if x.size else 0.0
     orders = sorted(set([max(1, int(modes)), max(1, int(modes) + 1), max(1, int(modes) + 2)]))
     candidates = []
     for order in orders:
-        for freq, decay in estimate_qnm_prony(signal, dt, modes=order, svd_rank=svd_rank):
-            if not np.isfinite(freq) or not np.isfinite(decay):
+        for mode in _prony_modes_raw(signal, dt, modes=order, svd_rank=order)[:order]:
+            if not np.isfinite(mode["frequency"]) or not np.isfinite(mode["decay"]):
                 continue
-            if decay < 0:
+            if mode["decay"] < 0:
                 continue
-            candidates.append((float(freq), float(decay), order))
+            candidates.append({**mode, "order": order})
 
     if not candidates:
         return []
 
-    # Simple clustering by frequency proximity
-    freq_tol = 0.05 / max(dt, 1e-12)
+    # Clustering por |frecuencia|: un modo real aparece como par conjugado
+    # ±f y ambos representan el mismo modo físico. La tolerancia es el 2%
+    # de Nyquist (la antigua 0.05/dt era tan ancha que fusionaba ±f en un
+    # cluster cuya media se cancelaba a 0).
+    freq_tol = 0.02 * 0.5 / max(dt, 1e-12)
     clusters = []
-    for freq, decay, order in candidates:
+    for cand in candidates:
+        abs_freq = abs(cand["frequency"])
         assigned = False
         for c in clusters:
-            if abs(c["freq_mean"] - freq) <= freq_tol:
-                c["freqs"].append(freq)
-                c["decays"].append(decay)
-                c["orders"].add(order)
-                c["freq_mean"] = float(np.mean(c["freqs"]))
-                c["decay_mean"] = float(np.mean(c["decays"]))
+            if abs(c["freq_mean"] - abs_freq) <= freq_tol:
+                c["members"].append(cand)
+                c["orders"].add(cand["order"])
+                c["freq_mean"] = float(np.mean([abs(m["frequency"]) for m in c["members"]]))
                 assigned = True
                 break
         if not assigned:
             clusters.append(
                 {
-                    "freqs": [freq],
-                    "decays": [decay],
-                    "orders": {order},
-                    "freq_mean": freq,
-                    "decay_mean": decay,
+                    "members": [cand],
+                    "orders": {cand["order"]},
+                    "freq_mean": abs_freq,
                 }
             )
 
     out = []
     for c in clusters:
         stability = len(c["orders"]) / len(orders)
-        score = stability / (1.0 + abs(c["decay_mean"]))
+        decay_mean = float(np.mean([m["decay"] for m in c["members"]]))
+        # Amplitud/fase del miembro dominante del cluster
+        best = max(c["members"], key=lambda m: m["amplitude"])
+        score = stability / (1.0 + abs(decay_mean))
         out.append(
             {
                 "frequency": float(c["freq_mean"]),
-                "decay": float(c["decay_mean"]),
-                "amplitude": amp,
-                "phase": 0.0,
+                "decay": decay_mean,
+                "amplitude": float(best["amplitude"]),
+                "phase": float(best["phase"]),
                 "score": float(score),
                 "stability": float(stability),
             }

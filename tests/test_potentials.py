@@ -203,9 +203,21 @@ class TestPotentialValidation:
     def test_mexican_hat_invalid_lambda(self):
         """Test that Mexican hat validates lambda > 0."""
         from psyop.physics.potential import MexicanHatPotential
-        
+
         with pytest.raises(ValueError):
             MexicanHatPotential(m_squared=-1.0, lambda_coupling=-0.5)
+
+    def test_mexican_hat_explicit_vacuum_value_is_respected(self):
+        """vacuum_value explícito debe usarse siempre (incluido 1.0)."""
+        from psyop.physics.potential import MexicanHatPotential
+
+        # Antes, vacuum_value=1.0 activaba un modo legacy que lo ignoraba
+        pot = MexicanHatPotential(m_squared=-0.1, lambda_coupling=0.2, vacuum_value=1.0)
+        assert pot.v_squared == pytest.approx(1.0)
+
+        # Sin vacuum_value se mantiene la parametrización legacy v² = |m²|/λ
+        legacy = MexicanHatPotential(m_squared=-0.5, lambda_coupling=0.25)
+        assert legacy.v_squared == pytest.approx(2.0)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "mesh": { "type": "gmsh", "R": 15.0, "lc": 0.001 },
+  "mesh": { "type": "gmsh", "R": 15.0, "lc": 1.0, "r_inner": 0.0 },
   "metric": { "type": "flat", "M": 1.0 },
   "solver": {
     "degree": 1,

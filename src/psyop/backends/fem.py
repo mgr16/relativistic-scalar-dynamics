@@ -1,4 +1,6 @@
-from typing import Tuple
+from __future__ import annotations
+
+from typing import Optional
 import numpy as np
 import ufl
 
@@ -15,7 +17,7 @@ except Exception as e:
     _DOLFINX_IMPORT_ERROR = e
 
 if not HAS_DOLFINX:
-    raise ImportError("DOLFINx is required by psyop.backends.fem. Install with: conda install -c conda-forge dolfinx") from _DOLFINX_IMPORT_ERROR
+    raise ImportError("DOLFINx is required by psyop.backends.fem. Install with: conda install -c conda-forge fenics-dolfinx") from _DOLFINX_IMPORT_ERROR
 
 
 def is_dolfinx() -> bool:
@@ -31,7 +33,7 @@ def assemble_scalar(form):
     return float(femx.assemble_scalar(femx.form(form)))
 
 
-def create_ds_with_outer_tag(mesh, R: float | None = None, atol: float = 0.1):
+def create_ds_with_outer_tag(mesh, R: Optional[float] = None, atol: float = 0.1):
     """
     Crea meshtags para facetas de borde y devuelve (ds, tag_id, facet_tags).
     - Si R se provee: etiqueta facetas con radio ~ R (esfera).

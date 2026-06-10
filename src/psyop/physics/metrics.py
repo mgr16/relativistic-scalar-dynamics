@@ -113,7 +113,13 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         alpha_f = 1.0 / sqrtg_f
         beta_f = (factor / (1.0 + factor * l2)) * l
 
-        K_f = Constant(mesh, 0.0)
+        # La foliación Kerr-Schild NO es time-symmetric: K ≠ 0. Para un fondo
+        # estacionario, con la convención K_ij = -(1/2)£_n γ_ij se tiene
+        #   K = (1/α) D_i β^i = (1/(α√γ)) ∂_i(√γ β^i),
+        # que UFL puede evaluar simbólicamente con div().
+        # Para a=0 reproduce el valor conocido K = 2M(r+3M)/(r(r+2M))^{3/2}
+        # (= 2Mα³(1+3M/r)/r², Baumgarte & Shapiro).
+        K_f = ufl.div(sqrtg_f * beta_f) / (alpha_f * sqrtg_f)
         return alpha_f, beta_f, gammaInv_f, sqrtg_f, K_f
 
     def max_characteristic_speed(self, mesh) -> float:

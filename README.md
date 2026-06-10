@@ -13,9 +13,15 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 - **Solver de matriz de masa**: Inversión eficiente usando PETSc/HYPRE
 
 ### **Mejora 2: Condiciones de Frontera Sommerfeld (característica)**
-- **Condición física característica**: usa la velocidad de salida `c_out = α − β·n`
-- **Implementación débil**: término de borde sobre facetas `tag=2` vía `ds(tag)`
+- **Condición física característica**: sustituye el flujo conormal natural usando `Π = −√(γ^{nn}) ∂_n φ` (en espacio plano se reduce al término absorbente clásico `−∫ Π v ds`)
+- **Implementación débil consistente**: término de borde con pesos métricos `α √γ` sobre facetas `tag=2` vía `ds(tag)`
 - **Absorción de ondas**: reduce reflexiones sin Robin ad-hoc
+
+### **Soporte de agujeros negros con excisión**
+- **Excisión del interior**: `mesh.r_inner > 0` genera una cáscara esférica con borde interior etiquetado (`tag=3`)
+- **Borde interior "do-nothing"**: válido cuando las características salen del dominio (foliaciones horizon-penetrating)
+- **Curvatura extrínseca de Kerr-Schild**: `K = (1/(α√γ)) ∂_i(√γ β^i)` evaluada simbólicamente (ya no se asume K=0)
+- Las métricas `schwarzschild`/`kerr` **requieren** `mesh.r_inner > 0` (sugerido: `~M/2` para Schwarzschild isotrópico, `~M` para Kerr-Schild)
 
 ### **Mejora 3: Arquitectura Modular Avanzada**
 - **Implementación DOLFINx-only**: migración completa desde soporte dual
@@ -74,7 +80,7 @@ conda create -n psyop-dolfinx python=3.10
 conda activate psyop-dolfinx
 
 # Instalar DOLFINx
-conda install -c conda-forge dolfinx
+conda install -c conda-forge fenics-dolfinx
 
 # Dependencias adicionales
 conda install -c conda-forge gmsh numpy matplotlib scipy petsc4py
@@ -115,7 +121,12 @@ Edita `config_example.json` o crea un JSON propio con las mismas claves:
     "mesh": {
         "type": "gmsh",
         "R": 15.0,
-        "lc": 1.0
+        "lc": 1.0,
+        "r_inner": 0.0
+    },
+    "metric": {
+        "type": "flat",
+        "M": 1.0
     },
     "solver": {
         "degree": 1,
@@ -134,6 +145,9 @@ Edita `config_example.json` o crea un JSON propio con las mismas claves:
     }
 }
 ```
+
+Para fondos de agujero negro, usa `metric.type = "schwarzschild"` o `"kerr"` y
+fija `mesh.r_inner > 0` (excisión); la validación lo exige y sugiere valores.
 
 ## Física y Métodos Numéricos
 
@@ -172,9 +186,11 @@ uⁿ⁺¹ = ⅓uⁿ + ⅔u⁽²⁾ + ⅔dt · L(u⁽²⁾)
 ### Condición CFL Adaptativa
 
 ```
-dt = CFL_factor × h_min / c_max
+dt = CFL_factor × h_min / (c_max × degree²)
 ```
-donde `h_min` es el tamaño mínimo de celda y `c_max = 1` (velocidad de la luz).
+donde `h_min` es el tamaño mínimo de celda, `c_max` la velocidad característica
+máxima del fondo y el factor `degree²` es el escalado estándar para elementos
+de orden alto (sin efecto para `degree = 1`).
 
 ##  Características Avanzadas
 
@@ -268,7 +284,7 @@ results/run_YYYYmmdd_HHMMSS/
 **Causa**: DOLFINx no instalado
 **Solución**: 
 ```bash
-conda install -c conda-forge dolfinx
+conda install -c conda-forge fenics-dolfinx
 ```
 
 ### Error: "Gmsh not available"
@@ -302,6 +318,6 @@ conda install -c conda-forge gmsh
 ---
 
 **Versión**: 2.1 (incluye cambios del PR #7)  
-**Compatibilidad**: DOLFINx 0.6+  
+**Compatibilidad**: DOLFINx 0.7+  
 **Python**: 3.9+  
 **Licencia**: Proyecto de investigación académica

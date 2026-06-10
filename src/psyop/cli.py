@@ -74,7 +74,7 @@ def run_main(argv=None) -> int:
         from mpi4py import MPI
     except ImportError as e:
         sys.stderr.write("ERROR: DOLFINx is required but not installed.\n")
-        sys.stderr.write("Install with: conda install -c conda-forge dolfinx\n")
+        sys.stderr.write("Install with: conda install -c conda-forge fenics-dolfinx\n")
         raise ImportError("DOLFINx is required to run PSYOP") from e
 
     # Setup logging
@@ -94,15 +94,18 @@ def run_main(argv=None) -> int:
         return 0
 
     # Import components
-    from psyop.analysis.qnm import compute_qnm, estimate_peak
-    from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
+    from psyop.mesh.gmsh import INNER_BOUNDARY_TAG, build_ball_mesh, get_outer_tag
     from psyop.physics.initial_conditions import GaussianBump
     from psyop.physics.metrics import make_background
     from psyop.solvers.first_order import FirstOrderKGSolver
     from psyop.utils.utils import compute_dt_cfl
 
     # Load configuration
-    if args.config and os.path.exists(args.config):
+    if args.config:
+        if not os.path.exists(args.config):
+            # Fallar fuerte: caer en silencio a otra config es peor que abortar
+            logger.error(f"Config file not found: {args.config}")
+            return 2
         cfg = load_config(args.config)
         logger.info(f"Loaded configuration from: {args.config}")
     else:
@@ -120,9 +123,10 @@ def run_main(argv=None) -> int:
     logger.info("Configuration validated successfully")
 
     # Build mesh and metric
-    logger.info(f"Building mesh: R={cfg['mesh']['R']}, lc={cfg['mesh']['lc']}")
+    r_inner = float(cfg["mesh"].get("r_inner", 0.0) or 0.0)
+    logger.info(f"Building mesh: R={cfg['mesh']['R']}, lc={cfg['mesh']['lc']}, r_inner={r_inner}")
     mesh, cell_tags, facet_tags = build_ball_mesh(
-        R=cfg["mesh"]["R"], lc=cfg["mesh"]["lc"], comm=MPI.COMM_WORLD
+        R=cfg["mesh"]["R"], lc=cfg["mesh"]["lc"], comm=MPI.COMM_WORLD, r_inner=r_inner
     )
     logger.info(f"Mesh created with {mesh.topology.index_map(mesh.topology.dim).size_local} cells")
 
@@ -132,7 +136,9 @@ def run_main(argv=None) -> int:
     logger.info(f"Background metric set: {cfg['metric']['type']}")
 
     # Setup output directory
-    dt = compute_dt_cfl(mesh, cfl=cfg["solver"]["cfl"], c_max=c_max)
+    dt = compute_dt_cfl(
+        mesh, cfl=cfg["solver"]["cfl"], c_max=c_max, degree=cfg["solver"]["degree"]
+    )
     logger.info(f"CFL timestep: dt = {dt:.6e}")
 
     outdir = os.path.join(cfg["output"]["dir"], time.strftime("run_%Y%m%d_%H%M%S"))
@@ -144,6 +150,9 @@ def run_main(argv=None) -> int:
         os.makedirs(series_dir, exist_ok=True)
         os.makedirs(fields_dir, exist_ok=True)
         os.makedirs(plots_dir, exist_ok=True)
+    # Todos los ranks deben esperar a que existan los directorios antes de
+    # abrir colectivamente el XDMF (evita carrera en arranque paralelo)
+    mesh.comm.barrier()
     logger.info(f"Output directory: {outdir}")
 
     # Save configuration
@@ -183,14 +192,25 @@ def run_main(argv=None) -> int:
         cfl_factor=cfg["solver"]["cfl"],
         cfg=cfg,
     )
-    solver.set_background(alpha=alpha_f, beta=beta_f, gammaInv=gammaInv_f, sqrtg=sqrtg_f, K=K_f)
+    # rebuild=False: los operadores se reconstruyen una sola vez al final
+    solver.set_background(
+        alpha=alpha_f, beta=beta_f, gammaInv=gammaInv_f, sqrtg=sqrtg_f, K=K_f, rebuild=False
+    )
 
     if cfg["solver"].get("enable_sommerfeld", True):
         if facet_tags is None:
             raise ValueError("enable_sommerfeld=True requires facet_tags from mesh generation")
         outer_tag = int(cfg["solver"].get("outer_tag", get_outer_tag(facet_tags, default=2)))
-        solver.enable_sommerfeld(facet_tags, outer_tag=outer_tag)
+        solver.enable_sommerfeld(facet_tags, outer_tag=outer_tag, rebuild=False)
         logger.info(f"Sommerfeld boundary conditions enabled (tag={outer_tag})")
+
+    if r_inner > 0:
+        if facet_tags is None:
+            raise ValueError("Excision (mesh.r_inner > 0) requires facet_tags from mesh generation")
+        solver.enable_excision(facet_tags, inner_tag=INNER_BOUNDARY_TAG, rebuild=False)
+        logger.info(f"Excision inner boundary enabled (tag={INNER_BOUNDARY_TAG}, r={r_inner})")
+
+    solver.rebuild_operators()
 
     # Set initial conditions
     ic = cfg["initial_conditions"]
@@ -240,10 +260,14 @@ def run_main(argv=None) -> int:
                 phi, Pi = solver.get_fields()
                 xdmf.write_function(phi, t)
 
-                # Sample field
+                # Sample field: el punto vive en (a lo sumo) unos pocos ranks;
+                # se recolecta en rank 0, que es quien escribe las series
                 sample_val = sample_phi_at_point(phi, sample_point, mesh)
-                if sample_val is not None:
-                    time_series.append((t, sample_val))
+                gathered = mesh.comm.gather(sample_val, root=0)
+                if mesh.comm.rank == 0 and gathered is not None:
+                    found = [v for v in gathered if v is not None]
+                    if found:
+                        time_series.append((t, found[0]))
 
                 # Diagnostics
                 if diagnostics:
@@ -292,8 +316,12 @@ def run_main(argv=None) -> int:
                 f.write(f"{t_val:.12e} {f_val:.12e}\n")
         logger.info(f"Flux series saved: {len(flux_series)} samples")
 
-    # QNM analysis
-    if cfg.get("output", {}).get("qnm_analysis", False) and len(time_series) > 8:
+    # QNM analysis (solo rank 0: es quien posee time_series y escribe archivos)
+    if (
+        mesh.comm.rank == 0
+        and cfg.get("output", {}).get("qnm_analysis", False)
+        and len(time_series) > 8
+    ):
         logger.info("Performing QNM analysis...")
         dt_sample = time_series[1][0] - time_series[0][0]
         signal = [v for _, v in time_series]

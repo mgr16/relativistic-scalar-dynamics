@@ -21,6 +21,7 @@ pytestmark = [
 ]
 
 if HAS_DOLFINX:
+    from psyop.physics.initial_conditions import GaussianBump
     from psyop.physics.metrics import make_background
     from psyop.solvers.first_order import FirstOrderKGSolver
     from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
@@ -55,9 +56,26 @@ def run_solver(cfg):
 
     solver.set_background(*metric_coeffs)
 
-    if facet_tags is not None:
+    # Respetar el flag de configuración (legacy "sommerfeld" o canónico
+    # "enable_sommerfeld"): antes se habilitaba siempre y el test A/B
+    # comparaba dos corridas idénticas
+    sommerfeld_enabled = bool(
+        cfg["solver"].get("enable_sommerfeld", cfg["solver"].get("sommerfeld", True))
+    )
+    if sommerfeld_enabled and facet_tags is not None:
         outer_tag = get_outer_tag(facet_tags, default=2)
         solver.enable_sommerfeld(facet_tags, outer_tag)
+
+    ic_cfg = cfg.get("initial_conditions", {})
+    ic = GaussianBump(
+        mesh,
+        V=solver.V_scalar,
+        A=float(ic_cfg.get("A", 1e-3)),
+        r0=float(ic_cfg.get("r0", R / 3.0)),
+        w=float(ic_cfg.get("w", 1.5)),
+        v0=float(ic_cfg.get("v0", 0.0)),
+    )
+    solver.set_initial_conditions(ic.get_function())
 
     E0 = solver.energy()
 
@@ -113,34 +131,36 @@ def test_energy_conservation(tmp_path):
 
 
 def test_reflection_reduction(tmp_path):
+    # Campo sin masa (sin dispersión) y t_end suficiente para que el pulso
+    # alcance el borde: con BC absorbente la energía debe caer claramente
+    # frente al caso reflectante.
     cfg_base = {
         "schema_version": 1,
-        "mesh": {"type": "gmsh", "R": 10.0, "lc": 1.0},
+        "mesh": {"type": "gmsh", "R": 5.0, "lc": 1.0},
         "metric": {"type": "flat"},
         "solver": {
             "degree": 1,
             "cfl": 0.3,
-            "potential_type": "higgs",
-            "potential_params": {"m_squared": 1.0, "lambda_coupling": 0.0},
+            "potential_type": "zero",
         },
         "initial_conditions": {
             "type": "gaussian",
             "A": 5e-3,
-            "r0": 3.0,
-            "w": 1.2,
+            "r0": 1.5,
+            "w": 0.8,
             "v0": 0.0,
         },
-        "evolution": {"t_end": 5.0, "output_every": 2, "checkpoint_every": 100},
+        "evolution": {"t_end": 9.0, "output_every": 2, "checkpoint_every": 100},
         "output": {"dir": str(tmp_path), "qnm_analysis": False, "save_series": False},
     }
     import copy
     cfg_no = copy.deepcopy(cfg_base)
     cfg_yes = copy.deepcopy(cfg_base)
-    cfg_no.setdefault("solver", {})["sponge"] = {"enabled": False}
-    cfg_yes.setdefault("solver", {})["sponge"] = {"enabled": False}
     cfg_no["solver"]["sommerfeld"] = False
     cfg_yes["solver"]["sommerfeld"] = True
 
-    amp_no = run_solver(cfg_no)["amp_center"]
-    amp_yes = run_solver(cfg_yes)["amp_center"]
-    assert amp_yes < 0.5 * amp_no
+    res_no = run_solver(cfg_no)
+    res_yes = run_solver(cfg_yes)
+    # La comparación de energías es robusta (la amplitud puntual depende
+    # del instante exacto de muestreo)
+    assert res_yes["E_last"] < 0.5 * res_no["E_last"]

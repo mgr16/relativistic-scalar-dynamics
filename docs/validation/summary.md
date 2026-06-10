@@ -27,12 +27,27 @@ This repository includes lightweight and environment-safe validation layers:
 5. **Convergence scaffold**
    - `tests/test_convergence_slow.py` provides temporal-refinement sanity check (`@pytest.mark.slow`).
 
+6. **Background-metric checks**
+   - `tests/test_metrics.py` compares the symbolic Kerr-Schild trace `K`
+     against the analytic Schwarzschild-KS value.
+   - `validate_config` enforces excision (`mesh.r_inner > 0`) for black hole
+     metrics and `|a| <= M` for Kerr.
+
+7. **Sommerfeld A/B test**
+   - `tests/test_sommerfeld_reflection.py` is assert-based: the absorbing BC
+     must lose strictly more energy than the reflecting (natural) case and
+     report positive outgoing flux.
+
+8. **QNM amplitude/phase**
+   - Prony modes carry least-squares amplitudes/phases, with dominant-mode
+     ordering and conjugate-pair clustering by |f| (`tests/test_config_and_qnm.py`).
+
 ## Reproducibility
 
 Runtime outputs are written under:
 
 ```
-output/<run_id>/
+results/run_YYYYmmdd_HHMMSS/
   config.json
   manifest.json
   fields/

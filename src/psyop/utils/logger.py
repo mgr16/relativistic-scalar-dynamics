@@ -37,9 +37,11 @@ def setup_logger(
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    
-    # Avoid duplicate handlers
+
+    # Avoid duplicate handlers (pero respetar el nuevo nivel solicitado)
     if logger.handlers:
+        for handler in logger.handlers:
+            handler.setLevel(level)
         return logger
     
     # Formatter with timestamp

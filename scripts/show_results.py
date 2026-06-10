@@ -5,6 +5,8 @@ show_results.py – Explorador de resultados y QNM heurístico.
 Ubicación oficial: scripts/show_results.py
 """
 
+from __future__ import annotations
+
 import os
 from pathlib import Path
 import numpy as np
