@@ -124,9 +124,14 @@ def run_main(argv=None) -> int:
 
     # Build mesh and metric
     r_inner = float(cfg["mesh"].get("r_inner", 0.0) or 0.0)
-    logger.info(f"Building mesh: R={cfg['mesh']['R']}, lc={cfg['mesh']['lc']}, r_inner={r_inner}")
+    lc_inner = cfg["mesh"].get("lc_inner")
+    logger.info(
+        f"Building mesh: R={cfg['mesh']['R']}, lc={cfg['mesh']['lc']}, "
+        f"r_inner={r_inner}, lc_inner={lc_inner}"
+    )
     mesh, cell_tags, facet_tags = build_ball_mesh(
-        R=cfg["mesh"]["R"], lc=cfg["mesh"]["lc"], comm=MPI.COMM_WORLD, r_inner=r_inner
+        R=cfg["mesh"]["R"], lc=cfg["mesh"]["lc"], comm=MPI.COMM_WORLD,
+        r_inner=r_inner, lc_inner=lc_inner,
     )
     logger.info(f"Mesh created with {mesh.topology.index_map(mesh.topology.dim).size_local} cells")
 
@@ -215,7 +220,11 @@ def run_main(argv=None) -> int:
     # Set initial conditions
     ic = cfg["initial_conditions"]
     if ic.get("type") == "gaussian":
-        logger.info(f"Setting Gaussian initial conditions: A={ic['A']}, r0={ic['r0']}, w={ic['w']}")
+        direction = str(ic.get("direction", "static")).lower()
+        logger.info(
+            f"Setting Gaussian initial conditions: A={ic['A']}, r0={ic['r0']}, "
+            f"w={ic['w']}, direction={direction}"
+        )
         phi0 = GaussianBump(
             mesh=mesh,
             V=solver.V_scalar if hasattr(solver, "V_scalar") else None,
@@ -223,8 +232,9 @@ def run_main(argv=None) -> int:
             r0=ic["r0"],
             w=ic["w"],
             v0=ic["v0"],
+            direction=direction,
         )
-        solver.set_initial_conditions(phi0.get_function())
+        solver.set_initial_conditions(phi0.get_function(), phi0.get_momentum())
 
     # Setup sampling
     sample_cfg = cfg.get("analysis", {})
@@ -234,6 +244,18 @@ def run_main(argv=None) -> int:
     time_series = []
     energy_series = []
     flux_series = []
+
+    # Extracción multipolar (opcional): proyección sobre Y_lm en una esfera
+    extractor = None
+    multipole_series = []
+    extraction_cfg = sample_cfg.get("extraction", {}) or {}
+    if extraction_cfg.get("enabled", False):
+        from psyop.analysis.extraction import MultipoleExtractor
+
+        ext_radius = float(extraction_cfg.get("radius", 0.6 * float(cfg["mesh"]["R"])))
+        ext_lmax = int(extraction_cfg.get("lmax", 2))
+        extractor = MultipoleExtractor(mesh, radius=ext_radius, lmax=ext_lmax)
+        logger.info(f"Multipole extraction enabled: R_ext={ext_radius}, lmax={ext_lmax}")
 
     # Evolution parameters
     t, step = 0.0, 0
@@ -268,6 +290,13 @@ def run_main(argv=None) -> int:
                     found = [v for v in gathered if v is not None]
                     if found:
                         time_series.append((t, found[0]))
+
+                # Multipoles (la extracción ya es global vía MPI)
+                if extractor is not None:
+                    coeffs = extractor.extract(phi)
+                    multipole_series.append(
+                        (t, [coeffs[mode] for mode in extractor.modes])
+                    )
 
                 # Diagnostics
                 if diagnostics:
@@ -315,6 +344,37 @@ def run_main(argv=None) -> int:
             for t_val, f_val in flux_series:
                 f.write(f"{t_val:.12e} {f_val:.12e}\n")
         logger.info(f"Flux series saved: {len(flux_series)} samples")
+
+    if save_series and multipole_series and mesh.comm.rank == 0:
+        mp_csv_path = os.path.join(series_dir, "multipoles.csv")
+        with open(mp_csv_path, "w", encoding="utf-8") as fcsv:
+            fcsv.write("t," + ",".join(extractor.header()) + "\n")
+            for t_val, coeff_row in multipole_series:
+                row = ",".join(f"{c:.12e}" for c in coeff_row)
+                fcsv.write(f"{t_val:.12e},{row}\n")
+        logger.info(f"Multipole series saved: {len(multipole_series)} samples")
+
+    # Balance de energía: E(t) + ∫F dt - E(0) ≈ 0 detecta inconsistencias
+    # de discretización o de la BC (con flujo saliente positivo)
+    if save_series and diagnostics and len(energy_series) >= 2 and mesh.comm.rank == 0:
+        t_arr = np.array([t_val for t_val, _ in energy_series])
+        e_arr = np.array([e_val for _, e_val in energy_series])
+        f_arr = np.array([f_val for _, f_val in flux_series]) if flux_series else np.zeros_like(e_arr)
+        cum_flux = np.concatenate([[0.0], np.cumsum(0.5 * (f_arr[1:] + f_arr[:-1]) * np.diff(t_arr))])
+        residual = e_arr + cum_flux - e_arr[0]
+        with open(os.path.join(series_dir, "balance.csv"), "w", encoding="utf-8") as fcsv:
+            fcsv.write("t,energy,integrated_flux,balance_residual\n")
+            for i in range(len(t_arr)):
+                fcsv.write(
+                    f"{t_arr[i]:.12e},{e_arr[i]:.12e},{cum_flux[i]:.12e},{residual[i]:.12e}\n"
+                )
+        rel_residual = abs(residual[-1]) / max(e_arr[0], 1e-300)
+        logger.info(f"Energy balance residual |E(t)+∫F-E0|/E0 = {rel_residual:.3e}")
+        if rel_residual > 0.1:
+            logger.warning(
+                "Energy balance residual above 10%: check resolution, CFL or BC "
+                "(a sponge layer also breaks this balance by design)"
+            )
 
     # QNM analysis (solo rank 0: es quien posee time_series y escribe archivos)
     if (

@@ -25,6 +25,8 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "potential_type": "quadratic",
         "potential_params": {"m_squared": 1.0},
         "ko_eps": 0.0,
+        "ko_order": 2,
+        "sponge": {"enabled": False, "width": 0.0, "strength": 1.0},
         "bc_type": "characteristic",
         "outer_tag": 2,
         "enable_sommerfeld": True,
@@ -107,6 +109,16 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("mesh.r_inner must be >= 0 (0 disables excision)")
     if r_inner >= R:
         raise ValueError("mesh.r_inner must be smaller than mesh.R")
+    lc_inner = cfg["mesh"].get("lc_inner")
+    if lc_inner is not None:
+        lc_inner = float(lc_inner)
+        if not (0 < lc_inner <= lc):
+            raise ValueError("mesh.lc_inner must satisfy 0 < lc_inner <= mesh.lc")
+        if R / lc_inner > MAX_RESOLUTION_RATIO:
+            raise ValueError(
+                f"mesh.R/mesh.lc_inner = {R / lc_inner:.0f} exceeds "
+                f"{MAX_RESOLUTION_RATIO:.0f}; increase mesh.lc_inner."
+            )
 
     metric_type = str(cfg["metric"].get("type", "flat")).lower()
     if metric_type not in VALID_METRIC_TYPES:
@@ -133,6 +145,17 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
     ko_eps = float(cfg["solver"].get("ko_eps", 0.0))
     if ko_eps < 0:
         raise ValueError("solver.ko_eps must be >= 0")
+    if int(cfg["solver"].get("ko_order", 2)) not in (2, 4):
+        raise ValueError("solver.ko_order must be 2 or 4")
+    if int(cfg["solver"].get("quadrature_degree", 2 * degree + 2)) < 1:
+        raise ValueError("solver.quadrature_degree must be >= 1")
+    sponge = cfg["solver"].get("sponge") or {}
+    if sponge.get("enabled", False):
+        width = float(sponge.get("width", 0.0))
+        if not (0 < width < R):
+            raise ValueError("solver.sponge.width must be in (0, mesh.R) when enabled")
+        if float(sponge.get("strength", 1.0)) <= 0:
+            raise ValueError("solver.sponge.strength must be > 0 when enabled")
     cfl = float(cfg["solver"].get("cfl", 0.0))
     if not (0.0 < cfl <= 1.0):
         raise ValueError("solver.cfl must be in (0,1]")
@@ -146,4 +169,14 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
     ic_type = str(cfg["initial_conditions"].get("type", "gaussian")).lower()
     if ic_type != "gaussian":
         raise ValueError("initial_conditions.type must be gaussian")
+    ic_direction = str(cfg["initial_conditions"].get("direction", "static")).lower()
+    if ic_direction not in {"static", "ingoing", "outgoing"}:
+        raise ValueError("initial_conditions.direction must be static, ingoing or outgoing")
+    extraction = (cfg.get("analysis", {}) or {}).get("extraction") or {}
+    if extraction.get("enabled", False):
+        ext_radius = float(extraction.get("radius", 0.6 * R))
+        if not (0 < ext_radius < R):
+            raise ValueError("analysis.extraction.radius must be in (0, mesh.R)")
+        if int(extraction.get("lmax", 2)) < 0:
+            raise ValueError("analysis.extraction.lmax must be >= 0")
     return cfg

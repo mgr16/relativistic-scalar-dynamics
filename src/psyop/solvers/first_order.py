@@ -77,10 +77,38 @@ class FirstOrderKGSolver:
         self._outer_tag = int(kwargs.get("outer_tag", self.cfg.get("solver", {}).get("outer_tag", 2)))
         self._inner_tag = int(kwargs.get("inner_tag", self.cfg.get("solver", {}).get("inner_tag", 3)))
         self.ko_eps = float(kwargs.get("ko_eps", self.cfg.get("solver", {}).get("ko_eps", 0.0)))
+        self.ko_order = int(kwargs.get("ko_order", self.cfg.get("solver", {}).get("ko_order", 2)))
         if self.bc_type not in {"characteristic", "sommerfeld_spherical"}:
             raise ValueError("bc_type must be characteristic or sommerfeld_spherical")
         if self.ko_eps < 0:
             raise ValueError(f"ko_eps must be >= 0, got {self.ko_eps}")
+        if self.ko_order not in (2, 4):
+            raise ValueError(f"ko_order must be 2 or 4, got {self.ko_order}")
+
+        # Grado de cuadratura explícito: la estimación automática de UFL
+        # diverge con coeficientes métricos no polinómicos (Kerr-Schild
+        # contiene sqrt/divisiones anidadas y el grado estimado explota)
+        self.quad_degree = int(
+            kwargs.get(
+                "quadrature_degree",
+                self.cfg.get("solver", {}).get("quadrature_degree", 2 * degree + 2),
+            )
+        )
+        if self.quad_degree < 1:
+            raise ValueError(f"quadrature_degree must be >= 1, got {self.quad_degree}")
+
+        # Capa esponja: amortigua Π en una cáscara junto al borde exterior
+        sponge_cfg = kwargs.get("sponge", self.cfg.get("solver", {}).get("sponge", {})) or {}
+        self.sponge_enabled = bool(sponge_cfg.get("enabled", False))
+        self.sponge_width = float(sponge_cfg.get("width", 0.0))
+        self.sponge_strength = float(sponge_cfg.get("strength", 1.0))
+        if self.sponge_enabled:
+            if not (0 < self.sponge_width < domain_radius):
+                raise ValueError(
+                    f"sponge.width must be in (0, domain_radius), got {self.sponge_width}"
+                )
+            if self.sponge_strength <= 0:
+                raise ValueError(f"sponge.strength must be > 0, got {self.sponge_strength}")
 
         # Flags de BC y métricas
         self.has_sommerfeld = False
@@ -122,6 +150,12 @@ class FirstOrderKGSolver:
         """API pública para reconstruir operadores tras configurar fondo/BCs
         con rebuild=False (evita re-ensamblar varias veces durante el setup)."""
         self._setup_operators()
+
+    def _dx(self):
+        """Medida de volumen con grado de cuadratura fijo."""
+        return ufl.Measure(
+            "dx", domain=self.mesh, metadata={"quadrature_degree": self.quad_degree}
+        )
     
     def _setup_function_spaces(self):
         """Configura los espacios de funciones."""
@@ -154,7 +188,7 @@ class FirstOrderKGSolver:
     def _setup_variational_forms(self):
         """Configura las formas variacionales con métrica."""
         # Forma de masa con √γ
-        dx = ufl.Measure("dx", domain=self.mesh)
+        dx = self._dx()
         
         # Sistema de ecuaciones con métrica:
         # M * du/dt = F(u)
@@ -185,7 +219,7 @@ class FirstOrderKGSolver:
     
     def _rhs_phi_form(self):
         """RHS para φ: ∂φ/∂t = αΠ + β·∇φ"""
-        dx = ufl.Measure("dx", domain=self.mesh)
+        dx = self._dx()
             
         alpha = self._ALPHA()
         beta  = self._BETA()
@@ -210,7 +244,7 @@ class FirstOrderKGSolver:
         características salen del dominio a través del borde excisado
         (foliaciones horizon-penetrating).
         """
-        dx = ufl.Measure("dx", domain=self.mesh)
+        dx = self._dx()
         alpha = self._ALPHA()
         sqrtg = self._SQRTG()
         gammaInv = self._GAMMAINV()
@@ -228,7 +262,7 @@ class FirstOrderKGSolver:
 
     def _rhs_Pi_transport_form(self):
         """RHS para Π sin el término de difusión."""
-        dx = ufl.Measure("dx", domain=self.mesh)
+        dx = self._dx()
             
         alpha = self._ALPHA()
         beta  = self._BETA()
@@ -243,10 +277,28 @@ class FirstOrderKGSolver:
         if beta is not None:
             transport += ufl.dot(beta, ufl.grad(self.Pi_c)) * self.test_Pi * sqrtg * dx
 
+        # Capa esponja: -σ(r)·Π, con rampa cúbica suave junto al borde.
+        # Absorbe las colas dispersivas (campo masivo, v_grupo < c) que la
+        # BC característica no captura. Nota: rompe por diseño el balance
+        # E + ∫F dt = E0 (absorbe energía en el volumen, no por el borde).
+        sigma = self._sponge_sigma()
+        if sigma is not None:
+            transport += -sigma * self.Pi_c * self.test_Pi * sqrtg * dx
+
         # Aporte de borde de Sommerfeld (si está habilitado)
         boundary_term = self._sommerfeld_boundary_term()
 
         return transport + boundary_term
+
+    def _sponge_sigma(self):
+        """σ(r) = strength·q³ con q = clip((r - r_inicio)/width, 0, 1)."""
+        if not self.sponge_enabled:
+            return None
+        x = ufl.SpatialCoordinate(self.mesh)
+        r = ufl.sqrt(ufl.dot(x, x) + 1.0e-15)
+        r_start = self.domain_radius - self.sponge_width
+        q = ufl.max_value(0.0, ufl.min_value(1.0, (r - r_start) / self.sponge_width))
+        return self.sponge_strength * q ** 3
 
     def _setup_diffusion_matrix(self):
         """Pre-ensambla la matriz de difusión si está habilitado."""
@@ -268,7 +320,7 @@ class FirstOrderKGSolver:
         En espacio plano se reduce al término absorbente clásico -∫ Π v ds.
         """
         if not self.has_sommerfeld:
-            return 0 * self.test_Pi * ufl.Measure("dx", domain=self.mesh)
+            return 0 * self.test_Pi * self._dx()
 
         n = ufl.FacetNormal(self.mesh)
         alpha = self._ALPHA()
@@ -317,7 +369,7 @@ class FirstOrderKGSolver:
         test_phi, test_Pi = ufl.split(v_test)
         gammaInv = self._GAMMAINV()
         sqrtg = self._SQRTG()
-        dx = ufl.Measure("dx", domain=self.mesh)
+        dx = self._dx()
         self.filter_form = (
             ufl.inner(ufl.dot(gammaInv, ufl.grad(phi_trial)), ufl.grad(test_phi))
             + ufl.inner(ufl.dot(gammaInv, ufl.grad(Pi_trial)), ufl.grad(test_Pi))
@@ -326,6 +378,35 @@ class FirstOrderKGSolver:
         self.filter_mat.assemble()
         self.filter_rhs = self.filter_mat.createVecLeft()
         self.filter_du = self.mass_matrix.createVecLeft()
+        if self.ko_order >= 4:
+            self.filter_du2 = self.mass_matrix.createVecLeft()
+            # λmax(M⁻¹K) por iteración de potencias: normaliza el filtro de
+            # 4.º orden para que su condición de estabilidad sea la misma
+            # que la del de 2.º orden (h² subestima λmax en mallas con
+            # celdas de mala calidad y la sensibilidad es cuadrática)
+            self._filter_lambda_max = self._estimate_filter_lambda_max()
+
+    def _estimate_filter_lambda_max(self, iters: int = 15) -> float:
+        """Estima λmax(M⁻¹K) del filtro por iteración de potencias."""
+        v = self.mass_matrix.createVecLeft()
+        w = self.mass_matrix.createVecLeft()
+        v.setRandom()
+        norm = v.norm()
+        if norm == 0.0:
+            v.set(1.0)
+            norm = v.norm()
+        v.scale(1.0 / norm)
+        lam = 1.0
+        for _ in range(iters):
+            self.filter_mat.mult(v, self.filter_rhs)
+            self.mass_solver.solve(self.filter_rhs, w)
+            lam = w.norm()
+            if lam <= 0.0:
+                return 1.0
+            w.copy(v)
+            v.scale(1.0 / lam)
+        # margen del 10% por convergencia inexacta de la iteración
+        return float(1.1 * lam)
     
     def set_initial_conditions(self, phi_init: Optional[fem.Function] = None, 
                                Pi_init: Optional[fem.Function] = None) -> None:
@@ -377,7 +458,11 @@ class FirstOrderKGSolver:
             raise ValueError("facet_tags is required when enable_sommerfeld is active")
         self._outer_tag = int(outer_tag)
         self.facet_tags = facet_tags
-        self.ds_outer = ufl.Measure("ds", domain=self.mesh, subdomain_data=facet_tags, subdomain_id=self._outer_tag)
+        self.ds_outer = ufl.Measure(
+            "ds", domain=self.mesh, subdomain_data=facet_tags,
+            subdomain_id=self._outer_tag,
+            metadata={"quadrature_degree": self.quad_degree},
+        )
         self.has_sommerfeld = True
         if rebuild:
             self._setup_operators()
@@ -395,7 +480,11 @@ class FirstOrderKGSolver:
             raise ValueError("facet_tags is required when excision is active")
         self._inner_tag = int(inner_tag)
         self.facet_tags = facet_tags
-        self.ds_inner = ufl.Measure("ds", domain=self.mesh, subdomain_data=facet_tags, subdomain_id=self._inner_tag)
+        self.ds_inner = ufl.Measure(
+            "ds", domain=self.mesh, subdomain_data=facet_tags,
+            subdomain_id=self._inner_tag,
+            metadata={"quadrature_degree": self.quad_degree},
+        )
         self.has_excision = True
         if rebuild:
             self._setup_operators()
@@ -505,19 +594,28 @@ class FirstOrderKGSolver:
 
     def _apply_ko_dissipation(self, dt: float) -> None:
         """
-        Disipación explícita por filtro difusivo de segundo orden (laplaciano),
-        controlada por ko_eps:  u <- u - ko_eps * dt * M^{-1} K u.
+        Disipación explícita controlada por ko_eps.
 
-        Nota: NO es Kreiss-Oliger genuino (orden alto); úsese con ko_eps
-        pequeño pues la estabilidad explícita exige ko_eps·dt·λmax(M⁻¹K) < 2,
-        con λmax ~ 1/h².
+        ko_order=2: filtro laplaciano  u <- u - ε·dt·(M⁻¹K)u
+        ko_order=4: filtro biarmónico  u <- u - (ε·dt/λmax)·(M⁻¹K)²u
+        La normalización por λmax(M⁻¹K) hace que el modo de malla más rápido
+        se amortigüe con la misma tasa ε·dt·λmax en ambos órdenes (idéntica
+        condición de estabilidad, ε·dt·λmax < 2), pero el de 4.º orden
+        amortigua los modos suaves con tasa ∝ (λ/λmax)·λ ≪ λ (estilo
+        Kreiss-Oliger).
         """
         if self.filter_mat is None:
             return
         self.u.x.scatter_forward()
         self.filter_mat.mult(self.u.x.petsc_vec, self.filter_rhs)
         self.mass_solver.solve(self.filter_rhs, self.filter_du)
-        self.u.x.array[:] -= self.ko_eps * dt * self.filter_du.getArray(readonly=True)
+        if self.ko_order >= 4:
+            self.filter_mat.mult(self.filter_du, self.filter_rhs)
+            self.mass_solver.solve(self.filter_rhs, self.filter_du2)
+            scale = self.ko_eps * dt / self._filter_lambda_max
+            self.u.x.array[:] -= scale * self.filter_du2.getArray(readonly=True)
+        else:
+            self.u.x.array[:] -= self.ko_eps * dt * self.filter_du.getArray(readonly=True)
     
     def energy(self) -> float:
         """
@@ -534,17 +632,20 @@ class FirstOrderKGSolver:
         except (AttributeError, NotImplementedError):
             Vphi = 0.5 * self.phi_c * self.phi_c
         energy_density = (0.5 * ufl.inner(gradphi, ufl.grad(self.phi_c)) + 0.5 * self.Pi_c * self.Pi_c + Vphi) * sqrtg
-        local_e = float(fem.assemble_scalar(fem.form(energy_density * ufl.dx)))
+        local_e = float(fem.assemble_scalar(fem.form(energy_density * self._dx())))
         return float(self.mesh.comm.allreduce(local_e))
 
     def boundary_flux(self) -> float:
         """
         Flujo de energía saliente por el borde exterior (positivo = sale).
 
-        Del balance de energía dE/dt = -F_out con
-        E = ∫ √γ (½Π² + ½D_iφD^iφ + V) d³x se obtiene
-        F_out = -∮ α √γ Π (γ^{ij}∂_iφ n_j) ds.
-        Para una onda saliente plana (Π = -∂_nφ) da F_out = ∮ Π² ds ≥ 0.
+        Se reporta el drenaje EXACTO del término débil de la BC radiativa:
+        en el sistema semi-discreto dE/dt = b(Π), de modo que
+            F_out = -b(Π) = ∮ α √γ (√(γ^{nn}) Π² [+ γ^{nn} Π φ/r]) ds
+        cierra el balance E(t) + ∫F dt = E(0) hasta el error temporal de RK
+        (verificado: el residuo converge ~h² con la resolución). Para una
+        onda exactamente saliente coincide con el flujo físico de T_{μν},
+        F = -∮ α√γ Π D_nφ ds = ∮ Π² ds.
         """
         if not getattr(self, 'has_sommerfeld', False):
             return 0.0
@@ -552,8 +653,13 @@ class FirstOrderKGSolver:
         alpha = self._ALPHA()
         sqrtg = self._SQRTG()
         gammaInv = self._GAMMAINV()
-        flux_density = -alpha * sqrtg * self.Pi_c * ufl.dot(ufl.dot(gammaInv, ufl.grad(self.phi_c)), n)
-        formF = fem.form(flux_density * self.ds_outer)
+        gnn = ufl.dot(n, ufl.dot(gammaInv, n))
+        drain = ufl.sqrt(gnn) * self.Pi_c * self.Pi_c
+        if self.bc_type == "sommerfeld_spherical":
+            x = ufl.SpatialCoordinate(self.mesh)
+            r = ufl.sqrt(ufl.dot(x, x) + 1.0e-15)
+            drain = drain + gnn * self.Pi_c * self.phi_c / r
+        formF = fem.form(alpha * sqrtg * drain * self.ds_outer)
         local_flux = float(fem.assemble_scalar(formF))
         return float(self.mesh.comm.allreduce(local_flux))
 

@@ -22,6 +22,17 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 - **Borde interior "do-nothing"**: válido cuando las características salen del dominio (foliaciones horizon-penetrating)
 - **Curvatura extrínseca de Kerr-Schild**: `K = (1/(α√γ)) ∂_i(√γ β^i)` evaluada simbólicamente (ya no se asume K=0)
 - Las métricas `schwarzschild`/`kerr` **requieren** `mesh.r_inner > 0` (sugerido: `~M/2` para Schwarzschild isotrópico, `~M` para Kerr-Schild)
+- **Malla graduada**: `mesh.lc_inner < mesh.lc` refina radialmente cerca del horizonte
+
+### **Diagnósticos y absorción avanzados**
+- **Momento inicial consistente**: `initial_conditions.direction = "ingoing"|"outgoing"` (pulso esférico puro, Π = ±(∂_rφ + φ/r)); `"static"` (Π=0) divide el pulso en mitades
+- **Capa esponja**: `solver.sponge {enabled, width, strength}` amortigua las colas dispersivas de campos masivos que la BC característica no absorbe
+- **Disipación de 4.º orden**: `solver.ko_order = 4` (filtro biarmónico normalizado por λmax: misma estabilidad que el de 2.º orden pero casi no toca los modos suaves)
+- **Extracción multipolar**: `analysis.extraction {enabled, radius, lmax}` proyecta φ sobre armónicos esféricos reales en una esfera de extracción → `series/multipoles.csv`
+- **Balance de energía**: `series/balance.csv` registra `E(t) + ∫F dt − E(0)` (residuo converge ~h²)
+
+> **Supuesto físico**: el campo escalar es un campo de prueba sobre fondo fijo
+> (aproximación de Cowling); no hay backreaction sobre la métrica.
 
 ### **Mejora 3: Arquitectura Modular Avanzada**
 - **Implementación DOLFINx-only**: migración completa desde soporte dual
@@ -293,6 +304,14 @@ conda install -c conda-forge fenics-dolfinx
 ```bash
 conda install -c conda-forge gmsh
 ```
+
+### Error de JIT en macOS: `ld: -lto_library library filename must be 'libLTO.dylib'`
+**Causa**: conflicto entre el clang de conda-forge y el linker de Xcode al compilar las formas (FFCx JIT).
+**Solución**: usar el compilador del sistema para el JIT:
+```bash
+export CC=/usr/bin/clang
+```
+(agregalo a tu activación del entorno o al perfil del shell).
 
 ### Error de convergencia en el solver
 **Causa**: Paso de tiempo demasiado grande o malla muy gruesa

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "mesh": { "type": "gmsh", "R": 15.0, "lc": 1.0, "r_inner": 0.0 },
+  "mesh": { "type": "gmsh", "R": 15.0, "lc": 1.0, "r_inner": 0.0, "lc_inner": null },
   "metric": { "type": "flat", "M": 1.0 },
   "solver": {
     "degree": 1,
@@ -8,6 +8,8 @@
     "potential_type": "higgs",
     "potential_params": { "m_squared": 1.0, "lambda_coupling": 0.1 },
     "ko_eps": 0.0,
+    "ko_order": 2,
+    "sponge": { "enabled": false, "width": 0.0, "strength": 1.0 },
     "bc_type": "characteristic",
     "outer_tag": 2,
     "enable_sommerfeld": true
@@ -17,7 +19,12 @@
     "A": 0.01,
     "r0": 10.0,
     "w": 3.0,
-    "v0": 1.0
+    "v0": 1.0,
+    "direction": "static"
+  },
+  "analysis": {
+    "sample_point": [10.0, 0.0, 0.0],
+    "extraction": { "enabled": false, "radius": 9.0, "lmax": 2 }
   },
   "evolution": { "t_end": 50.0, "output_every": 10, "verbose": true },
   "output": { "dir": "results", "qnm_analysis": true, "diagnostics": true, "save_series": true }

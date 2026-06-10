@@ -95,3 +95,8 @@ echo
 echo "Entorno listo."
 echo "Para activarlo: conda activate $ENV_NAME"
 echo "Para ejecutar:  psyop run --config config_example.json --output results"
+if [[ "$(uname -s)" == "Darwin" ]]; then
+  echo
+  echo "Nota macOS: si el JIT de FFCx falla con 'ld: -lto_library ... libLTO.dylib',"
+  echo "usá el compilador del sistema para el JIT:  export CC=/usr/bin/clang"
+fi

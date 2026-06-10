@@ -42,6 +42,47 @@ This repository includes lightweight and environment-safe validation layers:
    - Prony modes carry least-squares amplitudes/phases, with dominant-mode
      ordering and conjugate-pair clustering by |f| (`tests/test_config_and_qnm.py`).
 
+9. **Consistent initial momentum**
+   - `initial_conditions.direction = ingoing|outgoing` sets Π = ±(∂_rφ + φ/r);
+     `tests/test_physics.py` verifies an outgoing pulse empties the domain.
+
+10. **Energy balance**
+    - `boundary_flux()` reports the exact discrete drain of the weak radiative
+      BC, so `E(t) + ∫F dt − E(0)` closes (residual converges ~h²); checked in
+      `tests/test_physics.py` and written to `series/balance.csv` by the CLI.
+
+11. **Sponge layer & 4th-order filter**
+    - The sponge absorbs dispersive massive-field tails; the biharmonic filter
+      (`ko_order=4`, normalized by power-iteration λmax) damps grid modes with
+      the same stability condition as the 2nd-order one but barely touches
+      smooth modes. Both validated in `tests/test_physics.py`.
+
+12. **Multipole extraction**
+    - Real-Y_lm projection on extraction spheres (Gauss-Legendre × uniform
+      quadrature); validated against an analytic Y_10 field to <1% and
+      orthonormality to 1e-10 (`tests/test_extraction.py`).
+
+13. **Measured convergence order**
+    - `tests/test_convergence_slow.py` measures the observed SSP-RK3 temporal
+      order (calibrated p ≈ 3.1) instead of a weak monotonicity check.
+
+14. **Leaver QNM benchmark** (slow)
+    - `tests/test_qnm_leaver_slow.py` evolves an ingoing Y_10 pulse on
+      Kerr-Schild Schwarzschild with excision and compares the dominant
+      ringdown mode against Mω(l=1,n=0) = 0.292936 − 0.097660i.
+    - Measured at CI resolution (lc=1.5 graded to 0.4, P1, 109k cells):
+      Mω = 0.2505 − 0.0709i (errors 15%/27%, tolerances 30%/50%).
+    - Honest scope: at this resolution the discretization error dominates
+      over the αKΠ term (a K=0 control also lands within tolerance), so the
+      benchmark validates the full pipeline and catches gross errors, but
+      discriminating the extrinsic-curvature term requires finer meshes.
+
+## Quadrature note
+
+UFL's automatic quadrature-degree estimation diverges for non-polynomial
+metric coefficients (Kerr-Schild). The solver fixes
+`solver.quadrature_degree` (default `2·degree + 2`) on all measures.
+
 ## Reproducibility
 
 Runtime outputs are written under:

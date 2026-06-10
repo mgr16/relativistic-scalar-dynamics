@@ -34,17 +34,21 @@ def build_ball_mesh(
     lc: float,
     comm: Optional[MPI.Comm] = None,
     r_inner: float = 0.0,
+    lc_inner: Optional[float] = None,
 ) -> Tuple[dmesh.Mesh, Optional[dmesh.MeshTags], Optional[dmesh.MeshTags]]:
     """
     Crea una malla esférica con radio R y tamaño característico lc.
 
     Parámetros:
         R: Radio de la esfera
-        lc: Tamaño característico de elemento
+        lc: Tamaño característico de elemento (en el borde exterior)
         comm: Comunicador MPI (para DOLFINx)
         r_inner: Si > 0, excisa una esfera interior de ese radio (cáscara).
             El borde interior recibe la etiqueta INNER_BOUNDARY_TAG=3
             (requerido para fondos de agujero negro).
+        lc_inner: Si se da (0 < lc_inner < lc), gradúa el tamaño de elemento
+            radialmente: lc_inner en el centro/horizonte → lc en el borde
+            (refinamiento donde la métrica varía más).
 
     Retorna:
         mesh: Malla del dominio
@@ -56,11 +60,15 @@ def build_ball_mesh(
         raise ValueError(f"r_inner must be >= 0, got {r_inner}")
     if r_inner >= R:
         raise ValueError(f"r_inner ({r_inner}) must be smaller than R ({R})")
+    if lc_inner is not None:
+        lc_inner = float(lc_inner)
+        if not (0 < lc_inner <= lc):
+            raise ValueError(f"lc_inner must satisfy 0 < lc_inner <= lc, got {lc_inner}")
 
     if not HAS_GMSH:
-        if r_inner > 0:
+        if r_inner > 0 or lc_inner is not None:
             raise RuntimeError(
-                "Excision meshes (r_inner > 0) require Gmsh. "
+                "Excision/graded meshes (r_inner/lc_inner) require Gmsh. "
                 "Install it with: conda install -c conda-forge gmsh"
             )
         logger.warning("Gmsh no disponible. Creando malla esférica simple...")
@@ -107,8 +115,22 @@ def build_ball_mesh(
         gmsh.model.addPhysicalGroup(3, [v[1] for v in volumes], 1)  # tag=1 para volumen
 
         # Configurar malla
-        gmsh.option.setNumber("Mesh.CharacteristicLengthMax", lc)
-        gmsh.option.setNumber("Mesh.CharacteristicLengthMin", lc/3)
+        if lc_inner is not None and lc_inner < lc:
+            # Graduación radial: lc_inner en r=0 (o el horizonte) → lc en r=R
+            field = gmsh.model.mesh.field.add("MathEval")
+            gmsh.model.mesh.field.setString(
+                field,
+                "F",
+                f"{lc_inner} + ({lc} - {lc_inner}) * sqrt(x*x + y*y + z*z) / {R}",
+            )
+            gmsh.model.mesh.field.setAsBackgroundMesh(field)
+            # El campo de fondo manda: desactivar otras fuentes de tamaño
+            gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+            gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
+            gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
+        else:
+            gmsh.option.setNumber("Mesh.CharacteristicLengthMax", lc)
+            gmsh.option.setNumber("Mesh.CharacteristicLengthMin", lc/3)
 
         # Generar malla
         gmsh.model.mesh.generate(3)

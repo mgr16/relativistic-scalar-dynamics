@@ -27,17 +27,24 @@ def _scalar_functionspace(mesh: dmesh.Mesh, degree: int = 1) -> fem.FunctionSpac
 class GaussianBump:
     """
     Condición inicial tipo bump gaussiano para campo escalar.
-    φ(r) = v0 * (1 + A * exp(-((r - r0)²)/w²))
+    φ(r) = v0 + A * exp(-((r - r0)²)/w²)
+
+    Nota: la forma histórica v0*(1 + A·exp(...)) producía φ ≡ 0 cuando
+    v0 = 0 (la amplitud quedaba multiplicada por el vacío). La forma
+    aditiva coincide con la anterior para v0 = 1 y es correcta para v0 = 0.
     """
     
+    VALID_DIRECTIONS = ("static", "ingoing", "outgoing")
+
     def __init__(
-        self, 
-        mesh: dmesh.Mesh, 
-        V: Optional[fem.FunctionSpace] = None, 
-        A: float = 1e-3, 
-        r0: float = 8.0, 
-        w: float = 2.0, 
-        v0: float = 1.0
+        self,
+        mesh: dmesh.Mesh,
+        V: Optional[fem.FunctionSpace] = None,
+        A: float = 1e-3,
+        r0: float = 8.0,
+        w: float = 2.0,
+        v0: float = 1.0,
+        direction: str = "static",
     ):
         """
         Parámetros:
@@ -47,31 +54,62 @@ class GaussianBump:
             r0: Centro radial de la perturbación
             w: Ancho de la perturbación
             v0: Valor de vacío del campo
+            direction: "static" (Π=0, el pulso se divide en mitades entrante
+                y saliente), "ingoing" o "outgoing" (momento consistente con
+                una onda esférica pura: Π = ±(∂_r φ_pert + φ_pert/r))
         """
+        if direction not in self.VALID_DIRECTIONS:
+            raise ValueError(
+                f"direction must be one of {self.VALID_DIRECTIONS}, got {direction!r}"
+            )
         self.mesh = mesh
         self.V = V if V is not None else _scalar_functionspace(mesh)
         self.A = float(A)
         self.r0 = float(r0)
         self.w = float(w)
         self.v0 = float(v0)
+        self.direction = direction
 
-        logger.debug(f"Creando GaussianBump: A={A}, r0={r0}, w={w}, v0={v0}")
+        logger.debug(f"Creando GaussianBump: A={A}, r0={r0}, w={w}, v0={v0}, dir={direction}")
         self.phi = fem.Function(self.V, name="phi_initial")
         # interpolate() evalúa en los puntos correctos de cada elemento
         # (válido en paralelo y para cualquier grado, a diferencia de copiar
         # arrays evaluados en coordenadas de dofs)
         self.phi.interpolate(self._profile)
+
+        self.Pi = None
+        if direction != "static":
+            self.Pi = fem.Function(self.V, name="Pi_initial")
+            self.Pi.interpolate(self._momentum_profile)
         logger.info("GaussianBump inicializado")
 
     def _profile(self, x: np.ndarray) -> np.ndarray:
         """Perfil gaussiano; x tiene forma (gdim, npuntos) según DOLFINx."""
         r = np.sqrt(x[0] ** 2 + x[1] ** 2 + x[2] ** 2)
-        perturbation = self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
-        return self.v0 * (1.0 + perturbation)
+        return self.v0 + self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
+
+    def _momentum_profile(self, x: np.ndarray) -> np.ndarray:
+        """
+        Π consistente con una onda esférica pura en espacio plano.
+
+        Para φ = g(r ± t)/r (entrante/saliente) vale ∂_tφ = ±(∂_rφ + φ/r),
+        aplicado solo a la parte radiativa (el vacío v0 no es una onda):
+            Π = s · (∂_r φ_pert + φ_pert / r),  s = +1 entrante, -1 saliente.
+        """
+        r = np.sqrt(x[0] ** 2 + x[1] ** 2 + x[2] ** 2)
+        r_safe = np.maximum(r, 1e-12)
+        pert = self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
+        dpert_dr = -2.0 * (r - self.r0) / (self.w ** 2) * pert
+        sign = 1.0 if self.direction == "ingoing" else -1.0
+        return sign * (dpert_dr + pert / r_safe)
     
     def get_function(self) -> fem.Function:
         """Retorna la función inicializada."""
         return self.phi
+
+    def get_momentum(self) -> Optional[fem.Function]:
+        """Retorna Π inicial (None si direction='static')."""
+        return self.Pi
 
 class PlaneWave:
     """
