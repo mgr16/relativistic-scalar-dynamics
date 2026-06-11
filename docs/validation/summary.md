@@ -77,6 +77,35 @@ This repository includes lightweight and environment-safe validation layers:
       benchmark validates the full pipeline and catches gross errors, but
       discriminating the extrinsic-curvature term requires finer meshes.
 
+15. **Leaver reference solver** (fast)
+    - `psyop.analysis.leaver` computes scalar Kerr QNMs by continued
+      fractions for any (l, m, n, a): `tests/test_leaver.py` checks the
+      published Schwarzschild values (≤2e-6), the l=2 first overtone, and
+      Kerr values cross-validated against the `qnm` package (Stein 2019)
+      to ~1e-15 at a ≤ 0.95 (hardcoded; live cross-check is `slow`).
+
+16. **Frame-dragging splitting on Kerr** (slow)
+    - `tests/test_kerr_splitting_slow.py` evolves a real Y_1|1| pulse on
+      a = 0.9: the signal must contain BOTH the prograde and retrograde
+      modes (Leaver: 0.4372 and 0.2434, ratio 1.797). Calibration
+      2026-06-11 (CI mesh): modes at 0.6037/0.3137, ratio 1.924.
+    - The splitting is the robust observable — discretization shifts both
+      modes (+30-40% at this resolution, partly spheroidal-spherical
+      mixing of the Y_lm extraction) but cannot split a degenerate pair;
+      in Schwarzschild the test must fail by construction.
+
+17. **Cowling validity monitor**
+    - `psyop.analysis.cowling` logs ζ = 8πρ/√(Kretschmann) and E/M per
+      output step (`series/cowling.csv`), warning above ζ = 1e-2;
+      `tests/test_cowling.py` verifies the exact A² scaling and the
+      one-shot warning.
+
+18. **Price tails** (slow)
+    - `psyop.analysis.tails` fits the late-time power law; the slow test
+      evolves a massless l=1 pulse on a causally clean domain (R = 60,
+      boundary echo arrives after the fit window) and checks the Price
+      exponent t^-(2l+3) = t^-5.
+
 ## Quadrature note
 
 UFL's automatic quadrature-degree estimation diverges for non-polynomial

@@ -14,6 +14,30 @@ import numpy as np
 from psyop.analysis.qnm import compute_qnm, estimate_peak, estimate_qnm_prony_modes
 from psyop.config import DEFAULT_CONFIG, load_config, validate_config
 from psyop.utils.logger import get_logger, setup_logger
+from psyop.utils.units import units_from_config
+
+
+def _write_physical_qnm(units, series_dir, modes=None, f_peak=None) -> None:
+    """Escribe series/qnm_physical.json con el QNM en unidades astrofísicas."""
+    physical = {"units": units.describe()}
+    if modes:
+        physical["modes"] = units.qnm_to_physical(modes)
+    if f_peak is not None:
+        physical["peak_frequency_Hz"] = units.frequency_Hz(f_peak)
+    with open(os.path.join(series_dir, "qnm_physical.json"), "w", encoding="utf-8") as f:
+        json.dump(physical, f, indent=2)
+    logger = get_logger()
+    if physical.get("modes"):
+        m0 = physical["modes"][0]
+        logger.info(
+            f"Physical QNM (M={units.M_solar:g} M_sun): "
+            f"f={m0['frequency_Hz']:.1f} Hz, tau={m0['damping_time_ms']:.2f} ms"
+        )
+    elif f_peak is not None:
+        logger.info(
+            f"Physical QNM (M={units.M_solar:g} M_sun): "
+            f"f_peak={physical['peak_frequency_Hz']:.1f} Hz"
+        )
 
 
 def create_example_config(filename: str = "config_example.json") -> None:
@@ -278,6 +302,14 @@ def run_main(argv=None) -> int:
     diagnostics = cfg.get("output", {}).get("diagnostics", True)
     save_series = cfg.get("output", {}).get("save_series", True)
 
+    # Monitor de validez de Cowling: cuantifica la hipótesis de campo de prueba
+    cowling_monitor = None
+    cowling_series = []
+    if diagnostics:
+        from psyop.analysis.cowling import CowlingMonitor
+
+        cowling_monitor = CowlingMonitor(solver, cfg["metric"])
+
     # Visualización en vivo (opcional): cero costo cuando --live no está activo
     live_viewer = None
     live_every = output_every
@@ -331,8 +363,11 @@ def run_main(argv=None) -> int:
 
                 # Diagnostics
                 if diagnostics:
-                    energy_series.append((t, solver.energy()))
+                    e_now = solver.energy()
+                    energy_series.append((t, e_now))
                     flux_series.append((t, solver.boundary_flux()))
+                    cw = cowling_monitor.check(t, energy=e_now)
+                    cowling_series.append((t, cw["zeta_max"], cw["energy_ratio"]))
 
                 if step % (output_every * 10) == 0:
                     logger.info(f"Progress: t={t:.3f}/{t_end:.3f} (step {step})")
@@ -383,6 +418,17 @@ def run_main(argv=None) -> int:
             for t_val, f_val in flux_series:
                 f.write(f"{t_val:.12e} {f_val:.12e}\n")
         logger.info(f"Flux series saved: {len(flux_series)} samples")
+
+    if save_series and diagnostics and cowling_series and mesh.comm.rank == 0:
+        with open(os.path.join(series_dir, "cowling.csv"), "w", encoding="utf-8") as fcsv:
+            fcsv.write("t,zeta_max,energy_ratio\n")
+            for t_val, z_val, e_val in cowling_series:
+                fcsv.write(f"{t_val:.12e},{z_val:.12e},{e_val:.12e}\n")
+        zeta_peak = max(z for _, z, _ in cowling_series)
+        logger.info(
+            f"Cowling validity: max zeta = {zeta_peak:.3e} "
+            f"({'OK, test-field consistent' if zeta_peak < 1e-2 else 'MARGINAL'})"
+        )
 
     if save_series and multipole_series and mesh.comm.rank == 0:
         mp_csv_path = os.path.join(series_dir, "multipoles.csv")
@@ -443,6 +489,9 @@ def run_main(argv=None) -> int:
                 with open(os.path.join(series_dir, "qnm_modes.json"), "w", encoding="utf-8") as f:
                     json.dump(prony_modes, f, indent=2)
                 logger.info(f"QNM Prony analysis saved ({modes} modes)")
+                units = units_from_config(cfg)
+                if units is not None:
+                    _write_physical_qnm(units, series_dir, modes=prony_modes)
         else:
             freqs, spec = compute_qnm(signal, dt_sample)
             f_peak, s_peak = estimate_peak(freqs, spec)
@@ -456,6 +505,9 @@ def run_main(argv=None) -> int:
             with open(os.path.join(series_dir, "qnm_peak.json"), "w", encoding="utf-8") as f:
                 json.dump({"frequency": f_peak, "spectrum": s_peak}, f, indent=2)
             logger.info(f"QNM FFT analysis saved (peak at f={f_peak:.6e})")
+            units = units_from_config(cfg)
+            if units is not None:
+                _write_physical_qnm(units, series_dir, f_peak=f_peak)
 
     logger.info("Simulation completed successfully!")
     logger.info(f"Results saved to: {outdir}")
@@ -497,10 +549,20 @@ def postprocess_main(argv=None) -> int:
         raise ValueError("--modes must be >= 1")
     dt = float(np.mean(np.diff(data[:, 0])))
     signal = data[:, 1]
+
+    # Unidades físicas: la config exacta del run queda guardada en el outdir
+    units = None
+    run_cfg_path = os.path.join(args.run, "config.json")
+    if os.path.exists(run_cfg_path):
+        with open(run_cfg_path, encoding="utf-8") as f:
+            units = units_from_config(json.load(f))
+
     if args.method == "prony":
         prony_modes = estimate_qnm_prony_modes(signal, dt, modes=args.modes)
         with open(os.path.join(series_dir, "qnm_modes.json"), "w", encoding="utf-8") as f:
             json.dump(prony_modes, f, indent=2)
+        if units is not None and prony_modes:
+            _write_physical_qnm(units, series_dir, modes=prony_modes)
         if prony_modes:
             rows = [
                 [m["frequency"], m["decay"], m["amplitude"], m["phase"], m["score"]]
@@ -525,6 +587,8 @@ def postprocess_main(argv=None) -> int:
         )
         with open(os.path.join(series_dir, "qnm_peak.json"), "w", encoding="utf-8") as f:
             json.dump({"frequency": f_peak, "spectrum": s_peak}, f, indent=2)
+        if units is not None:
+            _write_physical_qnm(units, series_dir, f_peak=f_peak)
         if args.plots:
             try:
                 import matplotlib.pyplot as plt

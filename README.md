@@ -40,6 +40,12 @@ of a spherical domain, absorbed by the characteristic boundary condition.*
 - Point sampling, multipole (real Yₗₘ) extraction on a sphere
 - Energy/flux series with discrete energy-balance residual
 - QNM spectra via FFT or Prony; XDMF fields + CSV series + run manifest
+- **Leaver reference QNMs**: continued-fraction solver for scalar Kerr
+  quasinormal frequencies, any (l, m, n, spin) — no lookup tables needed
+- **Cowling validity monitor**: quantifies the test-field approximation
+  (ζ = 8πρ/√K per step) and warns when backreaction would matter
+- **Astrophysical units**: QNM output in Hz/ms for a chosen mass in M☉
+- **Price tail analysis**: late-time power-law fits with quality measure
 
 **Visualization**
 - Interactive live view of φ during evolution (`--live`, PyVista)
@@ -204,6 +210,7 @@ Advanced solver options:
 | `initial_conditions.direction` | `"ingoing"` / `"outgoing"` (pure spherical pulse, Π = ±(∂ᵣφ + φ/r)) or `"static"` (Π = 0, pulse splits in halves). |
 | `analysis.extraction {enabled, radius, lmax}` | Multipole projection of φ onto real Yₗₘ on an extraction sphere → `series/multipoles.csv`. |
 | `analysis.qnm_method`, `analysis.qnm_modes` | `"fft"` or `"prony"` QNM estimation. |
+| `output.physical_units {M_solar}` | Report QNM results in physical units (Hz, ms) for a black hole of the given mass → `series/qnm_physical.json`. A 30 M☉ remnant rings at ~521 Hz (LIGO band). |
 
 ## Physics and Numerical Methods
 
@@ -271,6 +278,26 @@ pytest -q
 
 Markers: `slow`, `mpi`, `integration`, `requires_dolfinx`, `requires_mesh`,
 `requires_numpy`. Three GitHub Actions workflows:
+
+### Physics validation ladder
+
+The test suite validates physics at increasing depth (deepest are `slow`):
+
+1. **Conventions & conservation** — energy balance E(t) + ∫F dt = E(0)
+   (residual converges ~h²), multipole extraction against analytic Yₗₘ
+   fields, Sommerfeld reflection coefficients.
+2. **Reference frequencies** — the Leaver continued-fraction solver is
+   checked against published Schwarzschild values (Berti et al. 2009) and
+   cross-validated against the `qnm` package to machine precision.
+3. **End-to-end spectroscopy** (`slow`) — full FEM evolutions on Kerr-Schild
+   backgrounds with excision must reproduce Leaver frequencies: the
+   Schwarzschild l=1 fundamental, and the prograde/retrograde frame-dragging
+   splitting at a = 0.9 (an 80% effect, immune to discretization systematics
+   in the ratio).
+4. **Late-time tails** (`slow`) — after the ringdown, the field must decay
+   as the Price power law t^-(2l+3) on a causally clean domain.
+5. **Honesty checks** — every run logs the Cowling validity measure; the
+   suite asserts it scales as A² and warns at the right threshold.
 
 - **Core CI** — lightweight tests without DOLFINx (pure NumPy/SciPy paths)
 - **CI** — full suite inside the `dolfinx/dolfinx:stable` container

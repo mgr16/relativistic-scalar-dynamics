@@ -179,4 +179,7 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
             raise ValueError("analysis.extraction.radius must be in (0, mesh.R)")
         if int(extraction.get("lmax", 2)) < 0:
             raise ValueError("analysis.extraction.lmax must be >= 0")
+    physical_units = cfg["output"].get("physical_units") or {}
+    if physical_units and float(physical_units.get("M_solar", 0.0)) <= 0:
+        raise ValueError("output.physical_units.M_solar must be > 0")
     return cfg

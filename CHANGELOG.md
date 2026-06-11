@@ -3,6 +3,41 @@
 All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.1.0] — 2026-06-11
+
+Physics realism batch: reference-quality QNM targets, validity monitoring,
+and astrophysical units.
+
+### Added
+- **Leaver reference QNM solver** (`psyop.analysis.leaver`): scalar (s=0)
+  Kerr quasinormal frequencies for any (l, m, n, spin) via Leaver (1985)
+  continued fractions with spin continuation. Reproduces published
+  Schwarzschild values (Berti et al. 2009) to 1e-6 and agrees with the
+  `qnm` package (Stein 2019) to machine precision up to a = 0.95.
+- **Kerr ringdown pipeline** (`psyop.analysis.ringdown`): evolve Y_lm
+  shell pulses on Kerr, Prony-fit the ringdown. With |m| > 0 a real field
+  contains both prograde and retrograde modes — frame dragging splits them
+  (~80% at a = 0.9), measurable in a single run with discretization
+  systematics cancelling in the ratio.
+- **Spin sweep script** (`scripts/qnm_kerr_sweep.py`): FEM vs Leaver
+  comparison table across spins.
+- **Cowling validity monitor** (`psyop.analysis.cowling`): dimensionless
+  backreaction measure ζ = 8πρ/√(Kretschmann) and E_field/M logged each
+  output step (`series/cowling.csv`); warns when the test-field
+  approximation becomes marginal (ζ > 1e-2).
+- **Astrophysical units** (`psyop.utils.units`): set
+  `output.physical_units.M_solar` to get QNM frequencies in Hz and damping
+  times in ms (`series/qnm_physical.json`) — e.g. the l=2 fundamental of a
+  30 M_sun black hole lands at ~521 Hz, in the LIGO band.
+- **Price tail analysis** (`psyop.analysis.tails`): log-log power-law fit
+  with R² quality measure and theoretical exponents t^-(2l+3).
+
+### Fixed
+- `.gitignore` had an unanchored `psyop/` pattern that silently ignored
+  new files under `src/psyop/` — `analysis/extraction.py` and
+  `utils/live_view.py` were missing from every previous commit (broken
+  imports on fresh clones). Pattern is now root-anchored (`/psyop/`).
+
 ## [3.0.0] — 2026-06-11
 
 ### Added
