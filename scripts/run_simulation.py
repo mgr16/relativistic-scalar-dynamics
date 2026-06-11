@@ -5,7 +5,7 @@ run_simulation.py – Envoltura para ejecutar simulaciones con perfiles.
 Ubicación oficial: scripts/run_simulation.py
 """
 
-import argparse, json, subprocess, sys, tempfile
+import argparse, json, sys, tempfile
 from pathlib import Path
 
 DEFAULT_CONFIG = "config_example.json"
@@ -51,23 +51,15 @@ def apply_overrides(cfg: dict, mode: str) -> dict:
     return cfg
 
 def run_main_with_config(config_path: str) -> int:
-    # Intentar importar main desde la raíz y simular CLI; si falla, invocar como proceso
-    project_root = Path(__file__).resolve().parent.parent
+    # Usar la CLI del paquete; si no está instalado, caer al árbol src/ del repo
     try:
-        sys.path.insert(0, str(project_root))
-        import main as main_mod
-        # Simular argumentos de línea de comandos
-        argv_backup = sys.argv[:]
-        try:
-            sys.argv = ["main.py", "--config", config_path]
-            rc = main_mod.main()
-            return int(rc) if isinstance(rc, int) else 0
-        except Exception:
-            return subprocess.call([sys.executable, str(project_root / "main.py"), "--config", config_path])
-        finally:
-            sys.argv = argv_backup
-    except Exception:
-        return subprocess.call([sys.executable, str(project_root / "main.py"), "--config", config_path])
+        from psyop.cli import run_main
+    except ImportError:
+        project_root = Path(__file__).resolve().parent.parent
+        sys.path.insert(0, str(project_root / "src"))
+        from psyop.cli import run_main
+    rc = run_main(["--config", config_path])
+    return int(rc) if isinstance(rc, int) else 0
 
 
 def main():
