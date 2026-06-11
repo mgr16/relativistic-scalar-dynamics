@@ -95,9 +95,14 @@ class GaussianBump:
         Para φ = g(r ± t)/r (entrante/saliente) vale ∂_tφ = ±(∂_rφ + φ/r),
         aplicado solo a la parte radiativa (el vacío v0 no es una onda):
             Π = s · (∂_r φ_pert + φ_pert / r),  s = +1 entrante, -1 saliente.
+
+        El piso de r es una fracción del ancho del pulso: con un piso de
+        ~1e-12 la cola gaussiana (minúscula pero no nula) dividida por r→0
+        produce un pico enorme de Π en el origen (e.g. 1e-7/1e-12 = 1e5).
+        Dentro de r < w/10 la cola del cascarón es físicamente irrelevante.
         """
         r = np.sqrt(x[0] ** 2 + x[1] ** 2 + x[2] ** 2)
-        r_safe = np.maximum(r, 1e-12)
+        r_safe = np.maximum(r, 0.1 * self.w)
         pert = self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
         dpert_dr = -2.0 * (r - self.r0) / (self.w ** 2) * pert
         sign = 1.0 if self.direction == "ingoing" else -1.0

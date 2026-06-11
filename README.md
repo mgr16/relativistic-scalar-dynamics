@@ -26,7 +26,7 @@ PSYOP es un simulador de campos escalares evolucionando en fondos de agujeros ne
 
 ### **Diagnósticos y absorción avanzados**
 - **Momento inicial consistente**: `initial_conditions.direction = "ingoing"|"outgoing"` (pulso esférico puro, Π = ±(∂_rφ + φ/r)); `"static"` (Π=0) divide el pulso en mitades
-- **Capa esponja**: `solver.sponge {enabled, width, strength}` amortigua las colas dispersivas de campos masivos que la BC característica no absorbe
+- **Capa esponja**: `solver.sponge {enabled, width, strength}` amortigua las colas dispersivas de campos masivos que la BC característica no absorbe. *Tuning*: la anchura debe ser comparable a la longitud de onda a absorber — una esponja angosta y fuerte refleja los modos lentos en vez de absorberlos
 - **Disipación de 4.º orden**: `solver.ko_order = 4` (filtro biarmónico normalizado por λmax: misma estabilidad que el de 2.º orden pero casi no toca los modos suaves)
 - **Extracción multipolar**: `analysis.extraction {enabled, radius, lmax}` proyecta φ sobre armónicos esféricos reales en una esfera de extracción → `series/multipoles.csv`
 - **Balance de energía**: `series/balance.csv` registra `E(t) + ∫F dt − E(0)` (residuo converge ~h²)
@@ -123,6 +123,29 @@ psyop-postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft
 ```bash
 psyop postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft --plots
 ```
+
+### Visualización en vivo (`--live`)
+Abre una ventana interactiva PyVista con un corte z=0 del campo φ que se
+actualiza durante la evolución (barra de color fija calibrada con el estado
+inicial y el tiempo t en pantalla). Requiere pyvista:
+
+```bash
+conda install -n psyop-dolfinx -c conda-forge pyvista
+```
+
+```bash
+psyop run --config config_example.json --live                 # refresca cada output_every pasos
+psyop run --config config_example.json --live --live-every 5  # refresco cada 5 pasos
+```
+
+Caveats:
+- Pensado para demos y debugging, **no para producción**: el render frena el
+  lazo de evolución.
+- **Solo en serie**: con MPI > 1 rank se desactiva con un warning y la
+  simulación continúa normalmente.
+- Necesita sesión gráfica: en entornos headless, o si pyvista no está
+  instalado, se loggea un warning y la corrida sigue sin ventana (sin `--live`
+  el costo es cero).
 
 ### Configuración personalizada
 Edita `config_example.json` o crea un JSON propio con las mismas claves:

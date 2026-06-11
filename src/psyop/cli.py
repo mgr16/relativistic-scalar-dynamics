@@ -50,6 +50,18 @@ def _build_run_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
     )
     parser.add_argument("--test", action="store_true", help="Run basic test without FEM")
     parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Show live PyVista view of phi during evolution (serial only, demo/debug)",
+    )
+    parser.add_argument(
+        "--live-every",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Update live view every N steps (default: evolution.output_every)",
+    )
+    parser.add_argument(
         "--log-level",
         type=str,
         default="INFO",
@@ -66,6 +78,8 @@ def run_main(argv=None) -> int:
         )
     )
     args = run_parser.parse_args(argv)
+    if args.live_every is not None and args.live_every < 1:
+        run_parser.error("--live-every must be >= 1")
 
     # DOLFINx imports (required)
     try:
@@ -264,6 +278,20 @@ def run_main(argv=None) -> int:
     diagnostics = cfg.get("output", {}).get("diagnostics", True)
     save_series = cfg.get("output", {}).get("save_series", True)
 
+    # Visualización en vivo (opcional): cero costo cuando --live no está activo
+    live_viewer = None
+    live_every = output_every
+    if args.live:
+        from psyop.utils.live_view import create_live_viewer
+
+        live_every = args.live_every if args.live_every is not None else output_every
+        live_viewer = create_live_viewer(solver.V_phi, comm=mesh.comm)
+        if live_viewer is not None:
+            # Primer frame con el estado inicial: calibra la barra de color
+            phi_init, _ = solver.get_fields()
+            live_viewer.update(phi_init, t=0.0)
+            logger.info(f"Live view enabled: updating every {live_every} steps")
+
     logger.info(f"Starting evolution: t_end={t_end}, dt={dt:.6e}, output_every={output_every}")
 
     # Main evolution loop
@@ -281,6 +309,9 @@ def run_main(argv=None) -> int:
             if step % output_every == 0:
                 phi, Pi = solver.get_fields()
                 xdmf.write_function(phi, t)
+
+                if live_viewer is not None and step % live_every == 0:
+                    live_viewer.update(phi, t)
 
                 # Sample field: el punto vive en (a lo sumo) unos pocos ranks;
                 # se recolecta en rank 0, que es quien escribe las series
@@ -305,6 +336,14 @@ def run_main(argv=None) -> int:
 
                 if step % (output_every * 10) == 0:
                     logger.info(f"Progress: t={t:.3f}/{t_end:.3f} (step {step})")
+
+            elif live_viewer is not None and step % live_every == 0:
+                # Paso solo de visualización (live_every != output_every)
+                phi_live, _ = solver.get_fields()
+                live_viewer.update(phi_live, t)
+
+    if live_viewer is not None:
+        live_viewer.close()
 
     logger.info(f"Evolution complete: final time t={t:.3f}")
 
