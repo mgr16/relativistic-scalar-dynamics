@@ -35,6 +35,7 @@ def build_ball_mesh(
     comm: Optional[MPI.Comm] = None,
     r_inner: float = 0.0,
     lc_inner: Optional[float] = None,
+    geom_order: int = 1,
 ) -> Tuple[dmesh.Mesh, Optional[dmesh.MeshTags], Optional[dmesh.MeshTags]]:
     """
     Crea una malla esférica con radio R y tamaño característico lc.
@@ -49,6 +50,10 @@ def build_ball_mesh(
         lc_inner: Si se da (0 < lc_inner < lc), gradúa el tamaño de elemento
             radialmente: lc_inner en el centro/horizonte → lc en el borde
             (refinamiento donde la métrica varía más).
+        geom_order: orden geométrico de las celdas (1 = facetas planas,
+            2 = celdas curvas). Con elementos P2+ las facetas planas
+            introducen un error geométrico O(h²) en las esferas de borde
+            que domina sobre el error de aproximación; usar geom_order=2.
 
     Retorna:
         mesh: Malla del dominio
@@ -64,12 +69,15 @@ def build_ball_mesh(
         lc_inner = float(lc_inner)
         if not (0 < lc_inner <= lc):
             raise ValueError(f"lc_inner must satisfy 0 < lc_inner <= lc, got {lc_inner}")
+    geom_order = int(geom_order)
+    if geom_order not in (1, 2):
+        raise ValueError(f"geom_order must be 1 or 2, got {geom_order}")
 
     if not HAS_GMSH:
-        if r_inner > 0 or lc_inner is not None:
+        if r_inner > 0 or lc_inner is not None or geom_order > 1:
             raise RuntimeError(
-                "Excision/graded meshes (r_inner/lc_inner) require Gmsh. "
-                "Install it with: conda install -c conda-forge gmsh"
+                "Excision/graded/curved meshes (r_inner/lc_inner/geom_order) "
+                "require Gmsh. Install it with: conda install -c conda-forge gmsh"
             )
         logger.warning("Gmsh no disponible. Creando malla esférica simple...")
         return _create_simple_ball_mesh(R, comm, lc=lc)
@@ -134,7 +142,11 @@ def build_ball_mesh(
 
         # Generar malla
         gmsh.model.mesh.generate(3)
-        logger.info("Malla generada con Gmsh")
+        if geom_order > 1:
+            # celdas curvas: los nodos de alto orden se proyectan a la
+            # geometría CAD (esferas exactas en los bordes)
+            gmsh.model.mesh.setOrder(geom_order)
+        logger.info(f"Malla generada con Gmsh (orden geométrico {geom_order})")
 
         # Importar a DOLFINx
         mesh_data = dolfinx_gmsh.model_to_mesh(

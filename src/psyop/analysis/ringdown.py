@@ -15,7 +15,7 @@ splitting en una sola corrida cancela el error sistemático de discretización.
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -36,7 +36,7 @@ def evolve_kerr_ringdown(
     m_abs: int = 0,
     M: float = 1.0,
     R: float = 20.0,
-    r_inner: float = 1.0,
+    r_inner: Optional[float] = None,
     lc: float = 1.5,
     lc_inner: float = 0.4,
     r0: float = 8.0,
@@ -52,13 +52,25 @@ def evolve_kerr_ringdown(
 
     El pulso es entrante (Π = ∂ᵣφ + φ/r) para que caiga hacia el agujero
     negro y el ringdown quede limpio tras el tránsito.
+
+    r_inner=None elige el punto medio de la ventana de outflow admisible
+    (docs/math/excision_window.md): 1.0 para a=0, ≈1.25 para a=0.9.
     """
     import dolfinx.fem as fem
     from mpi4py import MPI
 
     from psyop.analysis.extraction import MultipoleExtractor
     from psyop.mesh.gmsh import INNER_BOUNDARY_TAG, build_ball_mesh, get_outer_tag
-    from psyop.physics.metrics import KerrSchildCoeffs
+    from psyop.physics.metrics import KerrSchildCoeffs, kerr_excision_window
+
+    if r_inner is None:
+        lo, hi = kerr_excision_window(M, a)
+        if lo >= hi:
+            raise ValueError(
+                f"a={a}: Cartesian-sphere excision window is empty; "
+                "spheroidal excision required"
+            )
+        r_inner = 0.5 * (lo + hi)
     from psyop.solvers.first_order import FirstOrderKGSolver
     from psyop.utils.utils import compute_dt_cfl
 

@@ -25,6 +25,13 @@ class BackgroundCoeffs:
     def max_characteristic_speed(self, mesh) -> float:
         return 1.0
 
+    def radial_factors_np(self, r: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """(α, β·r̂, √γ^rr) como arrays NumPy en radios r (para datos
+        iniciales consistentes con el fondo). Por defecto: espacio plano."""
+        r = np.asarray(r, dtype=float)
+        one = np.ones_like(r)
+        return one, np.zeros_like(r), one
+
 
 class FlatBackgroundCoeffs(BackgroundCoeffs):
     def build(self, mesh):
@@ -69,6 +76,14 @@ class SchwarzschildIsotropicCoeffs(BackgroundCoeffs):
         m_over_2r = self.M / (2.0 * r)
         alpha = (1.0 - m_over_2r) / (1.0 + m_over_2r)
         return float(np.max(np.abs(alpha)))
+
+    def radial_factors_np(self, r: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Isotrópico: α=(1−M/2r)/(1+M/2r), β=0, √γ^rr = ψ⁻² = (1+M/2r)⁻²."""
+        r = np.asarray(r, dtype=float)
+        m_over_2r = self.M / (2.0 * np.maximum(r, 1e-12))
+        psi2 = (1.0 + m_over_2r) ** 2
+        alpha = (1.0 - m_over_2r) / (1.0 + m_over_2r)
+        return alpha, np.zeros_like(r), 1.0 / psi2
 
 
 class KerrSchildCoeffs(BackgroundCoeffs):
@@ -138,6 +153,49 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         alpha = 1.0 / np.sqrt(1.0 + factor)
         beta_norm = np.abs(factor / (1.0 + factor))
         return float(np.max(alpha + beta_norm))
+
+    def radial_factors_np(self, r: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Kerr-Schild radial: α=(1+2H)^{-1/2}, β·r̂=2H/(1+2H), √γ^rr=α.
+
+        Exacto para a=0 (H=M/r, el rayo nulo entrante cumple dr/dt=−1).
+        Para a≠0 se evalúa con H(r, θ=π/2) ≈ M/r como aproximación radial
+        de orden dominante (el dato inicial mejora igualmente frente a la
+        relación plana; el residuo se radia como junk reducido).
+        """
+        r = np.asarray(r, dtype=float)
+        H = self.M / np.maximum(r, 1e-12)
+        factor = 2.0 * H
+        alpha = 1.0 / np.sqrt(1.0 + factor)
+        beta_r = factor / (1.0 + factor)
+        return alpha, beta_r, alpha
+
+
+def kerr_excision_window(M: float, a: float) -> Tuple[float, float]:
+    """Ventana admisible (lo, hi) del radio de excisión esférico cartesiano.
+
+    Una esfera cartesiana ρ = R_exc barre radios de Boyer-Lindquist
+    r ∈ [√(R_exc²−a²), R_exc]; el "do-nothing" del borde interior exige
+    contenerla en la región atrapada r₋ < r < r₊, lo que da
+
+        √(r₋² + a²) < R_exc < r₊         (derivación: docs/math/excision_window.md)
+
+    Para |a| ≳ 0.9718 M la ventana se cierra (lo ≥ hi): ninguna esfera
+    cartesiana cabe en la región atrapada y se necesita una superficie
+    esferoidal r = const.
+
+    Returns:
+        (lo, hi): cotas de la ventana. Admisible solo si lo < hi.
+    """
+    M = float(M)
+    a = abs(float(a))
+    if a > M:
+        raise ValueError(f"spin |a|={a} exceeds M={M} (naked singularity)")
+    root = np.sqrt(M * M - a * a)
+    r_plus, r_minus = M + root, M - root
+    lo = float(np.sqrt(r_minus**2 + a**2))
+    if a == 0.0:
+        lo = 0.0
+    return lo, float(r_plus)
 
 
 def make_background(metric_cfg: dict) -> BackgroundCoeffs:

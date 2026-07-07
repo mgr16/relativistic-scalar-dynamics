@@ -145,6 +145,61 @@ class FirstOrderKGSolver:
         self._setup_variational_forms()
         self._setup_mass_matrix_solver()
         self._setup_filter_matrix()
+        self._setup_diagnostic_forms()
+
+    def _setup_diagnostic_forms(self) -> None:
+        """Compila una sola vez las formas de energía y flujo de borde."""
+        sqrtg = self._SQRTG()
+        gammaInv = self._GAMMAINV()
+        gradphi = ufl.dot(gammaInv, ufl.grad(self.phi_c))
+        try:
+            Vphi = self.potential.evaluate_ufl(self.phi_c)
+        except (AttributeError, NotImplementedError):
+            Vphi = 0.5 * self.phi_c * self.phi_c
+        energy_density = (
+            0.5 * ufl.inner(gradphi, ufl.grad(self.phi_c))
+            + 0.5 * self.Pi_c * self.Pi_c
+            + Vphi
+        ) * sqrtg
+        self._energy_form_compiled = fem.form(energy_density * self._dx())
+
+        self._flux_form_compiled = None
+        if self.has_sommerfeld:
+            n = ufl.FacetNormal(self.mesh)
+            alpha = self._ALPHA()
+            gnn = ufl.dot(n, ufl.dot(gammaInv, n))
+            drain = ufl.sqrt(gnn) * self.Pi_c * self.Pi_c
+            if self.bc_type == "sommerfeld_spherical":
+                x = ufl.SpatialCoordinate(self.mesh)
+                r = ufl.sqrt(ufl.dot(x, x) + 1.0e-15)
+                drain = drain + gnn * self.Pi_c * self.phi_c / r
+            self._flux_form_compiled = fem.form(alpha * sqrtg * drain * self.ds_outer)
+
+        # Flujo de energía hacia el agujero por el borde excisado. El vector
+        # de flujo en coordenadas (t, xⁱ) es F^i = α S^i − β^i ρ, con
+        # S^i = −Π γ^{ij}∂_jφ y ρ la densidad de observadores normales:
+        # en foliaciones horizon-penetrating el término advectivo del shift
+        # −(β·n)ρ DOMINA (α→0 suprime el conormal dentro del horizonte).
+        # F_inner = ∮ [−αΠ γ^{ij}∂_jφ n_i − (β·n)ρ] √γ ds  (positivo al caer).
+        # Nota: el cierre discreto EXACTO del balance en foliaciones
+        # estacionarias requiere la energía de Killing (TODO Fase 1).
+        self._inner_flux_form_compiled = None
+        if self.has_excision and self.ds_inner is not None:
+            n = ufl.FacetNormal(self.mesh)
+            alpha = self._ALPHA()
+            beta = self._BETA()
+            conormal = ufl.dot(ufl.dot(gammaInv, ufl.grad(self.phi_c)), n)
+            integrand = -(alpha * self.Pi_c * conormal)
+            if beta is not None:
+                rho = (
+                    0.5 * self.Pi_c * self.Pi_c
+                    + 0.5 * ufl.inner(gradphi, ufl.grad(self.phi_c))
+                    + Vphi
+                )
+                integrand += -ufl.dot(beta, n) * rho
+            self._inner_flux_form_compiled = fem.form(
+                integrand * sqrtg * self.ds_inner
+            )
 
     def rebuild_operators(self) -> None:
         """API pública para reconstruir operadores tras configurar fondo/BCs
@@ -186,48 +241,129 @@ class FirstOrderKGSolver:
         self.V_Pi, self.Pi_to_parent = self.V.sub(1).collapse()
     
     def _setup_variational_forms(self):
-        """Configura las formas variacionales con métrica."""
+        """Configura las formas variacionales con métrica.
+
+        Ruta rápida (preassemble): TODO el RHS salvo el término cúbico del
+        potencial es lineal en (φ, Π), así que se ensambla UNA matriz
+        A con la forma bilineal completa (difusión + transporte + αKΠ +
+        esponja + borde radiativo + parte lineal de V') y cada etapa RK se
+        reduce a un matvec (+ un vector para c₃φ³ si el potencial es no
+        lineal) + un solve de masa. Sin ensamblado simbólico en el bucle.
+
+        Ruta lenta (preassemble=False): idéntica física ensamblando la forma
+        no lineal completa en cada etapa (oráculo de regresión para A/B).
+        """
         # Forma de masa con √γ
         dx = self._dx()
-        
-        # Sistema de ecuaciones con métrica:
-        # M * du/dt = F(u)
-        # donde u = [φ, Π] y F(u) = [αΠ + β·∇φ, α∇·(γ⁻¹∇φ) + αKΠ - αV'(φ)]
-        
+
         # Matriz de masa ponderada: ∫ √γ (test_φ * φ + test_Pi * Pi) dx
         u_trial = ufl.TrialFunction(self.V)
         v_test = ufl.TestFunction(self.V)
         phi_trial, Pi_trial = ufl.split(u_trial)
         test_phi_mass, test_Pi_mass = ufl.split(v_test)
-        
+
         sqrtg = self._SQRTG()
         self.mass_form = (test_phi_mass * phi_trial + test_Pi_mass * Pi_trial) * sqrtg * dx
-        
+
+        c1, c3 = self._potential_decomposition()
         if self.preassemble_stiffness:
-            self.diffusion_form = self._diffusion_form()
-            self.rhs_form = self._rhs_phi_form() + self._rhs_Pi_transport_form()
-            self._setup_diffusion_matrix()
+            self.operator_form = self._full_operator_form(linear_potential_coef=c1)
+            self.nonlinear_form = self._cubic_potential_form(c3)
+            self._nonlinear_form_compiled = (
+                fem.form(self.nonlinear_form) if self.nonlinear_form is not None else None
+            )
+            self._setup_operator_matrix()
         else:
             # Misma física que la ruta preensamblada: la difusión se obtiene
             # aplicando la forma bilineal al estado actual (ufl.action), de modo
             # que ambas rutas resuelven exactamente la misma ecuación.
             self.rhs_form = (
-                self._rhs_phi_form()
+                self._rhs_phi_form(self.phi_c, self.Pi_c)
                 + ufl.action(self._diffusion_form(), self.u)
-                + self._rhs_Pi_transport_form()
+                + self._rhs_Pi_transport_form(self.phi_c, self.Pi_c)
             )
-    
-    def _rhs_phi_form(self):
-        """RHS para φ: ∂φ/∂t = αΠ + β·∇φ"""
+            self._rhs_form_compiled = fem.form(self.rhs_form)
+
+    def _potential_decomposition(self):
+        """(c₁, c₃) tales que V'(φ) = c₁φ + c₃φ³, o None si no aplica.
+
+        Los cuatro potenciales del paquete admiten esta descomposición
+        exacta. Un potencial externo sin estos métodos cae a la ruta
+        genérica (término −αV'(φ) ensamblado por etapa).
+        """
+        try:
+            return (
+                float(self.potential.linear_coefficient()),
+                float(self.potential.cubic_coefficient()),
+            )
+        except AttributeError:
+            return None
+
+    def _full_operator_form(self, linear_potential_coef):
+        """Forma bilineal A((φ,Π), (vφ,vΠ)) con toda la física lineal."""
         dx = self._dx()
-            
+        alpha = self._ALPHA()
+        beta = self._BETA()
+        sqrtg = self._SQRTG()
+        K = self._K()
+
+        u_trial = ufl.TrialFunction(self.V)
+        v_test = ufl.TestFunction(self.V)
+        phi_t, Pi_t = ufl.split(u_trial)
+        test_phi, test_Pi = ufl.split(v_test)
+
+        # ecuación de φ: αΠ + β·∇φ
+        form = (alpha * Pi_t) * test_phi * sqrtg * dx
+        if beta is not None:
+            form += ufl.dot(beta, ufl.grad(phi_t)) * test_phi * sqrtg * dx
+
+        # ecuación de Π: difusión (con borde interior si hay excisión)
+        form += self._diffusion_form()
+
+        # transporte + curvatura extrínseca
+        form += (alpha * K * Pi_t) * test_Pi * sqrtg * dx
+        if beta is not None:
+            form += ufl.dot(beta, ufl.grad(Pi_t)) * test_Pi * sqrtg * dx
+
+        # parte lineal del potencial: −α c₁ φ
+        if linear_potential_coef is None:
+            raise ValueError(
+                "preassemble requires a potential with linear/cubic decomposition; "
+                "set optimization.preassemble=False for generic potentials"
+            )
+        if linear_potential_coef != 0.0:
+            form += -(alpha * linear_potential_coef * phi_t) * test_Pi * sqrtg * dx
+
+        # esponja: −σ(r)Π
+        sigma = self._sponge_sigma()
+        if sigma is not None:
+            form += -(sigma * Pi_t) * test_Pi * sqrtg * dx
+
+        # borde radiativo exterior (lineal en φ, Π)
+        if self.has_sommerfeld:
+            form += self._sommerfeld_boundary_term(phi_t, Pi_t)
+        return form
+
+    def _cubic_potential_form(self, cubic_coef):
+        """Resto no lineal exacto del potencial: −α c₃ φ³ (None si c₃=0)."""
+        if not cubic_coef:
+            return None
+        dx = self._dx()
+        alpha = self._ALPHA()
+        sqrtg = self._SQRTG()
+        return -(alpha * cubic_coef * self.phi_c**3) * self.test_Pi * sqrtg * dx
+    
+    def _rhs_phi_form(self, phi, Pi):
+        """RHS para φ: ∂φ/∂t = αΠ + β·∇φ (ruta lenta, evaluado en el estado)."""
+        dx = self._dx()
+
         alpha = self._ALPHA()
         beta  = self._BETA()
         sqrtg = self._SQRTG()
 
-        term = (alpha * self.Pi_c) * self.test_phi * sqrtg * dx
+        term = (alpha * Pi) * self.test_phi * sqrtg * dx
         if beta is not None:
-            term += ufl.dot(beta, ufl.grad(self.phi_c)) * self.test_phi * sqrtg * dx
+            term += ufl.dot(beta, ufl.grad(phi)) * self.test_phi * sqrtg * dx
         return term
 
     def _diffusion_form(self):
@@ -260,22 +396,22 @@ class FirstOrderKGSolver:
             form += alpha * sqrtg * ufl.dot(ufl.dot(gammaInv, ufl.grad(phi_trial)), n) * test_Pi * self.ds_inner
         return form
 
-    def _rhs_Pi_transport_form(self):
-        """RHS para Π sin el término de difusión."""
+    def _rhs_Pi_transport_form(self, phi, Pi):
+        """RHS para Π sin el término de difusión (ruta lenta)."""
         dx = self._dx()
-            
+
         alpha = self._ALPHA()
         beta  = self._BETA()
         sqrtg = self._SQRTG()
         K = self._K()
 
-        # Término de potencial
-        Vp = self.potential.derivative_ufl(self.phi_c)
+        # Término de potencial (no lineal completo)
+        Vp = self.potential.derivative_ufl(phi)
 
         # Transporte + curvatura extrínseca + potencial
-        transport = (alpha*K*self.Pi_c - alpha*Vp) * self.test_Pi * sqrtg * dx
+        transport = (alpha*K*Pi - alpha*Vp) * self.test_Pi * sqrtg * dx
         if beta is not None:
-            transport += ufl.dot(beta, ufl.grad(self.Pi_c)) * self.test_Pi * sqrtg * dx
+            transport += ufl.dot(beta, ufl.grad(Pi)) * self.test_Pi * sqrtg * dx
 
         # Capa esponja: -σ(r)·Π, con rampa cúbica suave junto al borde.
         # Absorbe las colas dispersivas (campo masivo, v_grupo < c) que la
@@ -283,12 +419,13 @@ class FirstOrderKGSolver:
         # E + ∫F dt = E0 (absorbe energía en el volumen, no por el borde).
         sigma = self._sponge_sigma()
         if sigma is not None:
-            transport += -sigma * self.Pi_c * self.test_Pi * sqrtg * dx
+            transport += -sigma * Pi * self.test_Pi * sqrtg * dx
 
         # Aporte de borde de Sommerfeld (si está habilitado)
-        boundary_term = self._sommerfeld_boundary_term()
+        if self.has_sommerfeld:
+            transport += self._sommerfeld_boundary_term(phi, Pi)
 
-        return transport + boundary_term
+        return transport
 
     def _sponge_sigma(self):
         """σ(r) = strength·q³ con q = clip((r - r_inicio)/width, 0, 1)."""
@@ -300,13 +437,13 @@ class FirstOrderKGSolver:
         q = ufl.max_value(0.0, ufl.min_value(1.0, (r - r_start) / self.sponge_width))
         return self.sponge_strength * q ** 3
 
-    def _setup_diffusion_matrix(self):
-        """Pre-ensambla la matriz de difusión si está habilitado."""
-        self.diffusion_mat = fem.petsc.assemble_matrix(fem.form(self.diffusion_form))
-        self.diffusion_mat.assemble()
-        self.diffusion_out = self.diffusion_mat.createVecLeft()
-    
-    def _sommerfeld_boundary_term(self):
+    def _setup_operator_matrix(self):
+        """Pre-ensambla la matriz del operador lineal completo."""
+        self.operator_mat = fem.petsc.assemble_matrix(fem.form(self.operator_form))
+        self.operator_mat.assemble()
+        self.operator_out = self.operator_mat.createVecLeft()
+
+    def _sommerfeld_boundary_term(self, phi, Pi):
         """
         Condición característica saliente impuesta débilmente.
 
@@ -318,10 +455,9 @@ class FirstOrderKGSolver:
         esférica se usa Π = -√(γ^{nn})(∂_nφ + φ/r).
 
         En espacio plano se reduce al término absorbente clásico -∫ Π v ds.
+        El término es lineal en (φ, Π): acepta tanto el estado actual (ruta
+        lenta) como funciones trial (operador preensamblado).
         """
-        if not self.has_sommerfeld:
-            return 0 * self.test_Pi * self._dx()
-
         n = ufl.FacetNormal(self.mesh)
         alpha = self._ALPHA()
         sqrtg = self._SQRTG()
@@ -331,9 +467,9 @@ class FirstOrderKGSolver:
         if self.bc_type == "sommerfeld_spherical":
             x = ufl.SpatialCoordinate(self.mesh)
             r = ufl.sqrt(ufl.dot(x, x) + 1.0e-15)
-            conormal_flux = -(c_n * self.Pi_c + gnn * self.phi_c / r)
+            conormal_flux = -(c_n * Pi + gnn * phi / r)
         else:
-            conormal_flux = -c_n * self.Pi_c
+            conormal_flux = -c_n * Pi
         return alpha * sqrtg * conormal_flux * self.test_Pi * self.ds_outer
     
     def _setup_mass_matrix_solver(self):
@@ -530,21 +666,24 @@ class FirstOrderKGSolver:
         return t
     
     def _assemble_rhs_and_solve_du(self) -> None:
-        """Ensamblar RHS(u) y resolver M du = RHS, dejando du en self.du."""
-        rhs_form_with_bc = self.rhs_form  # _sommerfeld_boundary_term ya incluido
-        self.rhs_vec.zeroEntries()
-        fem.petsc.assemble_vector(self.rhs_vec, fem.form(rhs_form_with_bc))
+        """Ensamblar RHS(u) y resolver M du = RHS, dejando du en self.du.
+
+        Ruta rápida: RHS = A·u (matvec del operador lineal preensamblado)
+        + vector del resto cúbico si el potencial es no lineal. No hay
+        ensamblado de formas en el bucle salvo ese único término.
+        """
         if self.preassemble_stiffness:
-            try:
-                self.u.x.scatter_forward()
-                self.diffusion_mat.mult(self.u.x.petsc_vec, self.diffusion_out)
-                self.rhs_vec.axpy(1.0, self.diffusion_out)
-            except (RuntimeError, ValueError) as e:
-                logger.warning(f"Error usando matriz preensamblada, fallback a ensamblado: {e}")
-                # action() convierte la forma bilineal en lineal evaluada en u
+            self.u.x.scatter_forward()
+            self.operator_mat.mult(self.u.x.petsc_vec, self.rhs_vec)
+            if self._nonlinear_form_compiled is not None:
+                self.operator_out.zeroEntries()
                 fem.petsc.assemble_vector(
-                    self.rhs_vec, fem.form(ufl.action(self.diffusion_form, self.u))
+                    self.operator_out, self._nonlinear_form_compiled
                 )
+                self.rhs_vec.axpy(1.0, self.operator_out)
+        else:
+            self.rhs_vec.zeroEntries()
+            fem.petsc.assemble_vector(self.rhs_vec, self._rhs_form_compiled)
         self.rhs_vec.assemble()
         self.mass_solver.solve(self.rhs_vec, self.sol_vec)
         # Copiar solución a self.du
@@ -623,16 +762,7 @@ class FirstOrderKGSolver:
         E = ∫ sqrt(γ) ρ d^3x, con ρ = T_{μν} n^μ n^ν
           = 1/2 Π^2 + 1/2 D_iφ D^iφ + V(φ)
         """
-        sqrtg = self._SQRTG()
-        gammaInv = self._GAMMAINV()
-        gradphi = ufl.dot(gammaInv, ufl.grad(self.phi_c))
-        # V(φ) usando el potencial configurado
-        try:
-            Vphi = self.potential.evaluate_ufl(self.phi_c)
-        except (AttributeError, NotImplementedError):
-            Vphi = 0.5 * self.phi_c * self.phi_c
-        energy_density = (0.5 * ufl.inner(gradphi, ufl.grad(self.phi_c)) + 0.5 * self.Pi_c * self.Pi_c + Vphi) * sqrtg
-        local_e = float(fem.assemble_scalar(fem.form(energy_density * self._dx())))
+        local_e = float(fem.assemble_scalar(self._energy_form_compiled))
         return float(self.mesh.comm.allreduce(local_e))
 
     def boundary_flux(self) -> float:
@@ -647,20 +777,24 @@ class FirstOrderKGSolver:
         onda exactamente saliente coincide con el flujo físico de T_{μν},
         F = -∮ α√γ Π D_nφ ds = ∮ Π² ds.
         """
-        if not getattr(self, 'has_sommerfeld', False):
+        if not getattr(self, 'has_sommerfeld', False) or self._flux_form_compiled is None:
             return 0.0
-        n = ufl.FacetNormal(self.mesh)
-        alpha = self._ALPHA()
-        sqrtg = self._SQRTG()
-        gammaInv = self._GAMMAINV()
-        gnn = ufl.dot(n, ufl.dot(gammaInv, n))
-        drain = ufl.sqrt(gnn) * self.Pi_c * self.Pi_c
-        if self.bc_type == "sommerfeld_spherical":
-            x = ufl.SpatialCoordinate(self.mesh)
-            r = ufl.sqrt(ufl.dot(x, x) + 1.0e-15)
-            drain = drain + gnn * self.Pi_c * self.phi_c / r
-        formF = fem.form(alpha * sqrtg * drain * self.ds_outer)
-        local_flux = float(fem.assemble_scalar(formF))
+        local_flux = float(fem.assemble_scalar(self._flux_form_compiled))
+        return float(self.mesh.comm.allreduce(local_flux))
+
+    def inner_flux(self) -> float:
+        """
+        Energía que sale del dominio por el borde interior excisado
+        (positiva = absorbida por el agujero negro).
+
+        Es el drenaje EXACTO del término natural "do-nothing" en el balance
+        semi-discreto: con él, E(t) + ∫(F_out + F_inner) dt ≈ E(0) también
+        en runs con excisión (módulo los términos de volumen β/K de las
+        foliaciones estacionarias; ver docs/math/energy_stability.md).
+        """
+        if not getattr(self, 'has_excision', False) or self._inner_flux_form_compiled is None:
+            return 0.0
+        local_flux = float(fem.assemble_scalar(self._inner_flux_form_compiled))
         return float(self.mesh.comm.allreduce(local_flux))
 
     def _ALPHA(self):

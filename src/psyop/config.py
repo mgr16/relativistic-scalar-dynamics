@@ -119,6 +119,8 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
                 f"mesh.R/mesh.lc_inner = {R / lc_inner:.0f} exceeds "
                 f"{MAX_RESOLUTION_RATIO:.0f}; increase mesh.lc_inner."
             )
+    if int(cfg["mesh"].get("geom_order", 1)) not in (1, 2):
+        raise ValueError("mesh.geom_order must be 1 (flat facets) or 2 (curved cells)")
 
     metric_type = str(cfg["metric"].get("type", "flat")).lower()
     if metric_type not in VALID_METRIC_TYPES:
@@ -138,6 +140,25 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
         a = float(cfg["metric"].get("a", 0.0))
         if abs(a) > M:
             raise ValueError("metric.a must satisfy |a| <= M (no naked singularities)")
+        # Ventana de outflow del borde excisado (docs/math/excision_window.md):
+        # la esfera cartesiana debe caber en la región atrapada r₋ < r < r₊.
+        from psyop.physics.metrics import kerr_excision_window
+
+        lo, hi = kerr_excision_window(M, a)
+        if lo >= hi:
+            raise ValueError(
+                f"spin a={a} too high for a Cartesian-sphere excision: the "
+                f"trapped-region window is empty (requires |a| < 0.9718 M). "
+                "A spheroidal excision surface (r = const) is needed."
+            )
+        if not (lo < r_inner < hi):
+            raise ValueError(
+                f"mesh.r_inner = {r_inner} is outside the admissible excision "
+                f"window ({lo:.4f}, {hi:.4f}) for a={a}, M={M}: parts of the "
+                "excision sphere would leave the trapped region and the inner "
+                "'do-nothing' boundary becomes inconsistent (characteristics "
+                "re-enter). See docs/math/excision_window.md."
+            )
 
     degree = int(cfg["solver"].get("degree", 1))
     if not (1 <= degree <= 5):
@@ -170,8 +191,11 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
     if ic_type != "gaussian":
         raise ValueError("initial_conditions.type must be gaussian")
     ic_direction = str(cfg["initial_conditions"].get("direction", "static")).lower()
-    if ic_direction not in {"static", "ingoing", "outgoing"}:
-        raise ValueError("initial_conditions.direction must be static, ingoing or outgoing")
+    if ic_direction not in {"static", "ingoing", "outgoing", "ingoing_curved"}:
+        raise ValueError(
+            "initial_conditions.direction must be static, ingoing, outgoing "
+            "or ingoing_curved"
+        )
     extraction = (cfg.get("analysis", {}) or {}).get("extraction") or {}
     if extraction.get("enabled", False):
         ext_radius = float(extraction.get("radius", 0.6 * R))

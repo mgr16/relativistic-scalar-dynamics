@@ -170,6 +170,7 @@ def run_main(argv=None) -> int:
     mesh, cell_tags, facet_tags = build_ball_mesh(
         R=cfg["mesh"]["R"], lc=cfg["mesh"]["lc"], comm=MPI.COMM_WORLD,
         r_inner=r_inner, lc_inner=lc_inner,
+        geom_order=int(cfg["mesh"].get("geom_order", 1)),
     )
     logger.info(f"Mesh created with {mesh.topology.index_map(mesh.topology.dim).size_local} cells")
 
@@ -271,6 +272,7 @@ def run_main(argv=None) -> int:
             w=ic["w"],
             v0=ic["v0"],
             direction=direction,
+            background=bg,
         )
         solver.set_initial_conditions(phi0.get_function(), phi0.get_momentum())
 
@@ -365,7 +367,11 @@ def run_main(argv=None) -> int:
                 if diagnostics:
                     e_now = solver.energy()
                     energy_series.append((t, e_now))
-                    flux_series.append((t, solver.boundary_flux()))
+                    # flujo total que abandona el dominio: borde exterior
+                    # (radiación) + borde interior (absorción del agujero)
+                    flux_series.append(
+                        (t, solver.boundary_flux(), solver.inner_flux())
+                    )
                     cw = cowling_monitor.check(t, energy=e_now)
                     cowling_series.append((t, cw["zeta_max"], cw["energy_ratio"]))
 
@@ -411,12 +417,12 @@ def run_main(argv=None) -> int:
         flux_csv_path = os.path.join(series_dir, "flux.csv")
         flux_path = os.path.join(outdir, "flux_series.txt")  # compatibility legacy
         with open(flux_csv_path, "w", encoding="utf-8") as fcsv:
-            fcsv.write("t,flux\n")
-            for t_val, f_val in flux_series:
-                fcsv.write(f"{t_val:.12e},{f_val:.12e}\n")
+            fcsv.write("t,flux,flux_inner\n")
+            for t_val, f_out, f_in in flux_series:
+                fcsv.write(f"{t_val:.12e},{f_out:.12e},{f_in:.12e}\n")
         with open(flux_path, "w", encoding="utf-8") as f:
-            for t_val, f_val in flux_series:
-                f.write(f"{t_val:.12e} {f_val:.12e}\n")
+            for t_val, f_out, _ in flux_series:
+                f.write(f"{t_val:.12e} {f_out:.12e}\n")
         logger.info(f"Flux series saved: {len(flux_series)} samples")
 
     if save_series and diagnostics and cowling_series and mesh.comm.rank == 0:
@@ -444,7 +450,12 @@ def run_main(argv=None) -> int:
     if save_series and diagnostics and len(energy_series) >= 2 and mesh.comm.rank == 0:
         t_arr = np.array([t_val for t_val, _ in energy_series])
         e_arr = np.array([e_val for _, e_val in energy_series])
-        f_arr = np.array([f_val for _, f_val in flux_series]) if flux_series else np.zeros_like(e_arr)
+        # flujo total fuera del dominio: exterior (radiación) + interior
+        # (absorción del agujero negro, exacta desde v3.1)
+        f_arr = (
+            np.array([f_out + f_in for _, f_out, f_in in flux_series])
+            if flux_series else np.zeros_like(e_arr)
+        )
         cum_flux = np.concatenate([[0.0], np.cumsum(0.5 * (f_arr[1:] + f_arr[:-1]) * np.diff(t_arr))])
         residual = e_arr + cum_flux - e_arr[0]
         with open(os.path.join(series_dir, "balance.csv"), "w", encoding="utf-8") as fcsv:
@@ -458,7 +469,9 @@ def run_main(argv=None) -> int:
         if rel_residual > 0.1:
             logger.warning(
                 "Energy balance residual above 10%: check resolution, CFL or BC "
-                "(a sponge layer also breaks this balance by design)"
+                "(a sponge layer breaks this balance by design; on stationary "
+                "slicings (Kerr-Schild) the K/beta volume terms contribute "
+                "O(field^2) — see docs/math/energy_stability.md)"
             )
 
     # QNM analysis (solo rank 0: es quien posee time_series y escribe archivos)

@@ -34,7 +34,7 @@ class GaussianBump:
     aditiva coincide con la anterior para v0 = 1 y es correcta para v0 = 0.
     """
     
-    VALID_DIRECTIONS = ("static", "ingoing", "outgoing")
+    VALID_DIRECTIONS = ("static", "ingoing", "outgoing", "ingoing_curved")
 
     def __init__(
         self,
@@ -45,6 +45,7 @@ class GaussianBump:
         w: float = 2.0,
         v0: float = 1.0,
         direction: str = "static",
+        background=None,
     ):
         """
         Parámetros:
@@ -55,12 +56,25 @@ class GaussianBump:
             w: Ancho de la perturbación
             v0: Valor de vacío del campo
             direction: "static" (Π=0, el pulso se divide en mitades entrante
-                y saliente), "ingoing" o "outgoing" (momento consistente con
-                una onda esférica pura: Π = ±(∂_r φ_pert + φ_pert/r))
+                y saliente), "ingoing" o "outgoing" (momento de onda esférica
+                en espacio PLANO: Π = ±(∂_r φ_pert + φ_pert/r)), o
+                "ingoing_curved" (momento consistente con el fondo curvo:
+                reduce la radiación espuria inicial; requiere `background`)
+            background: BackgroundCoeffs con radial_factors_np(r) → (α, β·r̂,
+                √γ^rr); solo necesario para "ingoing_curved". La relación es
+                    Π = (√γ^rr) ∂_r φ_pert + (c_in/α) φ_pert/r ,
+                con c_in = β·r̂ + α√γ^rr la velocidad coordenada entrante
+                (en Kerr-Schild c_in = 1 exactamente y se reduce a
+                Π = ((1−β_r)∂_rφ + φ/r)/α, validada contra el oráculo 1D).
         """
         if direction not in self.VALID_DIRECTIONS:
             raise ValueError(
                 f"direction must be one of {self.VALID_DIRECTIONS}, got {direction!r}"
+            )
+        if direction == "ingoing_curved" and background is None:
+            raise ValueError(
+                "direction='ingoing_curved' requires the `background` argument "
+                "(a BackgroundCoeffs with radial_factors_np)"
             )
         self.mesh = mesh
         self.V = V if V is not None else _scalar_functionspace(mesh)
@@ -69,6 +83,7 @@ class GaussianBump:
         self.w = float(w)
         self.v0 = float(v0)
         self.direction = direction
+        self.background = background
 
         logger.debug(f"Creando GaussianBump: A={A}, r0={r0}, w={w}, v0={v0}, dir={direction}")
         self.phi = fem.Function(self.V, name="phi_initial")
@@ -90,11 +105,18 @@ class GaussianBump:
 
     def _momentum_profile(self, x: np.ndarray) -> np.ndarray:
         """
-        Π consistente con una onda esférica pura en espacio plano.
+        Π consistente con una onda esférica pura.
 
-        Para φ = g(r ± t)/r (entrante/saliente) vale ∂_tφ = ±(∂_rφ + φ/r),
-        aplicado solo a la parte radiativa (el vacío v0 no es una onda):
+        Plano: para φ = g(r ± t)/r (entrante/saliente) vale
+        ∂_tφ = ±(∂_rφ + φ/r), aplicado solo a la parte radiativa (el vacío
+        v0 no es una onda):
             Π = s · (∂_r φ_pert + φ_pert / r),  s = +1 entrante, -1 saliente.
+
+        Curvo ("ingoing_curved"): el perfil advecta con la velocidad
+        característica local c_in = β·r̂ + α√γ^rr, de modo que
+            Π = √γ^rr ∂_r φ_pert + (c_in/α) φ_pert/r ,
+        que elimina el transitorio espurio del dato plano sobre fondos
+        curvos (en Kerr-Schild c_in = 1 exactamente).
 
         El piso de r es una fracción del ancho del pulso: con un piso de
         ~1e-12 la cola gaussiana (minúscula pero no nula) dividida por r→0
@@ -105,6 +127,10 @@ class GaussianBump:
         r_safe = np.maximum(r, 0.1 * self.w)
         pert = self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
         dpert_dr = -2.0 * (r - self.r0) / (self.w ** 2) * pert
+        if self.direction == "ingoing_curved":
+            alpha, beta_r, sqrt_grr = self.background.radial_factors_np(r_safe)
+            c_in = beta_r + alpha * sqrt_grr
+            return sqrt_grr * dpert_dr + (c_in / alpha) * pert / r_safe
         sign = 1.0 if self.direction == "ingoing" else -1.0
         return sign * (dpert_dr + pert / r_safe)
     

@@ -78,15 +78,23 @@ class HiggsPotential:
     def derivative_np(self, phi_values: np.ndarray) -> np.ndarray:
         """
         Evalúa V'(φ) para arrays numpy.
-        
+
         Args:
             phi_values: Array numpy de valores del campo
-        
+
         Returns:
             Array numpy con los valores de la derivada
         """
         phi = np.asarray(phi_values)
         return self.m_squared * phi + self.lambda_coupling * phi**3
+
+    def linear_coefficient(self) -> float:
+        """Coeficiente c₁ de la descomposición exacta V'(φ) = c₁φ + c₃φ³."""
+        return self.m_squared
+
+    def cubic_coefficient(self) -> float:
+        """Coeficiente c₃ de la descomposición exacta V'(φ) = c₁φ + c₃φ³."""
+        return self.lambda_coupling
 
     # backward compatibility
     evaluate = evaluate_ufl
@@ -126,6 +134,13 @@ class QuadraticPotential:
         """Evalúa V'(φ) para arrays numpy."""
         phi = np.asarray(phi_values)
         return self.m_squared * phi
+
+    def linear_coefficient(self) -> float:
+        """V'(φ) = m²φ: parte lineal exacta."""
+        return self.m_squared
+
+    def cubic_coefficient(self) -> float:
+        return 0.0
 
     evaluate = evaluate_ufl
     derivative = derivative_ufl
@@ -181,6 +196,13 @@ class MexicanHatPotential:
         phi = np.asarray(phi_values)
         return self.lambda_coupling * phi * (phi**2 - self.v_squared)
 
+    def linear_coefficient(self) -> float:
+        """V'(φ) = λφ³ − λv²φ: la parte lineal es taquiónica (−λv²)."""
+        return -self.lambda_coupling * self.v_squared
+
+    def cubic_coefficient(self) -> float:
+        return self.lambda_coupling
+
     evaluate = evaluate_ufl
     derivative = derivative_ufl
     evaluate_numpy = evaluate_np
@@ -213,6 +235,12 @@ class ZeroPotential:
         """Evalúa V'(φ) = 0 para arrays numpy."""
         phi = np.asarray(phi_values)
         return np.zeros_like(phi)
+
+    def linear_coefficient(self) -> float:
+        return 0.0
+
+    def cubic_coefficient(self) -> float:
+        return 0.0
 
     evaluate = evaluate_ufl
     derivative = derivative_ufl
