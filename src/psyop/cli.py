@@ -284,6 +284,7 @@ def run_main(argv=None) -> int:
     time_series = []
     energy_series = []
     flux_series = []
+    killing_series = []
 
     # Extracción multipolar (opcional): proyección sobre Y_lm en una esfera
     extractor = None
@@ -372,6 +373,10 @@ def run_main(argv=None) -> int:
                     flux_series.append(
                         (t, solver.boundary_flux(), solver.inner_flux())
                     )
+                    killing_series.append(
+                        (t, solver.energy_killing(), solver.killing_flux(),
+                         solver.killing_inner_flux())
+                    )
                     cw = cowling_monitor.check(t, energy=e_now)
                     cowling_series.append((t, cw["zeta_max"], cw["energy_ratio"]))
 
@@ -434,6 +439,31 @@ def run_main(argv=None) -> int:
         logger.info(
             f"Cowling validity: max zeta = {zeta_peak:.3e} "
             f"({'OK, test-field consistent' if zeta_peak < 1e-2 else 'MARGINAL'})"
+        )
+
+    # Balance de energía de Killing: en fondos estacionarios cierra con
+    # flujos puros de superficie y el residual converge a 0 con la
+    # resolución (docs/math/killing_energy.md) — es el balance de
+    # referencia en runs con excisión.
+    if save_series and diagnostics and len(killing_series) >= 2 and mesh.comm.rank == 0:
+        tk_arr = np.array([row[0] for row in killing_series])
+        ek_arr = np.array([row[1] for row in killing_series])
+        fk_arr = np.array([row[2] + row[3] for row in killing_series])
+        cum_k = np.concatenate(
+            [[0.0], np.cumsum(0.5 * (fk_arr[1:] + fk_arr[:-1]) * np.diff(tk_arr))]
+        )
+        res_k = ek_arr + cum_k - ek_arr[0]
+        with open(os.path.join(series_dir, "killing.csv"), "w", encoding="utf-8") as fcsv:
+            fcsv.write("t,energy,flux,flux_inner,integrated_flux,balance_residual\n")
+            for i, (t_val, e_val, fo_val, fi_val) in enumerate(killing_series):
+                fcsv.write(
+                    f"{t_val:.12e},{e_val:.12e},{fo_val:.12e},{fi_val:.12e},"
+                    f"{cum_k[i]:.12e},{res_k[i]:.12e}\n"
+                )
+        scale_k = max(abs(ek_arr[0]), float(np.max(np.abs(cum_k))), 1e-300)
+        logger.info(
+            "Killing balance residual |E_K(t)+∫F_K−E_K(0)| / scale = "
+            f"{abs(res_k[-1]) / scale_k:.3e}"
         )
 
     if save_series and multipole_series and mesh.comm.rank == 0:

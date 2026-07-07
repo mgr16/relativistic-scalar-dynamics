@@ -69,6 +69,11 @@ class OracleResult:
     snapshot_ts: List[float] = field(default_factory=list)
     snapshots_u: List[np.ndarray] = field(default_factory=list)
     snapshots_Pi: List[np.ndarray] = field(default_factory=list)
+    # energía de Killing y sus flujos de borde (positivos al salir);
+    # E_K(t) − E_K(0) + ∫(F_in + F_out)dt → 0 (docs/math/killing_energy.md)
+    energies_killing: np.ndarray = field(default_factory=lambda: np.empty(0))
+    flux_inner_killing: np.ndarray = field(default_factory=lambda: np.empty(0))
+    flux_outer_killing: np.ndarray = field(default_factory=lambda: np.empty(0))
 
 
 class SphericalOracle1D:
@@ -365,6 +370,45 @@ class SphericalOracle1D:
         """E = ∫ w [½Π² + ½γ^rr(∂_r u)² + ½ l(l+1)u²/r² + V(u)] dr."""
         return float(_trapezoid(self.w * self.energy_density(), self.r))
 
+    def energy_killing(
+        self, u: Optional[np.ndarray] = None, Pi: Optional[np.ndarray] = None
+    ) -> float:
+        """E_K = ∫ w (α ρ + β^r Π ∂_r u) dr — energía de Killing (ξ = ∂_t).
+
+        A diferencia de energy(), su balance cierra con flujos puros de
+        superficie también sobre la foliación estacionaria de Kerr-Schild
+        (sin términos de volumen β/K); ver docs/math/killing_energy.md.
+        """
+        u = self.u if u is None else u
+        Pi = self.Pi if Pi is None else Pi
+        du_r = self._deriv_r(u)
+        eps_K = self.alpha * self.energy_density(u, Pi) + self.beta * Pi * du_r
+        return float(_trapezoid(self.w * eps_K, self.r))
+
+    def killing_boundary_flux(
+        self, u: Optional[np.ndarray] = None, Pi: Optional[np.ndarray] = None
+    ) -> tuple:
+        """Flujo de energía de Killing que SALE por cada borde (F_in, F_out).
+
+        F(r) = α w T^r_t con T^r_t = (αΠ + β^r u′)·α·((2M/r)Π + α u′);
+        el balance exacto es E_K(t) − E_K(0) + ∫(F_in + F_out)dt = 0.
+        Positivo = energía abandonando el dominio (por r_min: absorción).
+        """
+        u = self.u if u is None else u
+        Pi = self.Pi if Pi is None else Pi
+
+        def _awTrt(i: int, du_i: float) -> float:
+            r_i = self.r[i]
+            phidot = self.alpha[i] * Pi[i] + self.beta[i] * du_i
+            radial = self.alpha[i] * (
+                (2.0 * self.M / r_i) * Pi[i] + self.alpha[i] * du_i
+            )
+            return float(self.alpha[i] * self.w[i] * phidot * radial)
+
+        du_0 = float(self._b0 @ u[:3])
+        du_N = float(self._bN @ u[-3:])
+        return _awTrt(0, du_0), -_awTrt(-1, du_N)
+
     def rhs_term_breakdown(
         self, u: Optional[np.ndarray] = None, Pi: Optional[np.ndarray] = None
     ) -> Dict[str, np.ndarray]:
@@ -444,6 +488,9 @@ class SphericalOracle1D:
         ts: List[float] = []
         probes: Dict[float, List[float]] = {rp: [] for rp in probe_radii}
         energies: List[float] = []
+        energies_k: List[float] = []
+        fk_in: List[float] = []
+        fk_out: List[float] = []
         result = OracleResult(
             ts=np.empty(0), probes={}, energies=np.empty(0)
         )
@@ -462,6 +509,10 @@ class SphericalOracle1D:
                 for rp in probe_radii:
                     probes[rp].append(float(np.interp(rp, self.r, self.u)))
                 energies.append(self.energy())
+                energies_k.append(self.energy_killing())
+                f_in, f_out = self.killing_boundary_flux()
+                fk_in.append(f_in)
+                fk_out.append(f_out)
                 if callback is not None:
                     callback(self, step_i)
             if snapshot_every and step_i % snapshot_every == 0:
@@ -472,6 +523,9 @@ class SphericalOracle1D:
         result.ts = np.asarray(ts)
         result.probes = {rp: np.asarray(v) for rp, v in probes.items()}
         result.energies = np.asarray(energies)
+        result.energies_killing = np.asarray(energies_k)
+        result.flux_inner_killing = np.asarray(fk_in)
+        result.flux_outer_killing = np.asarray(fk_out)
         return result
 
 

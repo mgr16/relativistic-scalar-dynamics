@@ -201,6 +201,41 @@ class FirstOrderKGSolver:
                 integrand * sqrtg * self.ds_inner
             )
 
+        # --- energía de Killing (ξ = ∂_t) y sus flujos de borde ---
+        # ε_K = α ρ + Π β·∇φ;  el flujo saliente por cada borde es
+        # F = −∮ √γ (αΠ + β·∇φ)(Π β·n̂ + α n̂·γ⁻¹∇φ) ds  (sin dividir por α).
+        # En fondos estacionarios el balance cierra con flujos puros de
+        # superficie, sin términos de volumen (docs/math/killing_energy.md).
+        alpha_k = self._ALPHA()
+        beta_k = self._BETA()
+        rho_k = (
+            0.5 * self.Pi_c * self.Pi_c
+            + 0.5 * ufl.inner(gradphi, ufl.grad(self.phi_c))
+            + Vphi
+        )
+        eps_k = alpha_k * rho_k
+        if beta_k is not None:
+            eps_k = eps_k + self.Pi_c * ufl.dot(beta_k, ufl.grad(self.phi_c))
+        self._energy_killing_form_compiled = fem.form(eps_k * sqrtg * self._dx())
+
+        def _killing_leak_form(ds_measure):
+            n = ufl.FacetNormal(self.mesh)
+            phidot = alpha_k * self.Pi_c
+            radial = alpha_k * ufl.dot(n, gradphi)
+            if beta_k is not None:
+                phidot = phidot + ufl.dot(beta_k, ufl.grad(self.phi_c))
+                radial = radial + self.Pi_c * ufl.dot(beta_k, n)
+            return fem.form(-sqrtg * phidot * radial * ds_measure)
+
+        self._killing_flux_form_compiled = (
+            _killing_leak_form(self.ds_outer) if self.has_sommerfeld else None
+        )
+        self._killing_inner_flux_form_compiled = (
+            _killing_leak_form(self.ds_inner)
+            if (self.has_excision and self.ds_inner is not None)
+            else None
+        )
+
     def rebuild_operators(self) -> None:
         """API pública para reconstruir operadores tras configurar fondo/BCs
         con rebuild=False (evita re-ensamblar varias veces durante el setup)."""
@@ -795,6 +830,32 @@ class FirstOrderKGSolver:
         if not getattr(self, 'has_excision', False) or self._inner_flux_form_compiled is None:
             return 0.0
         local_flux = float(fem.assemble_scalar(self._inner_flux_form_compiled))
+        return float(self.mesh.comm.allreduce(local_flux))
+
+    def energy_killing(self) -> float:
+        """
+        Energía de Killing E_K = ∫ √γ (α ρ + Π β·∇φ) d³x  (ξ = ∂_t).
+
+        Conservada exactamente en fondos estacionarios: su balance cierra
+        con flujos puros de superficie (killing_flux + killing_inner_flux),
+        a diferencia de energy() cuyo balance euleriano tiene términos de
+        volumen β/K (docs/math/killing_energy.md). En fondo plano E_K = E.
+        """
+        local_e = float(fem.assemble_scalar(self._energy_killing_form_compiled))
+        return float(self.mesh.comm.allreduce(local_e))
+
+    def killing_flux(self) -> float:
+        """Flujo de Killing saliente por el borde exterior (positivo = sale)."""
+        if not getattr(self, 'has_sommerfeld', False) or self._killing_flux_form_compiled is None:
+            return 0.0
+        local_flux = float(fem.assemble_scalar(self._killing_flux_form_compiled))
+        return float(self.mesh.comm.allreduce(local_flux))
+
+    def killing_inner_flux(self) -> float:
+        """Flujo de Killing por el borde excisado (positivo = absorción)."""
+        if not getattr(self, 'has_excision', False) or self._killing_inner_flux_form_compiled is None:
+            return 0.0
+        local_flux = float(fem.assemble_scalar(self._killing_inner_flux_form_compiled))
         return float(self.mesh.comm.allreduce(local_flux))
 
     def _ALPHA(self):

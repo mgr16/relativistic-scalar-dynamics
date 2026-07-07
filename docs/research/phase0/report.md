@@ -141,6 +141,21 @@ requiere el diagnóstico de energía de Killing (T_ab ξ^a n^b) — trabajo de
 Fase 1.** Mientras tanto `flux_inner` debe tratarse como indicador cualitativo.
 Esto no afecta la decisión GO: es un diagnóstico, no la evolución.
 
+**Resuelto (2026-07-07, mismo día):** se implementó la **energía de Killing**
+(ξ = ∂_t; derivación en `docs/math/killing_energy.md`, serie
+`series/killing.csv`, tests en `tests/test_killing_energy.py`). Validación:
+
+- Oráculo 1D, pulso a través del horizonte: ∫F_inner = **1.000·E₀** con
+  residual 3.2×10⁻⁴·E₀ que converge exactamente a 2.º orden.
+- 3D, escalera lc=1.6→1.2→0.9: el residual de Killing cae
+  13.0% → 7.5% → 3.9% (≈2.º orden), mientras el euleriano converge a su
+  término de producción de volumen (−4.3% → −8.6%): no puede cerrar.
+- En la configuración de la propia sonda B: residual de Killing **11.0%**
+  vs **290%** del euleriano en la misma corrida (×26).
+
+El balance de referencia en runs con excisión es desde ahora el de Killing;
+el `flux_inner` euleriano queda como indicador cualitativo.
+
 ## 6. Estado de la suite de tests
 
 `pytest -q -m "not slow and not mpi"`: **129 verdes** (85 s), incluyendo los
@@ -165,7 +180,8 @@ QNM con l = 1,2 (nunca l=0), ventanas de ajuste ancladas al pico del ring.
 
 - **Extrapolación 1D→3D:** la dominación cinética y el perfil log se midieron
   en el sector esférico; F2 debe reproducirlos con diagnósticos interiores 3D.
-- **Flujo interior sin cierre cuantitativo** → energía de Killing en F1 (§5).
+- ~~Flujo interior sin cierre cuantitativo~~ → resuelto con la energía de
+  Killing (§5, actualización del 2026-07-07).
 - **Honestidad de la disipación:** renombrar KO→filtro y cuantificar su efecto
   en los observables (F1).
 - Escalera de convergencia (`scripts/convergence_study.py`) en ejecución al
