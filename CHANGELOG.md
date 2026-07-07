@@ -3,6 +3,29 @@
 All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+### Added
+- **Killing-energy diagnostic** (`docs/math/killing_energy.md`): the energy
+  E_K = ∫√γ(αρ + Π β·∇φ) associated with the stationary Killing vector
+  ξ = ∂_t obeys an exact surface-flux balance on Kerr–Schild backgrounds —
+  no β/K volume terms. New `energy_killing()` / `killing_flux()` /
+  `killing_inner_flux()` on the solver, `energy_killing()` /
+  `killing_boundary_flux()` on the 1D oracle, and a `series/killing.csv`
+  balance series in the CLI. Validated: 1D horizon-crossing pulse closes to
+  3×10⁻⁴·E₀ (2nd-order convergent) with ∫F_inner = 1.000·E₀; on the Fase-0
+  probe-B mesh the Killing residual is 11% vs 290% for the Eulerian balance
+  (`tests/test_killing_energy.py`).
+
+### Fixed
+- `scripts/convergence_study.py`: the ringdown fit selected the mode with
+  the largest |frequency| over windows far longer than the usable signal
+  (the extracted waveform hits a non-decaying discretization floor ~×4
+  below the ring peak), producing garbage fits at fine resolutions. Now
+  uses short anchored windows and amplitude-dominant oscillatory mode
+  selection (`fit_ringdown_modes`), plus a `--refit` flag to re-fit saved
+  waveforms without re-evolving.
+
 ## [3.2.0] — 2026-07-07
 
 Research infrastructure batch (Fase 0 of the interior-dynamics program):

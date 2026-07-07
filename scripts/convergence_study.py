@@ -51,12 +51,22 @@ LC_LADDER = [2.0, 1.4, 1.0, 0.7]
 LC_DEEP = 0.5
 LC_INNER_RATIO = 3.75          # lc_inner = lc / ratio (misma ley de graduación)
 T_END = 70.0
-WINDOW_OFFSETS = [6.0, 8.0, 10.0, 12.0, 14.0]
-WINDOW_LENGTH = 42.0
+WINDOW_OFFSETS = [0.0, 2.0, 4.0, 6.0, 8.0]
+WINDOW_LENGTH = 26.0
 
 
 def fit_with_uncertainty(ts: np.ndarray, sig: np.ndarray) -> dict:
-    """Ajuste Prony del modo dominante sobre un abanico de ventanas."""
+    """Ajuste del modo oscilatorio dominante sobre un abanico de ventanas.
+
+    Lecciones de la primera pasada (2026-07-07): el waveform extraído toca
+    un suelo de discretización que NO decae ~×4 bajo el pico del ring, así
+    que (a) las ventanas deben ser cortas (~1 período: el suelo domina las
+    largas) y (b) el modo se selecciona por AMPLITUD filtrando transitorios
+    de frecuencia ~0 (fit_ringdown_modes, como el test lento calibrado) —
+    max|f| elige espurios.
+    """
+    from psyop.analysis.ringdown import fit_ringdown_modes
+
     i0 = np.searchsorted(ts, 12.0)
     t_pk = float(ts[int(np.argmax(np.abs(sig[i0:]))) + i0])
 
@@ -64,16 +74,15 @@ def fit_with_uncertainty(ts: np.ndarray, sig: np.ndarray) -> dict:
     for off in WINDOW_OFFSETS:
         t_min = t_pk + off
         t_max = min(t_pk + off + WINDOW_LENGTH, float(ts[-1]) - 1.0)
-        mask = (ts > t_min) & (ts < t_max)
-        if mask.sum() < 40:
+        try:
+            modes = fit_ringdown_modes(ts, sig, t_min, t_max, modes=4)
+        except ValueError:
             continue
-        dt_s = float(np.mean(np.diff(ts[mask])))
-        pairs = estimate_qnm_prony(sig[mask], dt_s, modes=3)
-        if not pairs:
+        if not modes:
             continue
-        f, d = max(pairs, key=lambda m: abs(m[0]))
-        omegas_re.append(2.0 * np.pi * abs(f))
-        omegas_im.append(-d)
+        w_re, w_im_pos = modes[0]
+        omegas_re.append(w_re)
+        omegas_im.append(-w_im_pos)
     if not omegas_re:
         raise RuntimeError("ningún ajuste de ventana produjo modos")
     return {
@@ -134,6 +143,8 @@ def main() -> None:
     ap.add_argument("--deep", action="store_true", help="añade lc=0.5")
     ap.add_argument("--lcs", nargs="+", type=float, default=None)
     ap.add_argument("--t-end", type=float, default=T_END)
+    ap.add_argument("--refit", action="store_true",
+                    help="re-ajusta waveform_lc*.npz existentes sin re-evolucionar")
     args = ap.parse_args()
 
     lcs = args.lcs or (LC_LADDER + ([LC_DEEP] if args.deep else []))
@@ -144,14 +155,24 @@ def main() -> None:
     waveforms = []
     for lc in lcs:
         lc_inner = lc / LC_INNER_RATIO
-        print(f"[lc={lc}] evolucionando (lc_inner={lc_inner:.3f}, "
-              f"t_end={args.t_end})...", flush=True)
-        t0 = time.perf_counter()
-        ts, sig = evolve_kerr_ringdown(
-            a=0.0, l=L_MODE, m_abs=0, lc=lc, lc_inner=lc_inner,
-            t_end=args.t_end,
-        )
-        wall = time.perf_counter() - t0
+        wf_path = OUT / f"waveform_lc{lc:g}.npz"
+        if args.refit:
+            if not wf_path.exists():
+                print(f"[lc={lc}] sin waveform guardado; omitido", flush=True)
+                continue
+            data = np.load(wf_path)
+            ts, sig = data["ts"], data["c10"]
+            wall = 0.0
+            print(f"[lc={lc}] re-ajustando waveform existente...", flush=True)
+        else:
+            print(f"[lc={lc}] evolucionando (lc_inner={lc_inner:.3f}, "
+                  f"t_end={args.t_end})...", flush=True)
+            t0 = time.perf_counter()
+            ts, sig = evolve_kerr_ringdown(
+                a=0.0, l=L_MODE, m_abs=0, lc=lc, lc_inner=lc_inner,
+                t_end=args.t_end,
+            )
+            wall = time.perf_counter() - t0
         fit = fit_with_uncertainty(ts, sig)
         err_re = abs(fit["omega_re"] - ref.real) / abs(ref.real)
         err_im = abs(fit["omega_im"] - ref.imag) / abs(ref.imag)
