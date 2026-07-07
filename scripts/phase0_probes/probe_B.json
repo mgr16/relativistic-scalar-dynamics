@@ -1,0 +1,47 @@
+{
+    "mesh": {
+        "type": "gmsh",
+        "R": 15.0,
+        "lc": 1.2,
+        "r_inner": 0.25,
+        "lc_inner": 0.08
+    },
+    "metric": {
+        "type": "kerr",
+        "M": 1.0,
+        "a": 0.0
+    },
+    "solver": {
+        "degree": 1,
+        "cfl": 0.3,
+        "potential_type": "zero",
+        "bc_type": "characteristic",
+        "enable_sommerfeld": true,
+        "ko_eps": 0.0
+    },
+    "initial_conditions": {
+        "type": "gaussian",
+        "A": 0.001,
+        "r0": 5.0,
+        "w": 1.0,
+        "v0": 0.0,
+        "direction": "ingoing"
+    },
+    "analysis": {
+        "sample_point": [
+            0.4,
+            0.0,
+            0.0
+        ]
+    },
+    "evolution": {
+        "t_end": 12.0,
+        "output_every": 20,
+        "verbose": true
+    },
+    "output": {
+        "dir": "results/phase0_probes",
+        "qnm_analysis": false,
+        "diagnostics": true
+    }
+}

@@ -1,0 +1,91 @@
+{
+  "fast_mode": false,
+  "linear_asymptotics": {
+    "l0": {
+      "log_slope_mean_over_A": -0.0004434603644231342,
+      "log_slope_flatness": 0.3172176119554325,
+      "u_at_rmin_over_A": 0.010215940696651698,
+      "wall_seconds": 748.036750332998
+    },
+    "l1": {
+      "log_slope_mean_over_A": 0.010364253109396147,
+      "log_slope_flatness": 0.15818668122734558,
+      "u_at_rmin_over_A": -0.03316805831786658,
+      "wall_seconds": 899.7025647919982
+    }
+  },
+  "kinetic_domination": {
+    "quadratic": {
+      "A=0.001": {
+        "r_star": null,
+        "R_pot_at_rmin": 6.807658759184556e-06,
+        "R_pot_max_inside_horizon": 0.9440905732012779,
+        "wall_seconds": 222.80893433300298
+      },
+      "A=0.01": {
+        "r_star": null,
+        "R_pot_at_rmin": 6.8076587591838545e-06,
+        "R_pot_max_inside_horizon": 0.9440905731991076,
+        "wall_seconds": 236.20492270799878
+      },
+      "A=0.1": {
+        "r_star": null,
+        "R_pot_at_rmin": 6.8076587591844745e-06,
+        "R_pot_max_inside_horizon": 0.94409057320315,
+        "wall_seconds": 198.5836835409973
+      }
+    },
+    "higgs": {
+      "A=0.001": {
+        "r_star": null,
+        "R_pot_at_rmin": 6.807658877599637e-06,
+        "R_pot_max_inside_horizon": 0.9440905706554316,
+        "wall_seconds": 289.14844079199975
+      },
+      "A=0.01": {
+        "r_star": null,
+        "R_pot_at_rmin": 6.807670601122583e-06,
+        "R_pot_max_inside_horizon": 0.9440903179771203,
+        "wall_seconds": 272.13053833400045
+      },
+      "A=0.1": {
+        "r_star": null,
+        "R_pot_at_rmin": 6.808844919915333e-06,
+        "R_pot_max_inside_horizon": 0.9440650006076994,
+        "wall_seconds": 275.22043920899887
+      }
+    },
+    "mexican_hat": {
+      "A=0.001": {
+        "r_star": 51.89063839751783,
+        "R_pot_at_rmin": 1.5118877341959495e-06,
+        "R_pot_max_inside_horizon": 0.32705645664471644,
+        "wall_seconds": 205.11395512500167
+      },
+      "A=0.01": {
+        "r_star": 54.828854486712096,
+        "R_pot_at_rmin": 1.5139267063359467e-06,
+        "R_pot_max_inside_horizon": 0.3269390555982572,
+        "wall_seconds": 213.8600932920017
+      },
+      "A=0.1": {
+        "r_star": 58.22424840240832,
+        "R_pot_at_rmin": 1.537126324802535e-06,
+        "R_pot_max_inside_horizon": 0.32551019614905535,
+        "wall_seconds": 205.63060495899845
+      }
+    }
+  },
+  "cowling_interior": {
+    "zeta_at_rmin": 0.00016080250977481205,
+    "zeta_max_inside_horizon": 0.0012356626858036235,
+    "zeta_max_global": 0.006885202452400866,
+    "r_of_zeta_max": 12.643378120927574
+  },
+  "initial_data_junk": {
+    "ingoing": 2.0614869742783832e-05,
+    "ingoing_curved": 1.2369605820249702e-05,
+    "junk_suppression_factor": 1.6665745087071566
+  },
+  "total_wall_seconds": 4046.9213874999987
+}
