@@ -3,6 +3,56 @@
 All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [3.2.0] — 2026-07-07
+
+Research infrastructure batch (Fase 0 of the interior-dynamics program):
+a validated 1D reference oracle, a ×4.2 solver fast path, derived
+excision-safety windows, curved-background initial data, and the Fase 0
+feasibility report with its GO decision
+([docs/research/phase0/report.md](docs/research/phase0/report.md)).
+
+### Added
+- **1D spherical reference oracle** (`psyop.reference.spherical1d`): exact
+  l-mode spherical reduction on Schwarzschild–Kerr-Schild in (φ, Π) form,
+  log/uniform radial grids, RK4 + KO dissipation. Cross-validates the 3D
+  pipeline: reproduces Leaver QNMs (l=1 within 0.1%/1.9%, l=2 within
+  1%/2.2% in Re/Im ω) with 19 fast tests.
+- **Preassembled linear fast path** (`solvers.first_order`): the full linear
+  RHS operator is assembled once and applied per step, with the nonlinear
+  remainder handled exactly (potentials expose `linear_coefficient` /
+  `cubic_coefficient`). ×4.2 (linear) / ×2.1 (Higgs) at 262k cells; exact
+  A/B agreement with the generic path (`tests/test_operator_fastpath.py`,
+  `benchmarks/benchmark_fastpath.py`).
+- **Kerr excision window** (`physics.metrics.kerr_excision_window`, enforced
+  by `validate_config`): admissible `mesh.r_inner` range (√(r₋² + a²), r₊)
+  for Cartesian excision spheres in Kerr–Schild; the window closes at
+  |a| > 0.9718 M. Derivation: `docs/math/excision_window.md`.
+- **Curved-background initial data**
+  (`initial_conditions.direction = "ingoing_curved"`): ingoing momentum
+  consistent with the Kerr–Schild background; suppresses the spurious
+  outgoing transient ×1.67 and delays its front ~3M (1D pilot).
+- **Second-order meshes** (`mesh.geom_order = 2`): curved cells in
+  `build_ball_mesh` so the geometric error does not dominate at high
+  resolution.
+- **Inner absorption flux**: `series/flux.csv` gains a `flux_inner` column
+  (conormal + advective −(β·n)ρ terms) and the energy balance includes it.
+  Currently a qualitative diagnostic — exact closure needs a Killing-energy
+  diagnostic (report §5).
+- **Math notes**: `docs/math/excision_window.md` and
+  `docs/math/energy_stability.md` (semi-discrete energy stability of the
+  FEM scheme).
+- **Fase 0 research report** (`docs/research/phase0/report.md`): 1D pilot +
+  3D deep-excision probes → **GO**. Support scripts:
+  `scripts/pilot_phase0_oracle.py`, `scripts/phase0_probes/`,
+  `scripts/convergence_study.py` (Fase 1 ladder).
+
+### Changed
+- `analysis.ringdown`: the default excision radius is now the midpoint of
+  the admissible window for the requested spin (a=0.9 → r_inner ≈ 1.249)
+  instead of a fixed 1.0 M, which at a=0.9 lay outside the admissible
+  window (ingoing characteristics re-entered through the inner boundary).
+  Slow Kerr spectroscopy tolerances will be recalibrated in Fase 1.
+
 ## [3.1.0] — 2026-06-11
 
 Physics realism batch: reference-quality QNM targets, validity monitoring,

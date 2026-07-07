@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/ci.yml/badge.svg)](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/ci.yml)
 [![Core CI](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/core.yml/badge.svg)](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/core.yml)
-![Version](https://img.shields.io/badge/version-3.0.0-blue)
+![Version](https://img.shields.io/badge/version-3.2.0-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 
 PSYOP is a 3D finite-element simulator for scalar fields evolving on fixed
@@ -25,20 +25,27 @@ of a spherical domain, absorbed by the characteristic boundary condition.*
 - Backgrounds: flat, Schwarzschild (isotropic), Kerr (Kerr–Schild), with
   symbolic extrinsic curvature K
 - Potentials: quadratic, Higgs (`½m²φ² + ¼λφ⁴`), Mexican hat, zero
-- Initial data: Gaussian bump with consistent ingoing/outgoing/static momentum
+- Initial data: Gaussian bump with consistent ingoing/outgoing/static
+  momentum, plus `ingoing_curved` (momentum consistent with the curved
+  background — less spurious junk radiation)
 
 **Numerics**
 - First-order reduction (φ, Π) with SSP-RK3 and CFL-adaptive timestep
+- Preassembled linear-operator fast path with exact nonlinear remainder
+  (×4.2 linear / ×2.1 Higgs RHS at 262k cells)
 - Lagrange P1–P5 elements (DOLFINx), PETSc mass-matrix solves
 - Characteristic Sommerfeld absorbing boundary; horizon excision
-  (`mesh.r_inner > 0`) with inner "do-nothing" boundary
+  (`mesh.r_inner > 0`) with inner "do-nothing" boundary, validated against
+  the spin-dependent admissible excision window on Kerr–Schild
 - Sponge layer for dispersive tails of massive fields
 - Kreiss–Oliger dissipation (2nd or 4th order, λmax-normalized)
-- Gmsh spherical/shell meshes with radial grading (`lc_inner`)
+- Gmsh spherical/shell meshes with radial grading (`lc_inner`) and optional
+  curved second-order cells (`mesh.geom_order = 2`)
 
 **Analysis & output**
 - Point sampling, multipole (real Yₗₘ) extraction on a sphere
-- Energy/flux series with discrete energy-balance residual
+- Energy/flux series with discrete energy-balance residual; on excised
+  domains `flux.csv` also records the horizon absorption flux (`flux_inner`)
 - QNM spectra via FFT or Prony; XDMF fields + CSV series + run manifest
 - **Leaver reference QNMs**: continued-fraction solver for scalar Kerr
   quasinormal frequencies, any (l, m, n, spin) — no lookup tables needed
@@ -46,11 +53,13 @@ of a spherical domain, absorbed by the characteristic boundary condition.*
   (ζ = 8πρ/√K per step) and warns when backreaction would matter
 - **Astrophysical units**: QNM output in Hz/ms for a chosen mass in M☉
 - **Price tail analysis**: late-time power-law fits with quality measure
+- **1D reference oracle** (`psyop.reference`): spherical l-mode solver on
+  Schwarzschild–Kerr-Schild for cross-validating the 3D pipeline
 
 **Visualization**
 - Interactive live view of φ during evolution (`--live`, PyVista)
 
-See [CHANGELOG.md](CHANGELOG.md) for what's new in 3.0.
+See [CHANGELOG.md](CHANGELOG.md) for what's new in 3.2.
 
 ## Project Structure
 
@@ -61,6 +70,7 @@ psyop/
 │   ├── backends/          # DOLFINx numerical abstractions
 │   ├── mesh/              # Gmsh ball/shell meshes, boundary tags, grading
 │   ├── physics/           # Metrics, potentials, initial conditions
+│   ├── reference/         # 1D spherical oracle (cross-validation)
 │   ├── solvers/           # First-order KG solver (SSP-RK3)
 │   ├── utils/             # CFL, logging, live PyVista viewer
 │   ├── cli.py             # `psyop run` / `psyop postprocess`
@@ -69,6 +79,7 @@ psyop/
 ├── docs/
 │   ├── math/              # 3+1 derivation and conventions
 │   ├── media/             # README assets (live demo GIF)
+│   ├── research/          # Research program (Fase 0 report, data, figures)
 │   └── validation/        # Validation & reproducibility summary
 ├── scripts/               # Env setup, profile runner, demo GIF recorder
 ├── benchmarks/            # Solver benchmarks
@@ -198,7 +209,10 @@ Edit `config_example.json` or create your own JSON with the same keys:
 
 For black-hole backgrounds set `metric.type = "schwarzschild"` or `"kerr"` and
 `mesh.r_inner > 0` (excision); validation enforces this and suggests values
-(`~M/2` for isotropic Schwarzschild, `~M` for Kerr–Schild). Use
+(`~M/2` for isotropic Schwarzschild). For Kerr–Schild, `r_inner` must lie in
+the spin-dependent admissible window (√(r₋² + a²), r₊) — enforced by
+validation and derived in
+[docs/math/excision_window.md](docs/math/excision_window.md). Use
 `mesh.lc_inner < mesh.lc` to refine radially near the horizon.
 
 Advanced solver options:
@@ -207,7 +221,8 @@ Advanced solver options:
 |---|---|
 | `solver.sponge {enabled, width, strength}` | Sponge layer damping dispersive tails near the outer boundary. Width should be comparable to the wavelength to absorb — a narrow, strong sponge reflects slow modes instead of absorbing them. |
 | `solver.ko_eps`, `solver.ko_order` | Kreiss–Oliger dissipation (order 2 or 4). The 4th-order biharmonic filter barely touches smooth modes. |
-| `initial_conditions.direction` | `"ingoing"` / `"outgoing"` (pure spherical pulse, Π = ±(∂ᵣφ + φ/r)) or `"static"` (Π = 0, pulse splits in halves). |
+| `initial_conditions.direction` | `"ingoing"` / `"outgoing"` (pure spherical pulse, Π = ±(∂ᵣφ + φ/r)), `"static"` (Π = 0, pulse splits in halves), or `"ingoing_curved"` (Π consistent with the curved background — suppresses spurious junk radiation). |
+| `mesh.geom_order` | Geometric order of the cells: 1 (default, flat facets) or 2 (curved cells; use when the boundary-geometry error would dominate at high resolution). |
 | `analysis.extraction {enabled, radius, lmax}` | Multipole projection of φ onto real Yₗₘ on an extraction sphere → `series/multipoles.csv`. |
 | `analysis.qnm_method`, `analysis.qnm_modes` | `"fft"` or `"prony"` QNM estimation. |
 | `output.physical_units {M_solar}` | Report QNM results in physical units (Hz, ms) for a black hole of the given mass → `series/qnm_physical.json`. A 30 M☉ remnant rings at ~521 Hz (LIGO band). |
@@ -245,6 +260,9 @@ elements.
 **Energy balance**: `series/balance.csv` records `E(t) + ∫F dt − E(0)`
 (outgoing flux positive); the residual converges ~h² and a >10% residual
 triggers a warning (note: a sponge layer breaks this balance by design).
+On excised domains the balance also includes the inner (horizon) flux,
+currently a qualitative diagnostic — see
+[docs/research/phase0/report.md](docs/research/phase0/report.md), §5.
 
 Full derivation and conventions: [docs/math/3p1_scalar_field.md](docs/math/3p1_scalar_field.md).
 Validation and reproducibility summary: [docs/validation/summary.md](docs/validation/summary.md).
