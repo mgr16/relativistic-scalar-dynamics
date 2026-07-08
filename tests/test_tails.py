@@ -13,7 +13,7 @@ np = pytest.importorskip("numpy")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from psyop.analysis.tails import fit_power_law_tail, price_exponent  # noqa: E402
+from rsd.analysis.tails import fit_power_law_tail, price_exponent  # noqa: E402
 
 
 def test_recovers_pure_power_law():

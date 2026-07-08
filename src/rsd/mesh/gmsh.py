@@ -14,8 +14,8 @@ import dolfinx.mesh as dmesh
 from dolfinx.io import gmsh as dolfinx_gmsh
 from mpi4py import MPI
 
-from psyop.backends.fem import create_ds_with_outer_tag
-from psyop.utils.logger import get_logger
+from rsd.backends.fem import create_ds_with_outer_tag
+from rsd.utils.logger import get_logger
 
 logger = get_logger(__name__)
 OUTER_BOUNDARY_TAG = 2

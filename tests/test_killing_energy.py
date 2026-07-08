@@ -25,7 +25,7 @@ np = pytest.importorskip("numpy")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from psyop.reference import SphericalOracle1D  # noqa: E402
+from rsd.reference import SphericalOracle1D  # noqa: E402
 
 pytestmark = [pytest.mark.requires_numpy]
 
@@ -116,10 +116,10 @@ def test_killing_residual_second_order(horizon_runs):
 # ----------------------------------------------------------------------
 
 def _run_3d(lc: float, lc_inner: float, t_end: float = 12.0):
-    from psyop.mesh.gmsh import build_ball_mesh
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.physics.metrics import KerrSchildCoeffs
-    from psyop.solvers.first_order import FirstOrderKGSolver
+    from rsd.mesh.gmsh import build_ball_mesh
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.physics.metrics import KerrSchildCoeffs
+    from rsd.solvers.first_order import FirstOrderKGSolver
 
     comm = MPI.COMM_WORLD
     mesh, _, facet_tags = build_ball_mesh(

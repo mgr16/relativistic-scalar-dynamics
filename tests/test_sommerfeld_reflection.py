@@ -36,10 +36,10 @@ MESH_LC = 3.0
 
 def run_case(use_sommerfeld: bool):
     """Evoluciona un pulso gaussiano y devuelve (E0, E_final, flujo_medio)."""
-    from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.solvers.first_order import FirstOrderKGSolver
-    from psyop.utils.utils import compute_dt_cfl
+    from rsd.mesh.gmsh import build_ball_mesh, get_outer_tag
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.solvers.first_order import FirstOrderKGSolver
+    from rsd.utils.utils import compute_dt_cfl
 
     comm = MPI.COMM_WORLD
     mesh, _, facet_tags = build_ball_mesh(R=R, lc=MESH_LC, comm=comm)

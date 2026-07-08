@@ -3,7 +3,7 @@
 """
 Monitor de validez de la aproximación de Cowling (campo de prueba).
 
-PSYOP evoluciona φ sobre un fondo FIJO: la consistencia exige que la
+RSD evoluciona φ sobre un fondo FIJO: la consistencia exige que la
 curvatura que el campo generaría sea despreciable frente a la del fondo.
 Este monitor cuantifica esa hipótesis con dos números adimensionales:
 
@@ -29,7 +29,7 @@ from typing import Dict
 import numpy as np
 import ufl
 
-from psyop.utils.logger import get_logger
+from rsd.utils.logger import get_logger
 
 # 8π ρ ~ √K marca backreaction de orden 1; warning dos órdenes antes
 DEFAULT_THRESHOLD = 1.0e-2

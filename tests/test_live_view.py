@@ -30,8 +30,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 def test_live_viewer_off_screen_updates_one_frame():
     import dolfinx.fem as fem
 
-    from psyop.mesh.gmsh import build_ball_mesh
-    from psyop.utils.live_view import LiveViewer
+    from rsd.mesh.gmsh import build_ball_mesh
+    from rsd.utils.live_view import LiveViewer
 
     mesh, _, _ = build_ball_mesh(R=4.0, lc=2.0, comm=MPI.COMM_WORLD)
     try:
@@ -51,7 +51,7 @@ def test_live_viewer_off_screen_updates_one_frame():
 
 
 def test_create_live_viewer_declines_parallel_comm():
-    from psyop.utils.live_view import create_live_viewer
+    from rsd.utils.live_view import create_live_viewer
 
     class FakeParallelComm:
         size = 2

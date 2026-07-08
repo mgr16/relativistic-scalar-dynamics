@@ -1,4 +1,4 @@
-# 3+1 Klein-Gordon conventions used by PSYOP
+# 3+1 Klein-Gordon conventions used by RSD
 
 We evolve the covariant scalar equation
 \[
@@ -33,7 +33,7 @@ For a **stationary** background this trace reduces to
 \[
 K = \frac{1}{\alpha} D_i\beta^i = \frac{1}{\alpha\sqrt{\gamma}}\,\partial_i\!\left(\sqrt{\gamma}\,\beta^i\right),
 \]
-which PSYOP evaluates symbolically (UFL `div`). For Schwarzschild in
+which RSD evaluates symbolically (UFL `div`). For Schwarzschild in
 Kerr-Schild coordinates this reproduces the known value
 \[
 K = \frac{2M\,(r+3M)}{\left[r\,(r+2M)\right]^{3/2}}

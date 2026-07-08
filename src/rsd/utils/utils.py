@@ -10,7 +10,7 @@ Utilidades numéricas para la simulación:
 
 import numpy as np
 
-from psyop.backends.fem import is_dolfinx
+from rsd.backends.fem import is_dolfinx
 
 
 def _approx_hmin(mesh, sample: int = 4000) -> float:

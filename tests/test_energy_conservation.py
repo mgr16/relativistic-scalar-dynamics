@@ -29,9 +29,9 @@ class TestEnergyConservation:
     
     def test_energy_conservation_quadratic_potential(self):
         """Test energy conservation with quadratic potential."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
-        from psyop.mesh.gmsh import build_ball_mesh
-        from psyop.physics.initial_conditions import GaussianBump
+        from rsd.solvers.first_order import FirstOrderKGSolver
+        from rsd.mesh.gmsh import build_ball_mesh
+        from rsd.physics.initial_conditions import GaussianBump
         
         # Small mesh for fast testing
         mesh, _, facet_tags = build_ball_mesh(R=5.0, lc=3.0, comm=MPI.COMM_WORLD)
@@ -70,9 +70,9 @@ class TestEnergyConservation:
     @pytest.mark.parametrize("cfl", [0.1, 0.2, 0.3])
     def test_energy_conservation_varying_cfl(self, cfl):
         """Test energy conservation with different CFL factors."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
-        from psyop.mesh.gmsh import build_ball_mesh
-        from psyop.physics.initial_conditions import GaussianBump
+        from rsd.solvers.first_order import FirstOrderKGSolver
+        from rsd.mesh.gmsh import build_ball_mesh
+        from rsd.physics.initial_conditions import GaussianBump
         
         # Small mesh
         mesh, _, facet_tags = build_ball_mesh(R=5.0, lc=2.5, comm=MPI.COMM_WORLD)
@@ -110,9 +110,9 @@ class TestEnergyConservation:
     
     def test_zero_potential_conservation(self):
         """Test that zero potential gives perfect conservation (within numerical error)."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
-        from psyop.mesh.gmsh import build_ball_mesh
-        from psyop.physics.initial_conditions import GaussianBump
+        from rsd.solvers.first_order import FirstOrderKGSolver
+        from rsd.mesh.gmsh import build_ball_mesh
+        from rsd.physics.initial_conditions import GaussianBump
         
         mesh, _, _ = build_ball_mesh(R=5.0, lc=2.0, comm=MPI.COMM_WORLD)
         
@@ -142,9 +142,9 @@ class TestEnergyConservation:
 
     def test_ko_filter_keeps_solution_finite(self):
         """KO/filter path should run without NaNs for small epsilon."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
-        from psyop.mesh.gmsh import build_ball_mesh
-        from psyop.physics.initial_conditions import GaussianBump
+        from rsd.solvers.first_order import FirstOrderKGSolver
+        from rsd.mesh.gmsh import build_ball_mesh
+        from rsd.physics.initial_conditions import GaussianBump
 
         mesh, _, _ = build_ball_mesh(R=5.0, lc=2.5, comm=MPI.COMM_WORLD)
         solver = FirstOrderKGSolver(
@@ -170,9 +170,9 @@ class TestEnergyNonNegativity:
     
     def test_energy_positive(self):
         """Test that energy is always positive."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
-        from psyop.mesh.gmsh import build_ball_mesh
-        from psyop.physics.initial_conditions import GaussianBump
+        from rsd.solvers.first_order import FirstOrderKGSolver
+        from rsd.mesh.gmsh import build_ball_mesh
+        from rsd.physics.initial_conditions import GaussianBump
         
         mesh, _, _ = build_ball_mesh(R=5.0, lc=2.5, comm=MPI.COMM_WORLD)
         

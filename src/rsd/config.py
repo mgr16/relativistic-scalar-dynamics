@@ -142,7 +142,7 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
             raise ValueError("metric.a must satisfy |a| <= M (no naked singularities)")
         # Ventana de outflow del borde excisado (docs/math/excision_window.md):
         # la esfera cartesiana debe caber en la región atrapada r₋ < r < r₊.
-        from psyop.physics.metrics import kerr_excision_window
+        from rsd.physics.metrics import kerr_excision_window
 
         lo, hi = kerr_excision_window(M, a)
         if lo >= hi:

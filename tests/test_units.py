@@ -13,7 +13,7 @@ np = pytest.importorskip("numpy")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from psyop.utils.units import GeometricUnits, units_from_config  # noqa: E402
+from rsd.utils.units import GeometricUnits, units_from_config  # noqa: E402
 
 
 def test_solar_scales():

@@ -16,10 +16,10 @@ import dolfinx.fem.petsc
 import ufl
 from petsc4py import PETSc
 
-from psyop.utils.logger import get_logger
-from psyop.utils.utils import compute_dt_cfl
-from psyop.physics.potential import get_potential
-from psyop.physics.initial_conditions import GaussianBump, create_zero_field
+from rsd.utils.logger import get_logger
+from rsd.utils.utils import compute_dt_cfl
+from rsd.physics.potential import get_potential
+from rsd.physics.initial_conditions import GaussianBump, create_zero_field
 
 logger = get_logger(__name__)
 

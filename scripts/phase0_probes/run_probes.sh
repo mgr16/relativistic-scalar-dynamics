@@ -8,7 +8,7 @@ export CC=/usr/bin/clang   # macOS: FFCx JIT contra el linker de Xcode
 
 for probe in A B C; do
     echo "=== PROBE ${probe} ==="
-    /usr/bin/time conda run -n psyop-dolfinx psyop run \
+    /usr/bin/time conda run -n rsd-dolfinx rsd run \
         --config "scripts/phase0_probes/probe_${probe}.json" \
         --output "results/phase0_probes/probe_${probe}" \
         2>&1 | tail -40

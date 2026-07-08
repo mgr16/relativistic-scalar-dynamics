@@ -37,7 +37,7 @@ def box_mesh():
 
 
 def test_curved_requires_background(box_mesh):
-    from psyop.physics.initial_conditions import GaussianBump
+    from rsd.physics.initial_conditions import GaussianBump
 
     with pytest.raises(ValueError, match="background"):
         GaussianBump(box_mesh, A=1e-3, r0=8.0, w=2.0, v0=0.0,
@@ -45,8 +45,8 @@ def test_curved_requires_background(box_mesh):
 
 
 def test_curved_reduces_to_flat_on_flat_background(box_mesh):
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.physics.metrics import FlatBackgroundCoeffs
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.physics.metrics import FlatBackgroundCoeffs
 
     flat = GaussianBump(box_mesh, A=1e-3, r0=8.0, w=2.0, v0=0.0,
                         direction="ingoing")
@@ -58,8 +58,8 @@ def test_curved_reduces_to_flat_on_flat_background(box_mesh):
 
 
 def test_curved_momentum_differs_on_kerr_schild(box_mesh):
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.physics.metrics import KerrSchildCoeffs
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.physics.metrics import KerrSchildCoeffs
 
     flat = GaussianBump(box_mesh, A=1e-3, r0=8.0, w=2.0, v0=0.0,
                         direction="ingoing")
@@ -75,7 +75,7 @@ def test_curved_momentum_differs_on_kerr_schild(box_mesh):
 
 def test_radial_factors_consistency():
     """Los factores radiales reproducen la identidad c_in = 1 de Kerr-Schild."""
-    from psyop.physics.metrics import KerrSchildCoeffs
+    from rsd.physics.metrics import KerrSchildCoeffs
 
     r = np.linspace(0.3, 30.0, 200)
     alpha, beta_r, sqrt_grr = KerrSchildCoeffs(M=1.0, a=0.0).radial_factors_np(r)
@@ -84,7 +84,7 @@ def test_radial_factors_consistency():
 
 
 def test_config_accepts_new_direction():
-    from psyop.config import DEFAULT_CONFIG, validate_config
+    from rsd.config import DEFAULT_CONFIG, validate_config
 
     cfg = {**DEFAULT_CONFIG}
     cfg["initial_conditions"] = {

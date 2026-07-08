@@ -20,12 +20,12 @@ sys.path.insert(0, str(ROOT / "src"))
 import imageio.v2 as imageio
 from mpi4py import MPI
 
-from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
-from psyop.physics.initial_conditions import GaussianBump
-from psyop.physics.metrics import make_background
-from psyop.solvers.first_order import FirstOrderKGSolver
-from psyop.utils.live_view import LiveViewer
-from psyop.utils.utils import compute_dt_cfl
+from rsd.mesh.gmsh import build_ball_mesh, get_outer_tag
+from rsd.physics.initial_conditions import GaussianBump
+from rsd.physics.metrics import make_background
+from rsd.solvers.first_order import FirstOrderKGSolver
+from rsd.utils.live_view import LiveViewer
+from rsd.utils.utils import compute_dt_cfl
 
 R = 12.0
 T_END = 16.0

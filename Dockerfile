@@ -16,11 +16,11 @@ RUN micromamba install -y -n base -c conda-forge \
     pytest-cov \
     && micromamba clean -a -y
 
-WORKDIR /workspace/psyop
-COPY --chown=$MAMBA_USER:$MAMBA_USER . /workspace/psyop
+WORKDIR /workspace/rsd
+COPY --chown=$MAMBA_USER:$MAMBA_USER . /workspace/rsd
 
 # Activar el entorno base durante los RUN de build
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 RUN pip install --no-deps -e .
 
-CMD ["psyop", "--test"]
+CMD ["rsd", "--test"]

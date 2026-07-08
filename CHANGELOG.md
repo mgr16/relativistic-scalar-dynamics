@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+- **Package renamed `psyop` → `rsd`** (Relativistic Scalar Dynamics). The
+  import package (`src/rsd/`, `import rsd`), the distribution name, and the
+  console entry points (`rsd`, `rsd-run`, `rsd-postprocess`) all move from
+  the previous `psyop` identifier; the repository/folder is now
+  `relativistic-scalar-dynamics`. No behavioural change — a pure identifier
+  rename validated by the full fast suite (134 passed). Downstream imports
+  and any `psyop …` CLI invocations must be updated to `rsd …`.
+
 ### Added
 - **Killing-energy diagnostic** (`docs/math/killing_energy.md`): the energy
   E_K = ∫√γ(αρ + Π β·∇φ) associated with the stationary Killing vector
@@ -35,7 +44,7 @@ feasibility report with its GO decision
 ([docs/research/phase0/report.md](docs/research/phase0/report.md)).
 
 ### Added
-- **1D spherical reference oracle** (`psyop.reference.spherical1d`): exact
+- **1D spherical reference oracle** (`rsd.reference.spherical1d`): exact
   l-mode spherical reduction on Schwarzschild–Kerr-Schild in (φ, Π) form,
   log/uniform radial grids, RK4 + KO dissipation. Cross-validates the 3D
   pipeline: reproduces Leaver QNMs (l=1 within 0.1%/1.9%, l=2 within
@@ -82,43 +91,43 @@ Physics realism batch: reference-quality QNM targets, validity monitoring,
 and astrophysical units.
 
 ### Added
-- **Leaver reference QNM solver** (`psyop.analysis.leaver`): scalar (s=0)
+- **Leaver reference QNM solver** (`rsd.analysis.leaver`): scalar (s=0)
   Kerr quasinormal frequencies for any (l, m, n, spin) via Leaver (1985)
   continued fractions with spin continuation. Reproduces published
   Schwarzschild values (Berti et al. 2009) to 1e-6 and agrees with the
   `qnm` package (Stein 2019) to machine precision up to a = 0.95.
-- **Kerr ringdown pipeline** (`psyop.analysis.ringdown`): evolve Y_lm
+- **Kerr ringdown pipeline** (`rsd.analysis.ringdown`): evolve Y_lm
   shell pulses on Kerr, Prony-fit the ringdown. With |m| > 0 a real field
   contains both prograde and retrograde modes — frame dragging splits them
   (~80% at a = 0.9), measurable in a single run with discretization
   systematics cancelling in the ratio.
 - **Spin sweep script** (`scripts/qnm_kerr_sweep.py`): FEM vs Leaver
   comparison table across spins.
-- **Cowling validity monitor** (`psyop.analysis.cowling`): dimensionless
+- **Cowling validity monitor** (`rsd.analysis.cowling`): dimensionless
   backreaction measure ζ = 8πρ/√(Kretschmann) and E_field/M logged each
   output step (`series/cowling.csv`); warns when the test-field
   approximation becomes marginal (ζ > 1e-2).
-- **Astrophysical units** (`psyop.utils.units`): set
+- **Astrophysical units** (`rsd.utils.units`): set
   `output.physical_units.M_solar` to get QNM frequencies in Hz and damping
   times in ms (`series/qnm_physical.json`) — e.g. the l=2 fundamental of a
   30 M_sun black hole lands at ~521 Hz, in the LIGO band.
-- **Price tail analysis** (`psyop.analysis.tails`): log-log power-law fit
+- **Price tail analysis** (`rsd.analysis.tails`): log-log power-law fit
   with R² quality measure and theoretical exponents t^-(2l+3).
 
 ### Fixed
-- `.gitignore` had an unanchored `psyop/` pattern that silently ignored
-  new files under `src/psyop/` — `analysis/extraction.py` and
+- `.gitignore` had an unanchored `rsd/` pattern that silently ignored
+  new files under `src/rsd/` — `analysis/extraction.py` and
   `utils/live_view.py` were missing from every previous commit (broken
-  imports on fresh clones). Pattern is now root-anchored (`/psyop/`).
+  imports on fresh clones). Pattern is now root-anchored (`/rsd/`).
 
 ## [3.0.0] — 2026-06-11
 
 ### Added
-- **Live visualization** (`psyop run --live`): interactive PyVista window showing
+- **Live visualization** (`rsd run --live`): interactive PyVista window showing
   the scalar field φ on a z=0 slice, updated during the evolution. Optional
   `--live-every N` controls the refresh cadence. Degrades gracefully (warning,
   no crash) when PyVista is missing, the environment is headless, or the run
-  is parallel; zero overhead when disabled. New module `psyop.utils.live_view`,
+  is parallel; zero overhead when disabled. New module `rsd.utils.live_view`,
   optional dependency extra `viz` (`pip install -e .[viz]`).
 - **Sponge layer** (`solver.sponge {enabled, width, strength}`): damps the
   dispersive tails of massive fields that the characteristic BC cannot absorb.
@@ -141,11 +150,11 @@ and astrophysical units.
 
 ### Changed
 - README rewritten in English and restructured for v3.0.
-- `scripts/run_simulation.py` now calls the packaged CLI (`psyop.cli`)
+- `scripts/run_simulation.py` now calls the packaged CLI (`rsd.cli`)
   directly instead of the removed root `main.py`.
 
 ### Removed
-- Root `main.py` launcher (use `psyop`, `python -m psyop`, or `psyop-run`).
+- Root `main.py` launcher (use `rsd`, `python -m rsd`, or `rsd-run`).
 - `docs/reviews/` historical review documents (superseded by this changelog;
   available in git history).
 
@@ -159,7 +168,7 @@ and astrophysical units.
 - Black-hole support: horizon excision (`mesh.r_inner > 0`) with inner
   "do-nothing" boundary, Schwarzschild (isotropic) and Kerr (Kerr-Schild)
   backgrounds, symbolic extrinsic curvature K.
-- QNM analysis via FFT and Prony; CLI `psyop run` / `psyop postprocess`.
+- QNM analysis via FFT and Prony; CLI `rsd run` / `rsd postprocess`.
 
 ### Changed
 - Complete migration to DOLFINx (FEniCSx); `src/` packaging layout with

@@ -49,8 +49,8 @@ def _analytic_K_schwarzschild_ks(r, M):
 def test_kerr_schild_trace_K_matches_schwarzschild_analytic():
     import dolfinx.fem as fem
 
-    from psyop.mesh.gmsh import build_ball_mesh
-    from psyop.physics.metrics import KerrSchildCoeffs
+    from rsd.mesh.gmsh import build_ball_mesh
+    from rsd.physics.metrics import KerrSchildCoeffs
 
     M = 1.0
     mesh, _, _ = build_ball_mesh(R=8.0, lc=1.0, comm=MPI.COMM_WORLD, r_inner=1.5)
@@ -81,8 +81,8 @@ def test_kerr_schild_trace_K_matches_schwarzschild_analytic():
 
 
 def test_flat_background_has_zero_K():
-    from psyop.mesh.gmsh import build_ball_mesh
-    from psyop.physics.metrics import FlatBackgroundCoeffs
+    from rsd.mesh.gmsh import build_ball_mesh
+    from rsd.physics.metrics import FlatBackgroundCoeffs
 
     mesh, _, _ = build_ball_mesh(R=4.0, lc=2.0, comm=MPI.COMM_WORLD)
     _, _, _, _, K_f = FlatBackgroundCoeffs().build(mesh)

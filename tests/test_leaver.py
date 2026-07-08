@@ -15,7 +15,7 @@ pytest.importorskip("scipy")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from psyop.analysis.leaver import (  # noqa: E402
+from rsd.analysis.leaver import (  # noqa: E402
     angular_eigenvalue,
     kerr_qnm,
     schwarzschild_qnm,

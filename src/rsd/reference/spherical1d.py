@@ -48,7 +48,7 @@ from typing import Callable, Dict, List, Optional
 
 import numpy as np
 
-from psyop.utils.logger import get_logger
+from rsd.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -126,7 +126,7 @@ class SphericalOracle1D:
         self.ko_eps = float(ko_eps)
         self.u_infinity = float(u_infinity)
 
-        from psyop.physics.potential import get_potential
+        from rsd.physics.potential import get_potential
 
         self.potential = get_potential(potential_type, **(potential_params or {}))
         self._V_is_zero = potential_type == "zero"

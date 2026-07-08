@@ -36,7 +36,7 @@ def _ball_volume(geom_order: int) -> float:
     import dolfinx.fem as fem
     import ufl
 
-    from psyop.mesh.gmsh import build_ball_mesh
+    from rsd.mesh.gmsh import build_ball_mesh
 
     mesh, _, _ = build_ball_mesh(R=R, lc=LC, comm=MPI.COMM_WORLD,
                                  geom_order=geom_order)
@@ -59,14 +59,14 @@ def test_curved_cells_reduce_geometric_error():
 
 
 def test_invalid_geom_order_rejected():
-    from psyop.mesh.gmsh import build_ball_mesh
+    from rsd.mesh.gmsh import build_ball_mesh
 
     with pytest.raises(ValueError):
         build_ball_mesh(R=R, lc=LC, comm=MPI.COMM_WORLD, geom_order=3)
 
 
 def test_config_validates_geom_order():
-    from psyop.config import DEFAULT_CONFIG, validate_config
+    from rsd.config import DEFAULT_CONFIG, validate_config
 
     cfg = {**DEFAULT_CONFIG}
     cfg["mesh"] = {**DEFAULT_CONFIG["mesh"], "geom_order": 2}

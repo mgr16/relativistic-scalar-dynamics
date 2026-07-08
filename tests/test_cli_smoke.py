@@ -8,7 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 
 def test_create_example_config(tmp_path: Path):
-    cli = pytest.importorskip("psyop.cli")
+    cli = pytest.importorskip("rsd.cli")
 
     config_path = tmp_path / "example.json"
     cli.create_example_config(str(config_path))

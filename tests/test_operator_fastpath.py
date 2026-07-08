@@ -49,7 +49,7 @@ POTENTIALS = [
 
 @pytest.fixture(scope="module")
 def shell_mesh():
-    from psyop.mesh.gmsh import build_ball_mesh
+    from rsd.mesh.gmsh import build_ball_mesh
 
     comm = MPI.COMM_WORLD
     mesh, _, facet_tags = build_ball_mesh(R=R, lc=LC, comm=comm, r_inner=R_INNER)
@@ -59,9 +59,9 @@ def shell_mesh():
 
 
 def _evolve(mesh, facet_tags, potential_type, potential_params, preassemble):
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.physics.metrics import KerrSchildCoeffs
-    from psyop.solvers.first_order import FirstOrderKGSolver
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.physics.metrics import KerrSchildCoeffs
+    from rsd.solvers.first_order import FirstOrderKGSolver
 
     v0 = 1.0 if potential_type == "mexican_hat" else 0.0
     solver = FirstOrderKGSolver(
@@ -105,8 +105,8 @@ def test_fast_path_matches_slow_path(shell_mesh, potential_type, potential_param
 
 def test_fully_linear_potentials_skip_per_step_assembly(shell_mesh):
     """zero/quadratic: la ruta rápida no debe ensamblar nada por paso."""
-    from psyop.physics.metrics import KerrSchildCoeffs
-    from psyop.solvers.first_order import FirstOrderKGSolver
+    from rsd.physics.metrics import KerrSchildCoeffs
+    from rsd.solvers.first_order import FirstOrderKGSolver
 
     mesh, facet_tags = shell_mesh
     solver = FirstOrderKGSolver(

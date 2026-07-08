@@ -23,13 +23,13 @@ class TestSolverInputValidation:
     @pytest.fixture
     def simple_mesh(self):
         """Create a simple mesh for testing."""
-        from psyop.mesh.gmsh import build_ball_mesh
+        from rsd.mesh.gmsh import build_ball_mesh
         mesh, _, _ = build_ball_mesh(R=5.0, lc=3.0, comm=MPI.COMM_WORLD)
         return mesh
     
     def test_invalid_cfl_negative(self, simple_mesh):
         """Test that negative CFL is rejected."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         with pytest.raises(ValueError, match="CFL factor must be in"):
             FirstOrderKGSolver(
@@ -40,7 +40,7 @@ class TestSolverInputValidation:
     
     def test_invalid_cfl_zero(self, simple_mesh):
         """Test that zero CFL is rejected."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         with pytest.raises(ValueError, match="CFL factor must be in"):
             FirstOrderKGSolver(
@@ -51,7 +51,7 @@ class TestSolverInputValidation:
     
     def test_invalid_cfl_too_large(self, simple_mesh):
         """Test that CFL > 1 is rejected."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         with pytest.raises(ValueError, match="CFL factor must be in"):
             FirstOrderKGSolver(
@@ -62,7 +62,7 @@ class TestSolverInputValidation:
     
     def test_valid_cfl_boundary(self, simple_mesh):
         """Test that CFL = 1.0 (boundary) is accepted."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         # Should not raise
         solver = FirstOrderKGSolver(
@@ -74,7 +74,7 @@ class TestSolverInputValidation:
     
     def test_invalid_domain_radius_negative(self, simple_mesh):
         """Test that negative domain radius is rejected."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         with pytest.raises(ValueError, match="domain_radius must be positive"):
             FirstOrderKGSolver(
@@ -84,7 +84,7 @@ class TestSolverInputValidation:
     
     def test_invalid_domain_radius_zero(self, simple_mesh):
         """Test that zero domain radius is rejected."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         with pytest.raises(ValueError, match="domain_radius must be positive"):
             FirstOrderKGSolver(
@@ -94,7 +94,7 @@ class TestSolverInputValidation:
     
     def test_invalid_degree_too_small(self, simple_mesh):
         """Test that degree < 1 is rejected."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         with pytest.raises(ValueError, match="degree must be in"):
             FirstOrderKGSolver(
@@ -105,7 +105,7 @@ class TestSolverInputValidation:
     
     def test_invalid_degree_too_large(self, simple_mesh):
         """Test that degree > 5 is rejected."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         with pytest.raises(ValueError, match="degree must be in"):
             FirstOrderKGSolver(
@@ -116,7 +116,7 @@ class TestSolverInputValidation:
     
     def test_valid_degrees(self, simple_mesh):
         """Test that valid degrees [1-5] are accepted."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         for degree in [1, 2, 3, 4, 5]:
             solver = FirstOrderKGSolver(
@@ -128,7 +128,7 @@ class TestSolverInputValidation:
     
     def test_invalid_potential_type(self, simple_mesh):
         """Test that invalid potential type is rejected."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         with pytest.raises(ValueError, match="Unknown potential type"):
             FirstOrderKGSolver(
@@ -139,7 +139,7 @@ class TestSolverInputValidation:
     
     def test_valid_potential_types(self, simple_mesh):
         """Test that all valid potential types are accepted."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         valid_types = ["quadratic", "higgs", "mexican_hat", "zero"]
         
@@ -168,13 +168,13 @@ class TestSolverInitialization:
     @pytest.fixture
     def simple_mesh(self):
         """Create a simple mesh for testing."""
-        from psyop.mesh.gmsh import build_ball_mesh
+        from rsd.mesh.gmsh import build_ball_mesh
         mesh, _, _ = build_ball_mesh(R=5.0, lc=3.0, comm=MPI.COMM_WORLD)
         return mesh
     
     def test_solver_creates_function_spaces(self, simple_mesh):
         """Test that solver creates function spaces."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         solver = FirstOrderKGSolver(
             mesh=simple_mesh,
@@ -187,7 +187,7 @@ class TestSolverInitialization:
     
     def test_solver_initializes_fields(self, simple_mesh):
         """Test that solver initializes phi and Pi fields."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         solver = FirstOrderKGSolver(
             mesh=simple_mesh,
@@ -201,7 +201,7 @@ class TestSolverInitialization:
     
     def test_solver_potential_initialization(self, simple_mesh):
         """Test that solver initializes potential correctly."""
-        from psyop.solvers.first_order import FirstOrderKGSolver
+        from rsd.solvers.first_order import FirstOrderKGSolver
         
         solver = FirstOrderKGSolver(
             mesh=simple_mesh,

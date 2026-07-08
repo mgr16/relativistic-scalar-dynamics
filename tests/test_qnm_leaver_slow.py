@@ -45,11 +45,11 @@ OMEGA_IM = 0.097660
 def _evolve_and_extract():
     import dolfinx.fem as fem
 
-    from psyop.analysis.extraction import MultipoleExtractor
-    from psyop.mesh.gmsh import INNER_BOUNDARY_TAG, build_ball_mesh, get_outer_tag
-    from psyop.physics.metrics import KerrSchildCoeffs
-    from psyop.solvers.first_order import FirstOrderKGSolver
-    from psyop.utils.utils import compute_dt_cfl
+    from rsd.analysis.extraction import MultipoleExtractor
+    from rsd.mesh.gmsh import INNER_BOUNDARY_TAG, build_ball_mesh, get_outer_tag
+    from rsd.physics.metrics import KerrSchildCoeffs
+    from rsd.solvers.first_order import FirstOrderKGSolver
+    from rsd.utils.utils import compute_dt_cfl
 
     M = 1.0
     R, r_inner = 20.0, 1.0
@@ -108,7 +108,7 @@ def _evolve_and_extract():
 
 
 def test_schwarzschild_l1_qnm_matches_leaver():
-    from psyop.analysis.qnm import estimate_qnm_prony
+    from rsd.analysis.qnm import estimate_qnm_prony
 
     ts, c10 = _evolve_and_extract()
     assert np.all(np.isfinite(c10)), "extracted signal contains NaN/inf"

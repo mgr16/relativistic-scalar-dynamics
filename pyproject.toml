@@ -3,7 +3,7 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "psyop"
+name = "rsd"
 version = "3.2.0"
 description = "Scalar field evolution in black hole backgrounds using DOLFINx"
 readme = "README.md"
@@ -24,13 +24,13 @@ dev = ["pytest>=7.0", "pytest-cov>=4.0", "black>=23.0", "ruff>=0.6.0", "mypy>=1.
 docs = ["sphinx>=5.0", "sphinx-rtd-theme>=1.0"]
 
 [project.scripts]
-psyop = "psyop.cli:main"
-psyop-run = "psyop.cli:run_main"
-psyop-postprocess = "psyop.cli:postprocess_main"
+rsd = "rsd.cli:main"
+rsd-run = "rsd.cli:run_main"
+rsd-postprocess = "rsd.cli:postprocess_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["psyop*"]
+include = ["rsd*"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

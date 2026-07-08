@@ -43,7 +43,7 @@ def _cell_sizes_and_radii(mesh):
 
 
 def test_excised_mesh_has_inner_and_outer_tags():
-    from psyop.mesh.gmsh import INNER_BOUNDARY_TAG, OUTER_BOUNDARY_TAG, build_ball_mesh
+    from rsd.mesh.gmsh import INNER_BOUNDARY_TAG, OUTER_BOUNDARY_TAG, build_ball_mesh
 
     mesh, _, facet_tags = build_ball_mesh(R=6.0, lc=1.5, comm=MPI.COMM_WORLD, r_inner=1.5)
     assert facet_tags is not None
@@ -57,7 +57,7 @@ def test_excised_mesh_has_inner_and_outer_tags():
 
 
 def test_graded_mesh_refines_center():
-    from psyop.mesh.gmsh import build_ball_mesh
+    from rsd.mesh.gmsh import build_ball_mesh
 
     mesh, _, facet_tags = build_ball_mesh(
         R=10.0, lc=1.5, comm=MPI.COMM_WORLD, lc_inner=0.6
@@ -74,7 +74,7 @@ def test_graded_mesh_refines_center():
 
 
 def test_lc_inner_is_validated():
-    from psyop.mesh.gmsh import build_ball_mesh
+    from rsd.mesh.gmsh import build_ball_mesh
 
     with pytest.raises(ValueError, match="lc_inner"):
         build_ball_mesh(R=6.0, lc=1.0, comm=MPI.COMM_WORLD, lc_inner=2.0)

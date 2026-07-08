@@ -7,8 +7,8 @@ región atrapada r₋ < r < r₊ para que el borde "do-nothing" sea consistente.
 import numpy as np
 import pytest
 
-from psyop.config import validate_config
-from psyop.physics.metrics import kerr_excision_window
+from rsd.config import validate_config
+from rsd.physics.metrics import kerr_excision_window
 
 pytestmark = [pytest.mark.requires_numpy]
 

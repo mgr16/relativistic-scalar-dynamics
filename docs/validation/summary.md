@@ -78,7 +78,7 @@ This repository includes lightweight and environment-safe validation layers:
       discriminating the extrinsic-curvature term requires finer meshes.
 
 15. **Leaver reference solver** (fast)
-    - `psyop.analysis.leaver` computes scalar Kerr QNMs by continued
+    - `rsd.analysis.leaver` computes scalar Kerr QNMs by continued
       fractions for any (l, m, n, a): `tests/test_leaver.py` checks the
       published Schwarzschild values (≤2e-6), the l=2 first overtone, and
       Kerr values cross-validated against the `qnm` package (Stein 2019)
@@ -95,13 +95,13 @@ This repository includes lightweight and environment-safe validation layers:
       in Schwarzschild the test must fail by construction.
 
 17. **Cowling validity monitor**
-    - `psyop.analysis.cowling` logs ζ = 8πρ/√(Kretschmann) and E/M per
+    - `rsd.analysis.cowling` logs ζ = 8πρ/√(Kretschmann) and E/M per
       output step (`series/cowling.csv`), warning above ζ = 1e-2;
       `tests/test_cowling.py` verifies the exact A² scaling and the
       one-shot warning.
 
 18. **Price tails** (slow)
-    - `psyop.analysis.tails` fits the late-time power law; the slow test
+    - `rsd.analysis.tails` fits the late-time power law; the slow test
       evolves a massless l=1 pulse on a causally clean domain (R = 60,
       boundary echo arrives after the fit window) and checks the Price
       exponent t^-(2l+3) = t^-5.

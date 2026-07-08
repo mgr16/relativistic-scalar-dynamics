@@ -5,7 +5,7 @@ qnm_kerr_sweep.py – Barrido de QNM en spin: evolución FEM vs Leaver.
 
 Para cada spin de la lista evoluciona un pulso entrante con estructura
 Y_l|m| sobre Kerr, ajusta el ringdown con Prony y compara las frecuencias
-extraídas contra la referencia de fracciones continuas (psyop.analysis.leaver).
+extraídas contra la referencia de fracciones continuas (rsd.analysis.leaver).
 Con |m| > 0 la señal real contiene los modos prógrado (m>0) y retrógrado
 (m<0): se reportan ambos.
 
@@ -39,8 +39,8 @@ def main() -> int:
     p.add_argument("--out", default=None, help="CSV de salida (opcional)")
     args = p.parse_args()
 
-    from psyop.analysis.leaver import kerr_qnm
-    from psyop.analysis.ringdown import evolve_kerr_ringdown, fit_ringdown_modes
+    from rsd.analysis.leaver import kerr_qnm
+    from rsd.analysis.ringdown import evolve_kerr_ringdown, fit_ringdown_modes
 
     spins = [float(s) for s in args.spins.split(",")]
     t_min, t_max = (float(x) for x in args.fit_window.split(","))

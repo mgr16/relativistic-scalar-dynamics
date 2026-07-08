@@ -1,5 +1,5 @@
 """
-Validación del oráculo 1D (psyop.reference.spherical1d).
+Validación del oráculo 1D (rsd.reference.spherical1d).
 
 Escalera:
 1. Validación de entradas y consistencia interna (K analítico vs divergencia).
@@ -14,9 +14,9 @@ Escalera:
 import numpy as np
 import pytest
 
-from psyop.analysis.leaver import schwarzschild_qnm
-from psyop.analysis.qnm import estimate_qnm_prony
-from psyop.reference import SphericalOracle1D, trace_K_from_divergence
+from rsd.analysis.leaver import schwarzschild_qnm
+from rsd.analysis.qnm import estimate_qnm_prony
+from rsd.reference import SphericalOracle1D, trace_K_from_divergence
 
 pytestmark = [pytest.mark.requires_numpy]
 

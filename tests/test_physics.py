@@ -21,10 +21,10 @@ pytestmark = [
 ]
 
 if HAS_DOLFINX:
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.physics.metrics import make_background
-    from psyop.solvers.first_order import FirstOrderKGSolver
-    from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.physics.metrics import make_background
+    from rsd.solvers.first_order import FirstOrderKGSolver
+    from rsd.mesh.gmsh import build_ball_mesh, get_outer_tag
 
 
 def _eval_at_origin(func):
@@ -171,9 +171,9 @@ def test_reflection_reduction(tmp_path):
 
 
 def _evolve_direction(direction: str, t_end: float = 8.0):
-    from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
-    from psyop.solvers.first_order import FirstOrderKGSolver
-    from psyop.utils.utils import compute_dt_cfl
+    from rsd.mesh.gmsh import build_ball_mesh, get_outer_tag
+    from rsd.solvers.first_order import FirstOrderKGSolver
+    from rsd.utils.utils import compute_dt_cfl
 
     mesh, _, facet_tags = build_ball_mesh(R=10.0, lc=1.2, comm=MPI.COMM_WORLD)
     solver = FirstOrderKGSolver(
@@ -219,9 +219,9 @@ def test_energy_balance_closes_with_boundary_flux():
     E(t) + ∫F dt ≈ E(0): el flujo reportado debe dar cuenta de la energía
     que sale por la BC absorbente (residuo ~h²; calibrado: ~6% en lc=1.0).
     """
-    from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
-    from psyop.solvers.first_order import FirstOrderKGSolver
-    from psyop.utils.utils import compute_dt_cfl
+    from rsd.mesh.gmsh import build_ball_mesh, get_outer_tag
+    from rsd.solvers.first_order import FirstOrderKGSolver
+    from rsd.utils.utils import compute_dt_cfl
 
     mesh, _, facet_tags = build_ball_mesh(R=10.0, lc=1.0, comm=MPI.COMM_WORLD)
     solver = FirstOrderKGSolver(
@@ -284,9 +284,9 @@ def test_fourth_order_filter_damps_smooth_modes_less():
 
 
 def _run_massive_with_sponge(sponge_cfg, t_end=20.0):
-    from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
-    from psyop.solvers.first_order import FirstOrderKGSolver
-    from psyop.utils.utils import compute_dt_cfl
+    from rsd.mesh.gmsh import build_ball_mesh, get_outer_tag
+    from rsd.solvers.first_order import FirstOrderKGSolver
+    from rsd.utils.utils import compute_dt_cfl
 
     mesh, _, facet_tags = build_ball_mesh(R=10.0, lc=1.2, comm=MPI.COMM_WORLD)
     solver = FirstOrderKGSolver(
@@ -331,8 +331,8 @@ def test_sponge_layer_damps_field_in_its_support():
 
 
 def test_sponge_config_is_validated():
-    from psyop.mesh.gmsh import build_ball_mesh
-    from psyop.solvers.first_order import FirstOrderKGSolver
+    from rsd.mesh.gmsh import build_ball_mesh
+    from rsd.solvers.first_order import FirstOrderKGSolver
 
     mesh, _, _ = build_ball_mesh(R=4.0, lc=2.0, comm=MPI.COMM_WORLD)
     with pytest.raises(ValueError, match="sponge.width"):

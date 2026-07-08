@@ -40,8 +40,8 @@ PRICE_EXPONENT = -5  # l=1, datos genéricos: t^-(2l+3)
 
 
 def test_massless_l1_price_tail():
-    from psyop.analysis.ringdown import evolve_kerr_ringdown
-    from psyop.analysis.tails import fit_power_law_tail, price_exponent
+    from rsd.analysis.ringdown import evolve_kerr_ringdown
+    from rsd.analysis.tails import fit_power_law_tail, price_exponent
 
     assert price_exponent(1) == PRICE_EXPONENT
 

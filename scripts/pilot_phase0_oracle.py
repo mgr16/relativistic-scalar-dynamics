@@ -33,7 +33,7 @@ import numpy as np
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "src"))
 
-from psyop.reference import SphericalOracle1D  # noqa: E402
+from rsd.reference import SphericalOracle1D  # noqa: E402
 
 OUT = REPO / "docs" / "research" / "phase0"
 FIG = OUT / "figures"

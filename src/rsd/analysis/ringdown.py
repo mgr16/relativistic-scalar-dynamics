@@ -60,9 +60,9 @@ def evolve_kerr_ringdown(
     import dolfinx.fem as fem
     from mpi4py import MPI
 
-    from psyop.analysis.extraction import MultipoleExtractor
-    from psyop.mesh.gmsh import INNER_BOUNDARY_TAG, build_ball_mesh, get_outer_tag
-    from psyop.physics.metrics import KerrSchildCoeffs, kerr_excision_window
+    from rsd.analysis.extraction import MultipoleExtractor
+    from rsd.mesh.gmsh import INNER_BOUNDARY_TAG, build_ball_mesh, get_outer_tag
+    from rsd.physics.metrics import KerrSchildCoeffs, kerr_excision_window
 
     if r_inner is None:
         lo, hi = kerr_excision_window(M, a)
@@ -72,8 +72,8 @@ def evolve_kerr_ringdown(
                 "spheroidal excision required"
             )
         r_inner = 0.5 * (lo + hi)
-    from psyop.solvers.first_order import FirstOrderKGSolver
-    from psyop.utils.utils import compute_dt_cfl
+    from rsd.solvers.first_order import FirstOrderKGSolver
+    from rsd.utils.utils import compute_dt_cfl
 
     key = (l, abs(m_abs))
     if key not in _ANGULAR_PROFILES:
@@ -145,7 +145,7 @@ def fit_ringdown_modes(
     ordenados por amplitud descendente (los transitorios de frecuencia ~0
     se filtran con min_omega).
     """
-    from psyop.analysis.qnm import estimate_qnm_prony
+    from rsd.analysis.qnm import estimate_qnm_prony
 
     mask = (ts >= t_min) & (ts <= t_max)
     if mask.sum() < 4 * modes:

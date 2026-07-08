@@ -15,7 +15,7 @@ try:
 except Exception:  # pragma: no cover - permite tests sin DOLFINx
     fem = None
 
-from psyop.utils.logger import get_logger
+from rsd.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

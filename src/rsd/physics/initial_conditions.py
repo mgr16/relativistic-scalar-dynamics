@@ -11,7 +11,7 @@ import numpy as np
 import dolfinx.fem as fem
 import dolfinx.mesh as dmesh
 
-from psyop.utils.logger import get_logger
+from rsd.utils.logger import get_logger
 
 logger = get_logger(__name__)
 

@@ -2,7 +2,7 @@
 
 **Fecha:** 2026-07-07 (corridas del 2026-06-12/13; interpretación y cierre 2026-07-07)
 **Commit base:** `9597a72` + árbol de trabajo de Fase 0/1 (sin commitear)
-**Entorno:** conda `psyop-dolfinx` — dolfinx 0.10.0, petsc4py 3.24.4, Python 3.10.19, macOS (`CC=/usr/bin/clang`)
+**Entorno:** conda `rsd-dolfinx` — dolfinx 0.10.0, petsc4py 3.24.4, Python 3.10.19, macOS (`CC=/usr/bin/clang`)
 
 ## 1. Hipótesis y alcance
 
@@ -23,7 +23,7 @@ costos son manejables?
 
 ## 2. Metodología
 
-- **Oráculo 1D** (`psyop.reference.spherical1d`): reducción esférica exacta por
+- **Oráculo 1D** (`rsd.reference.spherical1d`): reducción esférica exacta por
   modos l sobre Schwarzschild–Kerr-Schild, variables (φ, Π), malla log/uniforme,
   RK4 + disipación KO. Validado contra Leaver: QNM fundamental l=1 (0.1 % en
   Re ω, 1.9 % en Im ω) y l=2 (1 %, 2.2 %); 19 tests. Lecciones incorporadas:

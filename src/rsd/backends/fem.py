@@ -17,7 +17,7 @@ except Exception as e:
     _DOLFINX_IMPORT_ERROR = e
 
 if not HAS_DOLFINX:
-    raise ImportError("DOLFINx is required by psyop.backends.fem. Install with: conda install -c conda-forge fenics-dolfinx") from _DOLFINX_IMPORT_ERROR
+    raise ImportError("DOLFINx is required by rsd.backends.fem. Install with: conda install -c conda-forge fenics-dolfinx") from _DOLFINX_IMPORT_ERROR
 
 
 def is_dolfinx() -> bool:

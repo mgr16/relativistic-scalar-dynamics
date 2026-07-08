@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Centralized logging configuration for PSYOP.
+Centralized logging configuration for RSD.
 
 This module provides a unified logging interface for the entire project,
 replacing print() statements with proper logging.
@@ -14,16 +14,16 @@ from typing import Optional
 
 
 def setup_logger(
-    name: str = "psyop",
+    name: str = "rsd",
     level: int = logging.INFO,
     log_file: Optional[str] = None,
     console: bool = True,
 ) -> logging.Logger:
     """
-    Configure logging for PSYOP.
+    Configure logging for RSD.
     
     Args:
-        name: Logger name (default: "psyop")
+        name: Logger name (default: "rsd")
         level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         log_file: Optional file path for log output
         console: Whether to log to console (default: True)
@@ -32,7 +32,7 @@ def setup_logger(
         Configured logger instance
     
     Examples:
-        >>> logger = setup_logger("psyop", level=logging.DEBUG)
+        >>> logger = setup_logger("rsd", level=logging.DEBUG)
         >>> logger.info("Simulation started")
     """
     logger = logging.getLogger(name)
@@ -69,25 +69,25 @@ def setup_logger(
     return logger
 
 
-def get_logger(name: str = "psyop") -> logging.Logger:
+def get_logger(name: str = "rsd") -> logging.Logger:
     """
     Get logger instance.
     
     Args:
-        name: Logger name (default: "psyop")
+        name: Logger name (default: "rsd")
     
     Returns:
         Logger instance
     
     Examples:
-        >>> from psyop.utils.logger import get_logger
+        >>> from rsd.utils.logger import get_logger
         >>> logger = get_logger(__name__)
         >>> logger.info("Processing data")
     """
     return logging.getLogger(name)
 
 
-def set_log_level(level: int, logger_name: str = "psyop") -> None:
+def set_log_level(level: int, logger_name: str = "rsd") -> None:
     """
     Set logging level for a specific logger.
     
@@ -97,7 +97,7 @@ def set_log_level(level: int, logger_name: str = "psyop") -> None:
     
     Examples:
         >>> import logging
-        >>> from psyop.utils.logger import set_log_level
+        >>> from rsd.utils.logger import set_log_level
         >>> set_log_level(logging.DEBUG)
     """
     logger = logging.getLogger(logger_name)

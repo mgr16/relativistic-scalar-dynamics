@@ -1,6 +1,6 @@
 # Estabilidad energética semi-discreta del esquema FEM
 
-Esta nota formaliza la estabilidad del sistema semi-discreto que PSYOP
+Esta nota formaliza la estabilidad del sistema semi-discreto que RSD
 resuelve (discretización FEM en espacio, tiempo continuo), incluyendo la
 frontera radiativa débil, la esponja y el filtro de disipación. Es la
 justificación teórica del comportamiento que `tests/test_physics.py` y

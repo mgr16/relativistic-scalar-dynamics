@@ -13,8 +13,8 @@ import numpy as np
 
 try:
     # Importar desde paquete reorganizado si existe
-    from psyop.analysis.qnm import compute_qnm  # type: ignore
-    from psyop.analysis.qnm import estimate_peak  # type: ignore
+    from rsd.analysis.qnm import compute_qnm  # type: ignore
+    from rsd.analysis.qnm import estimate_peak  # type: ignore
     HAS_QNM = True
 except Exception:
     try:
@@ -87,7 +87,7 @@ def maybe_qnm(run_dir: Path):
     freqs, spec = compute_qnm(y, dt, window="hann", pad_factor=4)
     # estimate_peak puede no existir en algunas versiones; fallback simple
     try:
-        from psyop.analysis.qnm import estimate_peak as _est  # type: ignore
+        from rsd.analysis.qnm import estimate_peak as _est  # type: ignore
         f_peak, s_peak = _est(freqs, spec)
     except Exception:
         idx = int(np.argmax(np.abs(spec)))

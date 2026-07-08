@@ -1,11 +1,11 @@
-# PSYOP — Scalar Field Dynamics on Black-Hole Backgrounds
+# RSD — Scalar Field Dynamics on Black-Hole Backgrounds
 
 [![CI](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/ci.yml/badge.svg)](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/ci.yml)
 [![Core CI](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/core.yml/badge.svg)](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/core.yml)
 ![Version](https://img.shields.io/badge/version-3.2.0-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 
-PSYOP is a 3D finite-element simulator for scalar fields evolving on fixed
+RSD is a 3D finite-element simulator for scalar fields evolving on fixed
 black-hole backgrounds, built on [FEniCSx/DOLFINx](https://fenicsproject.org/).
 It solves the Klein–Gordon equation in first-order 3+1 form with SSP-RK3 time
 integration, characteristic (Sommerfeld) absorbing boundaries, horizon
@@ -13,7 +13,7 @@ excision, and quasinormal-mode (QNM) analysis.
 
 ![Live demo: outgoing Gaussian pulse absorbed at the boundary](docs/media/live_demo.gif)
 
-*Live view (`psyop run --live`): an outgoing Gaussian pulse on the z=0 slice
+*Live view (`rsd run --live`): an outgoing Gaussian pulse on the z=0 slice
 of a spherical domain, absorbed by the characteristic boundary condition.*
 
 > **Physical assumption**: the scalar is a test field on a fixed background
@@ -53,7 +53,7 @@ of a spherical domain, absorbed by the characteristic boundary condition.*
   (ζ = 8πρ/√K per step) and warns when backreaction would matter
 - **Astrophysical units**: QNM output in Hz/ms for a chosen mass in M☉
 - **Price tail analysis**: late-time power-law fits with quality measure
-- **1D reference oracle** (`psyop.reference`): spherical l-mode solver on
+- **1D reference oracle** (`rsd.reference`): spherical l-mode solver on
   Schwarzschild–Kerr-Schild for cross-validating the 3D pipeline
 
 **Visualization**
@@ -64,8 +64,8 @@ See [CHANGELOG.md](CHANGELOG.md) for what's new in 3.2.
 ## Project Structure
 
 ```
-psyop/
-├── src/psyop/             # Main package
+rsd/
+├── src/rsd/             # Main package
 │   ├── analysis/          # QNM (FFT/Prony), multipole extraction
 │   ├── backends/          # DOLFINx numerical abstractions
 │   ├── mesh/              # Gmsh ball/shell meshes, boundary tags, grading
@@ -73,7 +73,7 @@ psyop/
 │   ├── reference/         # 1D spherical oracle (cross-validation)
 │   ├── solvers/           # First-order KG solver (SSP-RK3)
 │   ├── utils/             # CFL, logging, live PyVista viewer
-│   ├── cli.py             # `psyop run` / `psyop postprocess`
+│   ├── cli.py             # `rsd run` / `rsd postprocess`
 │   └── config.py          # Defaults, loading, validation
 ├── tests/                 # Pytest suite (markers: slow, mpi, requires_dolfinx, ...)
 ├── docs/
@@ -94,7 +94,7 @@ DOLFINx is required and is installed via conda.
 ```bash
 ./scripts/setup_conda_env.sh --yes
 # variants:
-./scripts/setup_conda_env.sh --env-name psyop-dolfinx --python 3.10 --yes
+./scripts/setup_conda_env.sh --env-name rsd-dolfinx --python 3.10 --yes
 ./scripts/setup_conda_env.sh --install-dev --yes
 ```
 The script creates (or reuses) a conda environment, installs `fenics-dolfinx`
@@ -103,8 +103,8 @@ validates critical imports.
 
 ### Option B — manual
 ```bash
-conda create -n psyop-dolfinx python=3.10
-conda activate psyop-dolfinx
+conda create -n rsd-dolfinx python=3.10
+conda activate rsd-dolfinx
 conda install -c conda-forge fenics-dolfinx gmsh numpy scipy petsc4py
 pip install -e .
 ```
@@ -128,20 +128,20 @@ Optional extras:
 ### Verify the installation
 ```bash
 pytest -q          # imports, config, lightweight postprocess tests
-psyop --test       # CLI smoke check
+rsd --test       # CLI smoke check
 ```
 
 ## Quick Start
 
 ### Basic simulation
 ```bash
-psyop run --config config_example.json --output results
+rsd run --config config_example.json --output results
 ```
 
 Compatibility aliases are also installed:
 ```bash
-psyop-run --config config_example.json --output results
-psyop-postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft
+rsd-run --config config_example.json --output results
+rsd-postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft
 ```
 
 ### Live visualization (`--live`)
@@ -150,12 +150,12 @@ the evolution (fixed color bar calibrated to the initial state, simulation
 time on screen). Requires pyvista:
 
 ```bash
-conda install -n psyop-dolfinx -c conda-forge pyvista   # or: pip install -e .[viz]
+conda install -n rsd-dolfinx -c conda-forge pyvista   # or: pip install -e .[viz]
 ```
 
 ```bash
-psyop run --config config_example.json --live                 # refresh every output_every steps
-psyop run --config config_example.json --live --live-every 5  # refresh every 5 steps
+rsd run --config config_example.json --live                 # refresh every output_every steps
+rsd run --config config_example.json --live --live-every 5  # refresh every 5 steps
 ```
 
 Caveats:
@@ -171,7 +171,7 @@ To regenerate the README demo GIF: `python scripts/record_live_demo.py`.
 
 ### QNM postprocessing
 ```bash
-psyop postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft --plots
+rsd postprocess --run results/run_YYYYmmdd_HHMMSS --qnm --method fft --plots
 ```
 
 ### Custom configuration
@@ -321,15 +321,15 @@ The test suite validates physics at increasing depth (deepest are `slow`):
 - **CI** — full suite inside the `dolfinx/dolfinx:stable` container
 - **HPC CI** — scheduled weekly run including `slow` tests
 
-## Extending PSYOP
+## Extending RSD
 
-**New potential** (`src/psyop/physics/potential.py`): implement a class with
+**New potential** (`src/rsd/physics/potential.py`): implement a class with
 `evaluate(phi)` and `derivative(phi)` and register it in `potential_map`.
 
-**New initial condition** (`src/psyop/physics/initial_conditions.py`): provide
+**New initial condition** (`src/rsd/physics/initial_conditions.py`): provide
 `get_function()` and `get_momentum()` returning DOLFINx functions.
 
-**Solver internals** (`src/psyop/solvers/first_order.py`): key methods are
+**Solver internals** (`src/rsd/solvers/first_order.py`): key methods are
 `ssp_rk3_step()` (time integration), `_sommerfeld_boundary_term()` (boundary
 conditions), and `_assemble_rhs_and_solve_du()` (RHS evaluation/solve).
 

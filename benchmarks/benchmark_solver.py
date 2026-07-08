@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Performance benchmarks for PSYOP."""
+"""Performance benchmarks for RSD."""
 
 import time
 import sys
@@ -19,10 +19,10 @@ except ImportError:
     print("ERROR: DOLFINx is required for benchmarks")
     sys.exit(1)
 
-from psyop.solvers.first_order import FirstOrderKGSolver
-from psyop.mesh.gmsh import build_ball_mesh
-from psyop.physics.initial_conditions import GaussianBump
-from psyop.utils.logger import setup_logger
+from rsd.solvers.first_order import FirstOrderKGSolver
+from rsd.mesh.gmsh import build_ball_mesh
+from rsd.physics.initial_conditions import GaussianBump
+from rsd.utils.logger import setup_logger
 
 logger = setup_logger("benchmark", level="INFO")
 
@@ -65,7 +65,7 @@ def benchmark_solver(R, lc, degree=1, cfl=0.3, n_steps=100, warmup_steps=10):
     ic = GaussianBump(mesh, A=0.01, r0=R/2, w=R/10, v0=0.0)
     solver.set_initial_conditions(ic.get_function())
     
-    from psyop.utils.utils import compute_dt_cfl
+    from rsd.utils.utils import compute_dt_cfl
     dt = compute_dt_cfl(mesh, cfl=cfl, c_max=1.0, degree=degree)
     
     logger.info(f"Warming up ({warmup_steps} steps)...")
@@ -93,7 +93,7 @@ def benchmark_solver(R, lc, degree=1, cfl=0.3, n_steps=100, warmup_steps=10):
 
 def main():
     """Run all benchmarks."""
-    parser = argparse.ArgumentParser(description="PSYOP Performance Benchmarks")
+    parser = argparse.ArgumentParser(description="RSD Performance Benchmarks")
     parser.add_argument("--quick", action="store_true", help="Run quick benchmark")
     args = parser.parse_args()
     
@@ -105,7 +105,7 @@ def main():
         n_steps = 50
     
     logger.info("=" * 70)
-    logger.info("PSYOP PERFORMANCE BENCHMARKS")
+    logger.info("RSD PERFORMANCE BENCHMARKS")
     logger.info("=" * 70)
     
     results = []

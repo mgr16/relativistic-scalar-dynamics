@@ -11,10 +11,10 @@ from typing import Optional
 
 import numpy as np
 
-from psyop.analysis.qnm import compute_qnm, estimate_peak, estimate_qnm_prony_modes
-from psyop.config import DEFAULT_CONFIG, load_config, validate_config
-from psyop.utils.logger import get_logger, setup_logger
-from psyop.utils.units import units_from_config
+from rsd.analysis.qnm import compute_qnm, estimate_peak, estimate_qnm_prony_modes
+from rsd.config import DEFAULT_CONFIG, load_config, validate_config
+from rsd.utils.logger import get_logger, setup_logger
+from rsd.utils.units import units_from_config
 
 
 def _write_physical_qnm(units, series_dir, modes=None, f_peak=None) -> None:
@@ -98,7 +98,7 @@ def _build_run_parser(parser: argparse.ArgumentParser) -> argparse.ArgumentParse
 def run_main(argv=None) -> int:
     run_parser = _build_run_parser(
         argparse.ArgumentParser(
-            description="PSYOP: Scalar field simulation with Sommerfeld boundary conditions"
+            description="RSD: Scalar field simulation with Sommerfeld boundary conditions"
         )
     )
     args = run_parser.parse_args(argv)
@@ -113,11 +113,11 @@ def run_main(argv=None) -> int:
     except ImportError as e:
         sys.stderr.write("ERROR: DOLFINx is required but not installed.\n")
         sys.stderr.write("Install with: conda install -c conda-forge fenics-dolfinx\n")
-        raise ImportError("DOLFINx is required to run PSYOP") from e
+        raise ImportError("DOLFINx is required to run RSD") from e
 
     # Setup logging
     log_level = getattr(logging, args.log_level.upper())
-    logger = setup_logger("psyop", level=log_level)
+    logger = setup_logger("rsd", level=log_level)
 
     if args.create_config:
         create_example_config()
@@ -132,11 +132,11 @@ def run_main(argv=None) -> int:
         return 0
 
     # Import components
-    from psyop.mesh.gmsh import INNER_BOUNDARY_TAG, build_ball_mesh, get_outer_tag
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.physics.metrics import make_background
-    from psyop.solvers.first_order import FirstOrderKGSolver
-    from psyop.utils.utils import compute_dt_cfl
+    from rsd.mesh.gmsh import INNER_BOUNDARY_TAG, build_ball_mesh, get_outer_tag
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.physics.metrics import make_background
+    from rsd.solvers.first_order import FirstOrderKGSolver
+    from rsd.utils.utils import compute_dt_cfl
 
     # Load configuration
     if args.config:
@@ -291,7 +291,7 @@ def run_main(argv=None) -> int:
     multipole_series = []
     extraction_cfg = sample_cfg.get("extraction", {}) or {}
     if extraction_cfg.get("enabled", False):
-        from psyop.analysis.extraction import MultipoleExtractor
+        from rsd.analysis.extraction import MultipoleExtractor
 
         ext_radius = float(extraction_cfg.get("radius", 0.6 * float(cfg["mesh"]["R"])))
         ext_lmax = int(extraction_cfg.get("lmax", 2))
@@ -309,7 +309,7 @@ def run_main(argv=None) -> int:
     cowling_monitor = None
     cowling_series = []
     if diagnostics:
-        from psyop.analysis.cowling import CowlingMonitor
+        from rsd.analysis.cowling import CowlingMonitor
 
         cowling_monitor = CowlingMonitor(solver, cfg["metric"])
 
@@ -317,7 +317,7 @@ def run_main(argv=None) -> int:
     live_viewer = None
     live_every = output_every
     if args.live:
-        from psyop.utils.live_view import create_live_viewer
+        from rsd.utils.live_view import create_live_viewer
 
         live_every = args.live_every if args.live_every is not None else output_every
         live_viewer = create_live_viewer(solver.V_phi, comm=mesh.comm)
@@ -516,7 +516,7 @@ def run_main(argv=None) -> int:
         qnm_method = cfg.get("analysis", {}).get("qnm_method", "fft").lower()
 
         if qnm_method == "prony":
-            from psyop.analysis.qnm import estimate_qnm_prony, estimate_qnm_prony_modes
+            from rsd.analysis.qnm import estimate_qnm_prony, estimate_qnm_prony_modes
 
             modes = int(cfg.get("analysis", {}).get("qnm_modes", 1))
             prony_results = estimate_qnm_prony(signal, dt_sample, modes=modes)
@@ -558,7 +558,7 @@ def run_main(argv=None) -> int:
 
 
 def postprocess_main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Postprocess PSYOP run directory")
+    parser = argparse.ArgumentParser(description="Postprocess RSD run directory")
     parser.add_argument("--run", required=True, help="Run directory path")
     parser.add_argument("--qnm", action="store_true", help="Compute QNM spectrum")
     parser.add_argument("--plots", action="store_true", help="Reserved flag for plotting")
@@ -656,7 +656,7 @@ def main(argv=None) -> int:
     if not args or args[0] not in {"run", "postprocess"}:
         return run_main(args)
 
-    parser = argparse.ArgumentParser(prog="psyop", description="PSYOP command line interface")
+    parser = argparse.ArgumentParser(prog="rsd", description="RSD command line interface")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     _build_run_parser(subparsers.add_parser("run", help="Run simulation"))

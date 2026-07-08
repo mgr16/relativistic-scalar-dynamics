@@ -27,10 +27,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 
 def _make_solver(A: float):
-    from psyop.mesh.gmsh import build_ball_mesh
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.physics.metrics import make_background
-    from psyop.solvers.first_order import FirstOrderKGSolver
+    from rsd.mesh.gmsh import build_ball_mesh
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.physics.metrics import make_background
+    from rsd.solvers.first_order import FirstOrderKGSolver
 
     metric_cfg = {"type": "kerr", "M": 1.0, "a": 0.0}
     mesh, _, facet_tags = build_ball_mesh(
@@ -52,7 +52,7 @@ def _make_solver(A: float):
 
 
 def test_zeta_scales_quadratically_with_amplitude():
-    from psyop.analysis.cowling import CowlingMonitor
+    from rsd.analysis.cowling import CowlingMonitor
 
     solver1, metric_cfg = _make_solver(A=1e-3)
     m1 = CowlingMonitor(solver1, metric_cfg).evaluate()
@@ -69,7 +69,7 @@ def test_zeta_scales_quadratically_with_amplitude():
 
 
 def test_check_warns_for_large_amplitude(caplog):
-    from psyop.analysis.cowling import CowlingMonitor
+    from rsd.analysis.cowling import CowlingMonitor
 
     solver, metric_cfg = _make_solver(A=10.0)
     monitor = CowlingMonitor(solver, metric_cfg)
@@ -82,11 +82,11 @@ def test_check_warns_for_large_amplitude(caplog):
 
 
 def test_flat_background_uses_domain_scale():
-    from psyop.analysis.cowling import CowlingMonitor
-    from psyop.mesh.gmsh import build_ball_mesh
-    from psyop.physics.initial_conditions import GaussianBump
-    from psyop.physics.metrics import make_background
-    from psyop.solvers.first_order import FirstOrderKGSolver
+    from rsd.analysis.cowling import CowlingMonitor
+    from rsd.mesh.gmsh import build_ball_mesh
+    from rsd.physics.initial_conditions import GaussianBump
+    from rsd.physics.metrics import make_background
+    from rsd.solvers.first_order import FirstOrderKGSolver
 
     metric_cfg = {"type": "flat", "M": 1.0}
     mesh, _, _ = build_ball_mesh(R=8.0, lc=1.5, comm=MPI.COMM_WORLD)

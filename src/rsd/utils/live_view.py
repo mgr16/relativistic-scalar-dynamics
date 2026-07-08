@@ -19,7 +19,7 @@ from typing import Optional, Tuple
 
 import numpy as np
 
-from psyop.utils.logger import get_logger
+from rsd.utils.logger import get_logger
 
 _INSTALL_HINT = "conda install -c conda-forge pyvista"
 
@@ -130,7 +130,7 @@ class LiveViewer:
             if not self._shown:
                 if not self._off_screen:
                     self.plotter.show(
-                        title="PSYOP live: phi",
+                        title="RSD live: phi",
                         interactive_update=True,
                         auto_close=False,
                     )

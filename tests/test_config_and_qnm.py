@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 np = pytest.importorskip("numpy")
 
-from psyop.config import load_config, validate_config
-from psyop.analysis.qnm import compute_qnm, estimate_qnm_prony, estimate_qnm_prony_modes
+from rsd.config import load_config, validate_config
+from rsd.analysis.qnm import compute_qnm, estimate_qnm_prony, estimate_qnm_prony_modes
 
 pytestmark = pytest.mark.requires_numpy
 
@@ -126,7 +126,7 @@ def test_prony_orders_modes_by_amplitude():
 
 
 def test_potential_numpy_api_aliases():
-    potential_module = pytest.importorskip("psyop.physics.potential")
+    potential_module = pytest.importorskip("rsd.physics.potential")
     HiggsPotential = potential_module.HiggsPotential
     pot = HiggsPotential(m_squared=1.0, lambda_coupling=0.1)
     x = np.array([0.0, 1.0])

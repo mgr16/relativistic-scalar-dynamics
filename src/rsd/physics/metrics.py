@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Tuple
 import numpy as np
 import ufl
-from psyop.backends.fem import Constant, is_dolfinx
+from rsd.backends.fem import Constant, is_dolfinx
 
 
 @dataclass(frozen=True)

@@ -17,10 +17,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from mpi4py import MPI  # noqa: E402
 
-from psyop.mesh.gmsh import build_ball_mesh  # noqa: E402
-from psyop.physics.initial_conditions import GaussianBump  # noqa: E402
-from psyop.physics.metrics import KerrSchildCoeffs  # noqa: E402
-from psyop.solvers.first_order import FirstOrderKGSolver  # noqa: E402
+from rsd.mesh.gmsh import build_ball_mesh  # noqa: E402
+from rsd.physics.initial_conditions import GaussianBump  # noqa: E402
+from rsd.physics.metrics import KerrSchildCoeffs  # noqa: E402
+from rsd.solvers.first_order import FirstOrderKGSolver  # noqa: E402
 
 
 def run(mesh, facet_tags, R, potential_type, potential_params, preassemble, steps):

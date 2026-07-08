@@ -53,11 +53,11 @@ def apply_overrides(cfg: dict, mode: str) -> dict:
 def run_main_with_config(config_path: str) -> int:
     # Usar la CLI del paquete; si no está instalado, caer al árbol src/ del repo
     try:
-        from psyop.cli import run_main
+        from rsd.cli import run_main
     except ImportError:
         project_root = Path(__file__).resolve().parent.parent
         sys.path.insert(0, str(project_root / "src"))
-        from psyop.cli import run_main
+        from rsd.cli import run_main
     rc = run_main(["--config", config_path])
     return int(rc) if isinstance(rc, int) else 0
 

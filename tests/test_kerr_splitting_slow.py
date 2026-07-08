@@ -53,7 +53,7 @@ SPLITTING_RATIO = OMEGA_PROGRADE / OMEGA_RETROGRADE  # 1.797
 
 
 def test_frame_dragging_splits_m_modes():
-    from psyop.analysis.ringdown import evolve_kerr_ringdown, fit_ringdown_modes
+    from rsd.analysis.ringdown import evolve_kerr_ringdown, fit_ringdown_modes
 
     ts, c11 = evolve_kerr_ringdown(a=SPIN, l=1, m_abs=1, t_end=60.0)
     assert np.all(np.isfinite(c11)), "extracted signal contains NaN/inf"

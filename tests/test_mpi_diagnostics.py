@@ -23,9 +23,9 @@ def _run_case(nproc: int) -> dict:
     code = r"""
 import json
 from mpi4py import MPI
-from psyop.mesh.gmsh import build_ball_mesh, get_outer_tag
-from psyop.physics.initial_conditions import GaussianBump
-from psyop.solvers.first_order import FirstOrderKGSolver
+from rsd.mesh.gmsh import build_ball_mesh, get_outer_tag
+from rsd.physics.initial_conditions import GaussianBump
+from rsd.solvers.first_order import FirstOrderKGSolver
 
 comm = MPI.COMM_WORLD
 mesh, _, facet_tags = build_ball_mesh(R=%(RADIUS)s, lc=%(MESH_LC)s, comm=comm)

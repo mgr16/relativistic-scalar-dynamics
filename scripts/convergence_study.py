@@ -40,9 +40,9 @@ import numpy as np
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "src"))
 
-from psyop.analysis.leaver import schwarzschild_qnm  # noqa: E402
-from psyop.analysis.qnm import estimate_qnm_prony  # noqa: E402
-from psyop.analysis.ringdown import evolve_kerr_ringdown  # noqa: E402
+from rsd.analysis.leaver import schwarzschild_qnm  # noqa: E402
+from rsd.analysis.qnm import estimate_qnm_prony  # noqa: E402
+from rsd.analysis.ringdown import evolve_kerr_ringdown  # noqa: E402
 
 OUT = REPO / "docs" / "research" / "phase1" / "convergence"
 
@@ -65,7 +65,7 @@ def fit_with_uncertainty(ts: np.ndarray, sig: np.ndarray) -> dict:
     de frecuencia ~0 (fit_ringdown_modes, como el test lento calibrado) —
     max|f| elige espurios.
     """
-    from psyop.analysis.ringdown import fit_ringdown_modes
+    from rsd.analysis.ringdown import fit_ringdown_modes
 
     i0 = np.searchsorted(ts, 12.0)
     t_pk = float(ts[int(np.argmax(np.abs(sig[i0:]))) + i0])

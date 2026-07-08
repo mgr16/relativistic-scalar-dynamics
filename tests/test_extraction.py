@@ -31,8 +31,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 def test_extractor_recovers_pure_y10_field():
     import dolfinx.fem as fem
 
-    from psyop.analysis.extraction import MultipoleExtractor
-    from psyop.mesh.gmsh import build_ball_mesh
+    from rsd.analysis.extraction import MultipoleExtractor
+    from rsd.mesh.gmsh import build_ball_mesh
 
     mesh, _, _ = build_ball_mesh(R=8.0, lc=0.8, comm=MPI.COMM_WORLD)
     try:
@@ -60,8 +60,8 @@ def test_extractor_recovers_pure_y10_field():
 
 
 def test_extractor_validates_inputs():
-    from psyop.analysis.extraction import MultipoleExtractor
-    from psyop.mesh.gmsh import build_ball_mesh
+    from rsd.analysis.extraction import MultipoleExtractor
+    from rsd.mesh.gmsh import build_ball_mesh
 
     mesh, _, _ = build_ball_mesh(R=4.0, lc=2.0, comm=MPI.COMM_WORLD)
     with pytest.raises(ValueError, match="radius"):
@@ -72,7 +72,7 @@ def test_extractor_validates_inputs():
 
 def test_real_ylm_orthonormality():
     """Las Y_lm reales deben ser ortonormales bajo la cuadratura usada."""
-    from psyop.analysis.extraction import real_ylm
+    from rsd.analysis.extraction import real_ylm
 
     lmax = 3
     nodes, w = np.polynomial.legendre.leggauss(lmax + 2)

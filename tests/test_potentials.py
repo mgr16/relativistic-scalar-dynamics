@@ -19,7 +19,7 @@ class TestPotentialDerivatives:
     
     def test_quadratic_potential_derivative(self):
         """Test QuadraticPotential derivative."""
-        from psyop.physics.potential import QuadraticPotential
+        from rsd.physics.potential import QuadraticPotential
         
         pot = QuadraticPotential(m_squared=1.0)
         
@@ -47,7 +47,7 @@ class TestPotentialDerivatives:
     
     def test_higgs_potential_derivative(self):
         """Test HiggsPotential derivative."""
-        from psyop.physics.potential import HiggsPotential
+        from rsd.physics.potential import HiggsPotential
         
         pot = HiggsPotential(m_squared=1.0, lambda_coupling=0.1)
         
@@ -74,7 +74,7 @@ class TestPotentialDerivatives:
     
     def test_mexican_hat_potential_derivative(self):
         """Test MexicanHatPotential derivative."""
-        from psyop.physics.potential import MexicanHatPotential
+        from rsd.physics.potential import MexicanHatPotential
         
         pot = MexicanHatPotential(m_squared=-1.0, lambda_coupling=0.5)
         
@@ -101,7 +101,7 @@ class TestPotentialDerivatives:
     
     def test_zero_potential_derivative(self):
         """Test ZeroPotential derivative."""
-        from psyop.physics.potential import ZeroPotential
+        from rsd.physics.potential import ZeroPotential
         
         pot = ZeroPotential()
         
@@ -121,7 +121,7 @@ class TestPotentialDerivatives:
     ])
     def test_potential_factory(self, pot_type, params):
         """Test that all potential types can be constructed via factory."""
-        from psyop.physics.potential import get_potential
+        from rsd.physics.potential import get_potential
         
         pot = get_potential(pot_type, **params)
         
@@ -139,7 +139,7 @@ class TestPotentialProperties:
     
     def test_quadratic_potential_minimum(self):
         """Test that quadratic potential has minimum at phi=0."""
-        from psyop.physics.potential import QuadraticPotential
+        from rsd.physics.potential import QuadraticPotential
         
         pot = QuadraticPotential(m_squared=1.0)
         
@@ -153,7 +153,7 @@ class TestPotentialProperties:
     
     def test_higgs_potential_symmetry(self):
         """Test that Higgs potential is symmetric."""
-        from psyop.physics.potential import HiggsPotential
+        from rsd.physics.potential import HiggsPotential
         
         pot = HiggsPotential(m_squared=1.0, lambda_coupling=0.1)
         
@@ -166,7 +166,7 @@ class TestPotentialProperties:
     
     def test_mexican_hat_double_well(self):
         """Test that Mexican hat potential has double-well structure."""
-        from psyop.physics.potential import MexicanHatPotential
+        from rsd.physics.potential import MexicanHatPotential
         
         pot = MexicanHatPotential(m_squared=-1.0, lambda_coupling=1.0)
         
@@ -188,28 +188,28 @@ class TestPotentialValidation:
     
     def test_invalid_potential_type(self):
         """Test that invalid potential type raises error."""
-        from psyop.physics.potential import get_potential
+        from rsd.physics.potential import get_potential
         
         with pytest.raises(ValueError, match="Unknown potential type"):
             get_potential("invalid_potential")
     
     def test_higgs_invalid_lambda(self):
         """Test that Higgs potential validates lambda > 0."""
-        from psyop.physics.potential import HiggsPotential
+        from rsd.physics.potential import HiggsPotential
         
         with pytest.raises(ValueError):
             HiggsPotential(m_squared=1.0, lambda_coupling=-0.1)
     
     def test_mexican_hat_invalid_lambda(self):
         """Test that Mexican hat validates lambda > 0."""
-        from psyop.physics.potential import MexicanHatPotential
+        from rsd.physics.potential import MexicanHatPotential
 
         with pytest.raises(ValueError):
             MexicanHatPotential(m_squared=-1.0, lambda_coupling=-0.5)
 
     def test_mexican_hat_explicit_vacuum_value_is_respected(self):
         """vacuum_value explícito debe usarse siempre (incluido 1.0)."""
-        from psyop.physics.potential import MexicanHatPotential
+        from rsd.physics.potential import MexicanHatPotential
 
         # Antes, vacuum_value=1.0 activaba un modo legacy que lo ignoraba
         pot = MexicanHatPotential(m_squared=-0.1, lambda_coupling=0.2, vacuum_value=1.0)

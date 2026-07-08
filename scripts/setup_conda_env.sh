@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENV_NAME="psyop-dolfinx"
+ENV_NAME="rsd-dolfinx"
 PYTHON_VERSION="3.10"
 INSTALL_DEV="false"
 SKIP_PIP="false"
@@ -13,7 +13,7 @@ Uso:
   scripts/setup_conda_env.sh [opciones]
 
 Opciones:
-  --env-name <nombre>        Nombre del entorno conda (default: psyop-dolfinx)
+  --env-name <nombre>        Nombre del entorno conda (default: rsd-dolfinx)
   --python <version>         Versión de Python (default: 3.10)
   --install-dev              Instala extras de desarrollo (.[dev])
   --skip-pip-install         No ejecuta pip install -e .
@@ -94,7 +94,7 @@ conda run -n "$ENV_NAME" python -c "import dolfinx, gmsh, mpi4py, petsc4py, nump
 echo
 echo "Entorno listo."
 echo "Para activarlo: conda activate $ENV_NAME"
-echo "Para ejecutar:  psyop run --config config_example.json --output results"
+echo "Para ejecutar:  rsd run --config config_example.json --output results"
 if [[ "$(uname -s)" == "Darwin" ]]; then
   echo
   echo "Nota macOS: si el JIT de FFCx falla con 'ld: -lto_library ... libLTO.dylib',"
