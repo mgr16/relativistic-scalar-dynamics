@@ -46,6 +46,7 @@ def evolve_kerr_ringdown(
     A: float = 1e-3,
     cfl: float = 0.25,
     sample_every: int = 4,
+    geom_order: int = 1,
     comm=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Evoluciona el pulso y devuelve (ts, c_lm) con c_lm real extraído.
@@ -84,7 +85,8 @@ def evolve_kerr_ringdown(
     comm = comm or MPI.COMM_WORLD
 
     mesh, _, facet_tags = build_ball_mesh(
-        R=R, lc=lc, comm=comm, r_inner=r_inner, lc_inner=lc_inner
+        R=R, lc=lc, comm=comm, r_inner=r_inner, lc_inner=lc_inner,
+        geom_order=geom_order,
     )
     bg = KerrSchildCoeffs(M=M, a=a)
     solver = FirstOrderKGSolver(

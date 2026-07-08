@@ -145,8 +145,13 @@ def main() -> None:
     ap.add_argument("--t-end", type=float, default=T_END)
     ap.add_argument("--refit", action="store_true",
                     help="re-ajusta waveform_lc*.npz existentes sin re-evolucionar")
+    ap.add_argument("--geom-order", type=int, default=1, choices=(1, 2),
+                    help="celdas curvas (2): resultados en convergence_p2/")
     args = ap.parse_args()
 
+    global OUT
+    if args.geom_order == 2:
+        OUT = OUT.parent / "convergence_p2"
     lcs = args.lcs or (LC_LADDER + ([LC_DEEP] if args.deep else []))
     OUT.mkdir(parents=True, exist_ok=True)
 
@@ -170,7 +175,7 @@ def main() -> None:
             t0 = time.perf_counter()
             ts, sig = evolve_kerr_ringdown(
                 a=0.0, l=L_MODE, m_abs=0, lc=lc, lc_inner=lc_inner,
-                t_end=args.t_end,
+                t_end=args.t_end, geom_order=args.geom_order,
             )
             wall = time.perf_counter() - t0
         fit = fit_with_uncertainty(ts, sig)
