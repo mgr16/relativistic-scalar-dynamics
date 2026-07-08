@@ -14,11 +14,26 @@ sin ajuste de modos de por medio) da:
 | lc = 2.0 → 1.4 → 1.0 | **2.10** |
 | lc = 1.4 → 1.0 → 0.7 | 0.97 |
 
-La caída a ~1 en el triplete fino es consistente con que el error de
-**geometría facetada** de las esferas (excisión y borde, `geom_order=1`)
-pase a dominar: exactamente el régimen para el que se implementó
-`mesh.geom_order=2` (v3.2.0). Verificación en curso:
-`convergence_p2/` (misma escalera con celdas curvas).
+**Actualización (mismo día, `convergence_p2/`):** la hipótesis de geometría
+facetada queda **refutada** — con celdas curvas (`geom_order=2`) el triplete
+fino da 0.89 (vs 0.97 facetado), sin cambio. El análisis por ventanas
+temporales identifica al verdadero culpable:
+
+| ventana | p1 facetas (2.0→1.4→1.0, →0.7) | p2 curvas (1.4→1.0→0.7) |
+|---|---|---|
+| total 0–70M | 2.10, 0.97 | 0.89 |
+| tránsito+ring 0–30M | 1.87, 1.37 | 1.32 |
+| cavidad 40–70M | 2.65, **−0.28** | **−0.72** |
+
+La cola dominada por el modo de cavidad **no converge** (la fase de un modo
+cuasi-estacionario decorrelaciona entre resoluciones y la diferencia satura
+en ~2× su amplitud): toda métrica de convergencia debe restringirse a la
+ventana física (t ≲ 30M). Ahí el orden es 1.87 (grueso) → 1.3–1.4 (fino,
+ambas geometrías): consistente con 2.º orden más ruido de remallado no
+anidado de gmsh; la degradación residual del triplete fino queda como
+pregunta abierta menor (candidatos: interpolación de la extracción,
+esponja, ruido de remallado — la geometría ya está descartada). Dato útil:
+las celdas curvas no costaron pared extra (2270 s vs 2221 s en lc=0.7).
 
 ## Los errores de frecuencia NO son una medida de convergencia aquí
 
