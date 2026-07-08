@@ -349,3 +349,33 @@ def test_ko_order_is_validated():
             mesh=mesh, domain_radius=4.0, degree=1, potential_type="zero",
             cfl_factor=0.2, ko_eps=0.01, ko_order=3,
         )
+
+
+def test_filter_canonical_names_and_ko_aliases():
+    """El filtro espectral se configura con filter_strength/filter_order
+    (canónico) y ko_eps/ko_order (alias). Deben ser equivalentes, el
+    canónico gana si se dan ambos, y filter_order=3 se rechaza."""
+    mesh, _, _ = build_ball_mesh(R=4.0, lc=2.0, comm=MPI.COMM_WORLD)
+
+    def make(**kw):
+        return FirstOrderKGSolver(
+            mesh=mesh, domain_radius=4.0, degree=1, potential_type="zero",
+            cfl_factor=0.2, **kw,
+        )
+
+    # canónico
+    s = make(filter_strength=0.03, filter_order=4)
+    assert s.filter_strength == 0.03 and s.filter_order == 4
+    assert s.ko_eps == 0.03 and s.ko_order == 4  # alias-atributo espejo
+
+    # alias
+    s = make(ko_eps=0.03, ko_order=4)
+    assert s.filter_strength == 0.03 and s.filter_order == 4
+
+    # el canónico gana sobre el alias
+    s = make(filter_strength=0.05, ko_eps=0.01, filter_order=2, ko_order=4)
+    assert s.filter_strength == 0.05 and s.filter_order == 2
+
+    # validación por el nombre canónico
+    with pytest.raises(ValueError, match="filter_order|ko_order"):
+        make(filter_strength=0.01, filter_order=3)

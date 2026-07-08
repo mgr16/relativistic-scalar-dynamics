@@ -13,6 +13,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `relativistic-scalar-dynamics`. No behavioural change — a pure identifier
   rename validated by the full fast suite (134 passed). Downstream imports
   and any `psyop …` CLI invocations must be updated to `rsd …`.
+- **Dissipation honesty** (`docs/math/dissipation.md`): the 3D solver's
+  artificial dissipation is an FEM Laplacian/biharmonic spectral filter
+  (M⁻¹K, λmax-normalized), *not* finite-difference Kreiss–Oliger — the
+  genuine FD-KO lives only in the 1D oracle. The knob is renamed to the
+  canonical `solver.filter_strength` / `solver.filter_order` (aliases
+  `ko_eps` / `ko_order` kept, canonical wins if both are set); the internal
+  step is `_apply_spectral_filter`. New doc derives the operator, its
+  spectral damping factors, the `ε·dt·λmax < 2` stability bound, and states
+  the observable-contamination case (reference interior runs use ε = 0).
 
 ### Added
 - **Killing-energy diagnostic** (`docs/math/killing_energy.md`): the energy

@@ -24,6 +24,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "cfl": 0.3,
         "potential_type": "quadratic",
         "potential_params": {"m_squared": 1.0},
+        # Filtro espectral FEM (disipación). Canónico: filter_strength /
+        # filter_order; ko_eps / ko_order son alias retrocompatibles. Es un
+        # filtro Laplaciano/biarmónico vía M⁻¹K, NO el KO de dif. finitas
+        # (ese está en rsd.reference.spherical1d). Ver docs/math/dissipation.md.
         "ko_eps": 0.0,
         "ko_order": 2,
         "sponge": {"enabled": False, "width": 0.0, "strength": 1.0},
@@ -163,11 +167,13 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
     degree = int(cfg["solver"].get("degree", 1))
     if not (1 <= degree <= 5):
         raise ValueError("solver.degree must be in [1, 5]")
-    ko_eps = float(cfg["solver"].get("ko_eps", 0.0))
-    if ko_eps < 0:
-        raise ValueError("solver.ko_eps must be >= 0")
-    if int(cfg["solver"].get("ko_order", 2)) not in (2, 4):
-        raise ValueError("solver.ko_order must be 2 or 4")
+    # Filtro espectral: nombre canónico filter_strength/filter_order, con
+    # ko_eps/ko_order como alias retrocompatibles (se valida el efectivo).
+    filter_strength = float(cfg["solver"].get("filter_strength", cfg["solver"].get("ko_eps", 0.0)))
+    if filter_strength < 0:
+        raise ValueError("solver.filter_strength (alias ko_eps) must be >= 0")
+    if int(cfg["solver"].get("filter_order", cfg["solver"].get("ko_order", 2))) not in (2, 4):
+        raise ValueError("solver.filter_order (alias ko_order) must be 2 or 4")
     if int(cfg["solver"].get("quadrature_degree", 2 * degree + 2)) < 1:
         raise ValueError("solver.quadrature_degree must be >= 1")
     sponge = cfg["solver"].get("sponge") or {}

@@ -76,14 +76,32 @@ class FirstOrderKGSolver:
         self.bc_type = kwargs.get("bc_type", self.cfg.get("solver", {}).get("bc_type", "characteristic")).lower()
         self._outer_tag = int(kwargs.get("outer_tag", self.cfg.get("solver", {}).get("outer_tag", 2)))
         self._inner_tag = int(kwargs.get("inner_tag", self.cfg.get("solver", {}).get("inner_tag", 3)))
-        self.ko_eps = float(kwargs.get("ko_eps", self.cfg.get("solver", {}).get("ko_eps", 0.0)))
-        self.ko_order = int(kwargs.get("ko_order", self.cfg.get("solver", {}).get("ko_order", 2)))
+        # Filtro espectral explícito (disipación numérica). Nombre canónico
+        # `filter_strength` / `filter_order`; `ko_eps` / `ko_order` se
+        # conservan como alias retrocompatibles. IMPORTANTE: en este solver 3D
+        # NO es Kreiss-Oliger en sentido estricto, sino un filtro FEM
+        # Laplaciano (orden 2) / biarmónico (orden 4) aplicado vía M⁻¹K —
+        # estilo KO (amortigua modos de malla de alta frecuencia) pero no el
+        # operador de diferencias finitas. El KO auténtico (D⁴ en índices)
+        # vive, correctamente nombrado, en `rsd.reference.spherical1d`.
+        _solver_cfg = self.cfg.get("solver", {})
+        self.filter_strength = float(kwargs.get(
+            "filter_strength", kwargs.get(
+                "ko_eps", _solver_cfg.get(
+                    "filter_strength", _solver_cfg.get("ko_eps", 0.0)))))
+        self.filter_order = int(kwargs.get(
+            "filter_order", kwargs.get(
+                "ko_order", _solver_cfg.get(
+                    "filter_order", _solver_cfg.get("ko_order", 2)))))
+        # alias retrocompatibles (código/tests que leen .ko_eps / .ko_order)
+        self.ko_eps = self.filter_strength
+        self.ko_order = self.filter_order
         if self.bc_type not in {"characteristic", "sommerfeld_spherical"}:
             raise ValueError("bc_type must be characteristic or sommerfeld_spherical")
-        if self.ko_eps < 0:
-            raise ValueError(f"ko_eps must be >= 0, got {self.ko_eps}")
-        if self.ko_order not in (2, 4):
-            raise ValueError(f"ko_order must be 2 or 4, got {self.ko_order}")
+        if self.filter_strength < 0:
+            raise ValueError(f"filter_strength (ko_eps) must be >= 0, got {self.filter_strength}")
+        if self.filter_order not in (2, 4):
+            raise ValueError(f"filter_order (ko_order) must be 2 or 4, got {self.filter_order}")
 
         # Grado de cuadratura explícito: la estimación automática de UFL
         # diverge con coeficientes métricos no polinómicos (Kerr-Schild
@@ -530,7 +548,7 @@ class FirstOrderKGSolver:
 
     def _setup_filter_matrix(self):
         """Configure explicit diffusion matrix for controlled dissipation."""
-        if self.ko_eps <= 0:
+        if self.filter_strength <= 0:
             # Sin disipación activa no se ensambla el filtro (ahorro de memoria)
             self.filter_mat = None
             return
@@ -549,7 +567,7 @@ class FirstOrderKGSolver:
         self.filter_mat.assemble()
         self.filter_rhs = self.filter_mat.createVecLeft()
         self.filter_du = self.mass_matrix.createVecLeft()
-        if self.ko_order >= 4:
+        if self.filter_order >= 4:
             self.filter_du2 = self.mass_matrix.createVecLeft()
             # λmax(M⁻¹K) por iteración de potencias: normaliza el filtro de
             # 4.º orden para que su condición de estabilidad sea la misma
@@ -761,35 +779,41 @@ class FirstOrderKGSolver:
             self.u2.x.array[:] + dt * self.du.x.array[:]
         )
         self.u.x.array[:] = self.u_new.x.array[:]
-        if self.ko_eps > 0:
-            self._apply_ko_dissipation(dt)
+        if self.filter_strength > 0:
+            self._apply_spectral_filter(dt)
         self.u.x.scatter_forward()
         self.current_time += dt
 
-    def _apply_ko_dissipation(self, dt: float) -> None:
+    def _apply_spectral_filter(self, dt: float) -> None:
         """
-        Disipación explícita controlada por ko_eps.
+        Filtro espectral FEM explícito (disipación), amplitud `filter_strength`.
 
-        ko_order=2: filtro laplaciano  u <- u - ε·dt·(M⁻¹K)u
-        ko_order=4: filtro biarmónico  u <- u - (ε·dt/λmax)·(M⁻¹K)²u
+        NO es Kreiss-Oliger de diferencias finitas: es un filtro basado en la
+        rigidez FEM K y la masa M del propio espacio de elementos.
+
+        filter_order=2: laplaciano   u <- u − ε·dt·(M⁻¹K)u
+        filter_order=4: biarmónico   u <- u − (ε·dt/λmax)·(M⁻¹K)²u
+
         La normalización por λmax(M⁻¹K) hace que el modo de malla más rápido
         se amortigüe con la misma tasa ε·dt·λmax en ambos órdenes (idéntica
         condición de estabilidad, ε·dt·λmax < 2), pero el de 4.º orden
-        amortigua los modos suaves con tasa ∝ (λ/λmax)·λ ≪ λ (estilo
-        Kreiss-Oliger).
+        amortigua los modos suaves con tasa ∝ (λ/λmax)·λ ≪ λ (comportamiento
+        estilo Kreiss-Oliger: casi transparente a los modos físicos suaves).
+        Derivación y cuantificación del sesgo sobre observables:
+        docs/math/dissipation.md.
         """
         if self.filter_mat is None:
             return
         self.u.x.scatter_forward()
         self.filter_mat.mult(self.u.x.petsc_vec, self.filter_rhs)
         self.mass_solver.solve(self.filter_rhs, self.filter_du)
-        if self.ko_order >= 4:
+        if self.filter_order >= 4:
             self.filter_mat.mult(self.filter_du, self.filter_rhs)
             self.mass_solver.solve(self.filter_rhs, self.filter_du2)
-            scale = self.ko_eps * dt / self._filter_lambda_max
+            scale = self.filter_strength * dt / self._filter_lambda_max
             self.u.x.array[:] -= scale * self.filter_du2.getArray(readonly=True)
         else:
-            self.u.x.array[:] -= self.ko_eps * dt * self.filter_du.getArray(readonly=True)
+            self.u.x.array[:] -= self.filter_strength * dt * self.filter_du.getArray(readonly=True)
     
     def energy(self) -> float:
         """

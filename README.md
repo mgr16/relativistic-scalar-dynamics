@@ -38,7 +38,8 @@ of a spherical domain, absorbed by the characteristic boundary condition.*
   (`mesh.r_inner > 0`) with inner "do-nothing" boundary, validated against
   the spin-dependent admissible excision window on Kerr–Schild
 - Sponge layer for dispersive tails of massive fields
-- Kreiss–Oliger dissipation (2nd or 4th order, λmax-normalized)
+- KO-style spectral FEM dissipation (2nd/4th-order M⁻¹K Laplacian/biharmonic
+  filter, λmax-normalized — not finite-difference KO; see `docs/math/dissipation.md`)
 - Gmsh spherical/shell meshes with radial grading (`lc_inner`) and optional
   curved second-order cells (`mesh.geom_order = 2`)
 
@@ -220,7 +221,7 @@ Advanced solver options:
 | Key | Description |
 |---|---|
 | `solver.sponge {enabled, width, strength}` | Sponge layer damping dispersive tails near the outer boundary. Width should be comparable to the wavelength to absorb — a narrow, strong sponge reflects slow modes instead of absorbing them. |
-| `solver.ko_eps`, `solver.ko_order` | Kreiss–Oliger dissipation (order 2 or 4). The 4th-order biharmonic filter barely touches smooth modes. |
+| `solver.filter_strength`, `solver.filter_order` (aliases `ko_eps`, `ko_order`) | KO-style spectral FEM dissipation, order 2 (Laplacian) or 4 (biharmonic M⁻¹K filter). The 4th-order filter barely touches smooth modes. Not finite-difference Kreiss–Oliger — see `docs/math/dissipation.md`. |
 | `initial_conditions.direction` | `"ingoing"` / `"outgoing"` (pure spherical pulse, Π = ±(∂ᵣφ + φ/r)), `"static"` (Π = 0, pulse splits in halves), or `"ingoing_curved"` (Π consistent with the curved background — suppresses spurious junk radiation). |
 | `mesh.geom_order` | Geometric order of the cells: 1 (default, flat facets) or 2 (curved cells; use when the boundary-geometry error would dominate at high resolution). |
 | `analysis.extraction {enabled, radius, lmax}` | Multipole projection of φ onto real Yₗₘ on an extraction sphere → `series/multipoles.csv`. |
