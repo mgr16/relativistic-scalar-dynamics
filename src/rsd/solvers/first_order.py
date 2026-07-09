@@ -604,11 +604,14 @@ class FirstOrderKGSolver:
         self.filter_du = self.mass_matrix.createVecLeft()
         if self.filter_order >= 4:
             self.filter_du2 = self.mass_matrix.createVecLeft()
-            # λmax(M⁻¹K) por iteración de potencias: normaliza el filtro de
-            # 4.º orden para que su condición de estabilidad sea la misma
-            # que la del de 2.º orden (h² subestima λmax en mallas con
-            # celdas de mala calidad y la sensibilidad es cuadrática)
-            self._filter_lambda_max = self._estimate_filter_lambda_max()
+        # λmax(M⁻¹K) por iteración de potencias, para AMBOS órdenes: normaliza
+        # el filtro de 4.º orden (misma cota de estabilidad que el de 2.º) y
+        # permite verificar en runtime la cota ε·dt·λmax < 2, que es
+        # dependiente de la malla (λmax ~ 1/h_min²) — cruzarla convierte el
+        # filtro en un amplificador exponencial. (h² subestima λmax en mallas
+        # con celdas de mala calidad; de ahí la iteración de potencias.)
+        self._filter_lambda_max = self._estimate_filter_lambda_max()
+        self._filter_dt_checked = None
 
     def _estimate_filter_lambda_max(self, iters: int = 15) -> float:
         """Estima λmax(M⁻¹K) del filtro por iteración de potencias."""
@@ -834,11 +837,32 @@ class FirstOrderKGSolver:
         condición de estabilidad, ε·dt·λmax < 2), pero el de 4.º orden
         amortigua los modos suaves con tasa ∝ (λ/λmax)·λ ≪ λ (comportamiento
         estilo Kreiss-Oliger: casi transparente a los modos físicos suaves).
-        Derivación y cuantificación del sesgo sobre observables:
-        docs/math/dissipation.md.
+
+        La cota ε·dt·λmax < 2 SE VERIFICA aquí (una vez por dt): es
+        dependiente de la malla y cruzarla no "disipa más", amplifica
+        exponencialmente. Derivación y cuantificación del sesgo sobre
+        observables: docs/math/dissipation.md.
         """
         if self.filter_mat is None:
             return
+        if dt != self._filter_dt_checked:
+            damping = self.filter_strength * dt * self._filter_lambda_max
+            eps_max = 2.0 / (dt * self._filter_lambda_max)
+            if damping >= 2.0:
+                raise RuntimeError(
+                    f"Filtro espectral inestable: ε·dt·λmax = {damping:.3f} "
+                    f"≥ 2 (ε={self.filter_strength:g}, dt={dt:.3e}, "
+                    f"λmax≈{self._filter_lambda_max:.3e}). La cota depende "
+                    f"de la malla (λmax ~ 1/h_min²): para esta malla y dt "
+                    f"usa filter_strength < {eps_max:.4g} o desactiva el "
+                    f"filtro. Ver docs/math/dissipation.md."
+                )
+            logger.info(
+                f"filtro espectral orden {self.filter_order}: "
+                f"ε·dt·λmax = {damping:.3f} < 2 "
+                f"(ε_max ≈ {eps_max:.4g} para esta malla/dt)"
+            )
+            self._filter_dt_checked = dt
         self.u.x.scatter_forward()
         self.filter_mat.mult(self.u.x.petsc_vec, self.filter_rhs)
         self._mass_solve(self.filter_rhs, self.filter_du)

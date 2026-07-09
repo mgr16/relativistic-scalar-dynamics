@@ -44,6 +44,17 @@ normalización por `λmax` es justo lo que iguala esa cota entre órdenes; sin
 ella `h²` subestima λmax en mallas con celdas de mala calidad y el orden 4
 (sensibilidad cuadrática) se desestabiliza.
 
+**La cota se verifica en tiempo de ejecución.** Como `λmax ~ 1/h_min²`, el
+ε máximo estable **depende de la malla** (`ε_max = 2/(dt·λmax)`, y con
+`dt ∝ h_min` por CFL, `ε_max ∝ h_min`): un ε válido en una malla gruesa
+puede divergir en una fina. Cruzar la cota no "disipa más" — convierte el
+filtro en un amplificador exponencial (así se descubrió: un barrido con
+ε = 0.05 sobre la malla interior fina divergió a ~10¹⁴⁸ en t = 20M;
+ver `docs/research/phase1/dissipation/note.md`). Por eso el solver estima
+λmax por iteración de potencias para **ambos** órdenes y, al primer paso,
+lanza `RuntimeError` con el `ε_max` concreto de la malla si
+`ε·dt·λmax ≥ 2`, además de registrar el número de amortiguación en el log.
+
 La diferencia está en los modos **suaves** (λ_k ≪ λmax), que son los que
 portan la física:
 
