@@ -149,6 +149,20 @@ class FirstOrderKGSolver:
         self.potential = get_potential(potential_type, **potential_params)
         
         self.preassemble_stiffness = bool(self.cfg.get("optimization", {}).get("preassemble", True))
+        # Mass lumping: sustituye la matriz de masa consistente por su
+        # diagonal (suma por filas) ⇒ M⁻¹ es una escala puntual y la
+        # resolución de masa por etapa RK deja de ser un sistema lineal (es
+        # el coste dominante tras el fast path). Row-sum lumping es 2.º orden
+        # y de diagonal estrictamente positiva sólo para P1 (√γ>0, partición
+        # de la unidad); en grado > 1 puede dar entradas ≤ 0 (inestable), así
+        # que se restringe a degree == 1.
+        self.mass_lumping = bool(kwargs.get(
+            "mass_lumping",
+            self.cfg.get("optimization", {}).get("mass_lumping", False)))
+        if self.mass_lumping and self.degree != 1:
+            raise ValueError(
+                "mass_lumping (row-sum) is only supported for degree=1; got "
+                f"degree={self.degree}. Use consistent mass for P>1.")
         self._setup_operators()
         
         # Variables de estado
@@ -526,12 +540,28 @@ class FirstOrderKGSolver:
         return alpha * sqrtg * conormal_flux * self.test_Pi * self.ds_outer
     
     def _setup_mass_matrix_solver(self):
-        """Configura el solver de la matriz de masa con métrica."""
+        """Configura la resolución de la matriz de masa (consistente o
+        lumped) con métrica."""
         # DOLFINx
         self.mass_matrix = fem.petsc.assemble_matrix(fem.form(self.mass_form))
         self.mass_matrix.assemble()
-        
-        # Configurar solver
+        # Vectores PETSc de trabajo
+        self.rhs_vec = self.mass_matrix.createVecRight()
+        self.sol_vec = self.mass_matrix.createVecLeft()
+
+        if self.mass_lumping:
+            # M_L = diag(Σ_j M_ij) por multiplicación con el vector de unos;
+            # M_L⁻¹ se guarda como vector (escala puntual). No hay KSP.
+            ones = self.mass_matrix.createVecRight()
+            ones.set(1.0)
+            row_sums = self.mass_matrix.createVecLeft()
+            self.mass_matrix.mult(ones, row_sums)
+            row_sums.reciprocal()
+            self._mass_lumped_inv = row_sums
+            self.mass_solver = None
+            return
+
+        # Solver iterativo (CG) para la masa consistente
         self.mass_solver = PETSc.KSP().create(self.mesh.comm)
         self.mass_solver.setOperators(self.mass_matrix)
         self.mass_solver.setType(PETSc.KSP.Type.CG)
@@ -542,9 +572,14 @@ class FirstOrderKGSolver:
             has_hypre = False
         pc.setType(PETSc.PC.Type.HYPRE if has_hypre else PETSc.PC.Type.JACOBI)
         self.mass_solver.setTolerances(rtol=1e-10, atol=1e-14)
-        # Vectores PETSc para resolver A w = b
-        self.rhs_vec = self.mass_matrix.createVecRight()
-        self.sol_vec = self.mass_matrix.createVecLeft()
+
+    def _mass_solve(self, rhs_vec, out_vec) -> None:
+        """Resuelve M·out = rhs. Con lumping es una escala puntual por M_L⁻¹
+        (sin sistema lineal); si no, el KSP de la masa consistente."""
+        if self.mass_lumping:
+            out_vec.pointwiseMult(rhs_vec, self._mass_lumped_inv)
+        else:
+            self.mass_solver.solve(rhs_vec, out_vec)
 
     def _setup_filter_matrix(self):
         """Configure explicit diffusion matrix for controlled dissipation."""
@@ -588,7 +623,7 @@ class FirstOrderKGSolver:
         lam = 1.0
         for _ in range(iters):
             self.filter_mat.mult(v, self.filter_rhs)
-            self.mass_solver.solve(self.filter_rhs, w)
+            self._mass_solve(self.filter_rhs, w)
             lam = w.norm()
             if lam <= 0.0:
                 return 1.0
@@ -738,7 +773,7 @@ class FirstOrderKGSolver:
             self.rhs_vec.zeroEntries()
             fem.petsc.assemble_vector(self.rhs_vec, self._rhs_form_compiled)
         self.rhs_vec.assemble()
-        self.mass_solver.solve(self.rhs_vec, self.sol_vec)
+        self._mass_solve(self.rhs_vec, self.sol_vec)
         # Copiar solución a self.du
         self.du.x.array[:] = self.sol_vec.getArray(readonly=True)
         self.du.x.scatter_forward()
@@ -806,10 +841,10 @@ class FirstOrderKGSolver:
             return
         self.u.x.scatter_forward()
         self.filter_mat.mult(self.u.x.petsc_vec, self.filter_rhs)
-        self.mass_solver.solve(self.filter_rhs, self.filter_du)
+        self._mass_solve(self.filter_rhs, self.filter_du)
         if self.filter_order >= 4:
             self.filter_mat.mult(self.filter_du, self.filter_rhs)
-            self.mass_solver.solve(self.filter_rhs, self.filter_du2)
+            self._mass_solve(self.filter_rhs, self.filter_du2)
             scale = self.filter_strength * dt / self._filter_lambda_max
             self.u.x.array[:] -= scale * self.filter_du2.getArray(readonly=True)
         else:
