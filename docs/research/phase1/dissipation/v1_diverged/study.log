@@ -1,0 +1,72 @@
+/Users/marco/Documents/GitHub/relativistic-scalar-dynamics/scripts/dissipation_study.py:124: RuntimeWarning: overflow encountered in square
+  l2 = np.sqrt(np.mean((b - a) ** 2)) / (np.sqrt(np.mean(a ** 2)) or 1.0)
+=== dissipation study (FULL), runs in /private/tmp/claude-501/-Users-marco-Documents-GitHub-psyop/c558484f-6deb-4ce6-a11e-b1e6e41d96f5/scratchpad/dissip_runs ===
+  [off] eps=0.0 order=2 wall=329s (216 samples)
+  [o2_e0.02] eps=0.02 order=2 wall=403s (216 samples)
+  [o2_e0.05] eps=0.05 order=2 wall=354s (216 samples)
+  [o4_e0.05] eps=0.05 order=4 wall=419s (216 samples)
+figura -> /Users/marco/Documents/GitHub/relativistic-scalar-dynamics/docs/research/phase1/dissipation/dissipation.png
+
+summary -> /Users/marco/Documents/GitHub/relativistic-scalar-dynamics/docs/research/phase1/dissipation/summary.json
+{
+  "off": {
+    "eps": 0.0,
+    "order": 2,
+    "wall": 328.66071796417236,
+    "energy_end_ratio": 1.0
+  },
+  "o2_e0.02": {
+    "eps": 0.02,
+    "order": 2,
+    "wall": 402.8624908924103,
+    "phi_interior": {
+      "rel_linf": 0.1277508784613393,
+      "rel_l2": 0.11218800062567337
+    },
+    "energy": {
+      "rel_linf": 0.2543507592885121,
+      "rel_l2": 0.18831209446000105
+    },
+    "killing_energy": {
+      "rel_linf": 0.2523364742839772,
+      "rel_l2": 0.17595727953602877
+    },
+    "energy_end_ratio": 0.05046093219398456
+  },
+  "o2_e0.05": {
+    "eps": 0.05,
+    "order": 2,
+    "wall": 354.25030875205994,
+    "phi_interior": {
+      "rel_linf": 2.969096475113467e+148,
+      "rel_l2": 2.6675992454542297e+148
+    },
+    "energy": {
+      "rel_linf": 2.2090389504494315e+300,
+      "rel_l2": Infinity
+    },
+    "killing_energy": {
+      "rel_linf": 9.291687458714239e+299,
+      "rel_l2": Infinity
+    },
+    "energy_end_ratio": 3.388708548916777e+301
+  },
+  "o4_e0.05": {
+    "eps": 0.05,
+    "order": 4,
+    "wall": 419.27815794944763,
+    "phi_interior": {
+      "rel_linf": 2.3600761056374774e+145,
+      "rel_l2": 2.2001907529949596e+145
+    },
+    "energy": {
+      "rel_linf": 4.2316239728860096e+293,
+      "rel_l2": Infinity
+    },
+    "killing_energy": {
+      "rel_linf": 2.1253319064795346e+293,
+      "rel_l2": Infinity
+    },
+    "energy_end_ratio": 6.559346140250671e+294
+  }
+}

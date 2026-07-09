@@ -90,11 +90,14 @@ Dos respuestas, en orden de fuerza:
    (`docs/research/phase0/report.md`). Donde no hay filtro no hay
    contaminación posible: es la afirmación más limpia.
 
-2. **Cuando el filtro se enciende, el sesgo es acotado y pequeño.** Para las
-   corridas donde el filtro sí ayuda (p. ej. control de ruido de malla en el
-   caso no lineal de Higgs), cuantificamos el desplazamiento de los
-   observables entre ε = 0 y el ε de trabajo. Resultados y regresión en
-   [`docs/research/phase1/dissipation/note.md`](../research/phase1/dissipation/note.md).
+2. **Cuando el filtro se enciende, el sesgo está medido — y sólo el orden 4
+   es aceptable.** Barrido completo en
+   [`docs/research/phase1/dissipation/note.md`](../research/phase1/dissipation/note.md)
+   (Schwarzschild-KS interior, t=20M): el orden 2 desplaza los observables
+   4–25 % en el rango práctico de ε (daño ∝ ε·λ_k en todos los modos); el
+   orden 4 al mismo ε=0.02 los desplaza ≤ 2.2 % (φ interior), ≤ 3 % (E) y
+   ≤ 0.7 % (balance de Killing). Producción: orden 4 con ε ≤ 0.5·ε_max si
+   hace falta, ε = 0 en las corridas de referencia.
 
 ## Configuración
 

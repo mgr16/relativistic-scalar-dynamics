@@ -1,0 +1,81 @@
+=== dissipation study (FULL), runs in /Users/marco/.claude/jobs/46a2503f/tmp/dissip_runs ===
+  [o2_e0.05] eps=0.05 order=2 RECHAZADO por el guard (13s): RuntimeError: Filtro espectral inestable: ε·dt·λmax = 4.987 ≥ 2 (ε=0.05, dt=1.853e-02, λmax≈5.382e+03). La cota depende ...
+  [off] eps=0.0 order=2 wall=332s (216 samples)
+  [o2_e0.005] eps=0.005 order=2 wall=410s (216 samples)
+  [o2_e0.02] eps=0.02 order=2 wall=413s (216 samples)
+  [o4_e0.02] eps=0.02 order=4 wall=457s (216 samples)
+figura -> /Users/marco/Documents/GitHub/relativistic-scalar-dynamics/docs/research/phase1/dissipation/dissipation.png
+
+summary -> /Users/marco/Documents/GitHub/relativistic-scalar-dynamics/docs/research/phase1/dissipation/summary.json
+{
+  "o2_e0.05": {
+    "eps": 0.05,
+    "order": 2,
+    "wall": 12.803347826004028,
+    "rejected_by_stability_guard": true,
+    "message": "RuntimeError: Filtro espectral inestable: \u03b5\u00b7dt\u00b7\u03bbmax = 4.987 \u2265 2 (\u03b5=0.05, dt=1.853e-02, \u03bbmax\u22485.382e+03). La cota depende de la malla (\u03bbmax ~ 1/h_min\u00b2): para esta malla y dt usa filter_strength < 0.02005 o desactiva el filtro. Ver docs/math/dissipation.md."
+  },
+  "off": {
+    "eps": 0.0,
+    "order": 2,
+    "wall": 332.08327889442444,
+    "energy_end_ratio": 1.0
+  },
+  "o2_e0.005": {
+    "eps": 0.005,
+    "order": 2,
+    "wall": 409.7117381095886,
+    "guard_log": "2026-07-09 16:28:14 - rsd.solvers.first_order - INFO - filtro espectral orden 2: \u03b5\u00b7dt\u00b7\u03bbmax = 0.499 < 2 (\u03b5_max \u2248 0.02005 para esta malla/dt)",
+    "phi_interior": {
+      "rel_linf": 0.03720969393854404,
+      "rel_l2": 0.039568418670202735
+    },
+    "energy": {
+      "rel_linf": 0.08091761050898442,
+      "rel_l2": 0.07283441141157292
+    },
+    "killing_energy": {
+      "rel_linf": 0.07847210163148545,
+      "rel_l2": 0.05546413761777999
+    },
+    "energy_end_ratio": 0.05493466769383964
+  },
+  "o2_e0.02": {
+    "eps": 0.02,
+    "order": 2,
+    "wall": 413.09441804885864,
+    "guard_log": "2026-07-09 16:35:04 - rsd.solvers.first_order - INFO - filtro espectral orden 2: \u03b5\u00b7dt\u00b7\u03bbmax = 1.995 < 2 (\u03b5_max \u2248 0.02005 para esta malla/dt)",
+    "phi_interior": {
+      "rel_linf": 0.1277508784613393,
+      "rel_l2": 0.11218800062567337
+    },
+    "energy": {
+      "rel_linf": 0.2543507592885121,
+      "rel_l2": 0.18831209446000105
+    },
+    "killing_energy": {
+      "rel_linf": 0.2523364742839772,
+      "rel_l2": 0.17595727953602877
+    },
+    "energy_end_ratio": 0.05046093219398456
+  },
+  "o4_e0.02": {
+    "eps": 0.02,
+    "order": 4,
+    "wall": 457.3865399360657,
+    "guard_log": "2026-07-09 16:41:57 - rsd.solvers.first_order - INFO - filtro espectral orden 4: \u03b5\u00b7dt\u00b7\u03bbmax = 1.995 < 2 (\u03b5_max \u2248 0.02005 para esta malla/dt)",
+    "phi_interior": {
+      "rel_linf": 0.015463163191666815,
+      "rel_l2": 0.022258512061179254
+    },
+    "energy": {
+      "rel_linf": 0.020045825713561904,
+      "rel_l2": 0.03047234703866766
+    },
+    "killing_energy": {
+      "rel_linf": 0.004438730206315737,
+      "rel_l2": 0.007009531277330499
+    },
+    "energy_end_ratio": 0.1906314736935348
+  }
+}
