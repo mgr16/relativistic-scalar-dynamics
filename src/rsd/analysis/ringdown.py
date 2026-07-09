@@ -160,3 +160,114 @@ def fit_ringdown_modes(
         if omega_re > min_omega and d > 0:
             out.append((float(omega_re), float(d)))
     return out
+
+
+def fit_tail_lines(
+    ts: np.ndarray,
+    signal: np.ndarray,
+    t_min: float,
+    w_lo: float = 0.08,
+    w_hi: float = 0.48,
+    w2_hi: float = 0.65,
+    dw: float = 0.0005,
+) -> Dict[str, float]:
+    """Líneas cuasi-estacionarias de una cola por ajuste CONTINUO en
+    frecuencia (VarPro: barrido de ω + amplitudes/fases por lstsq lineal).
+
+    Motivación (docs/research/phase1/cavity/note.md): la FFT de una cola
+    corta es engañosa — con T ≈ 30M su resolución es Δω = 2π/T ≈ 0.21 y
+    los "picos" caen en la grilla de bins (así nació el espejismo de una
+    escalera armónica 0.209/0.419 en la cola l=1, que en realidad son
+    líneas en ≈0.20 y ≈0.34). Este ajuste no está limitado por bins.
+
+    Devuelve dict con w1/w2 (línea dominante y segunda), amp1/amp2 y
+    rms0/rms1/rms2 (residuo con 0, 1 y 2 líneas): rms2 ≪ rms0 indica una
+    cola coherente de dos modos.
+    """
+    m = ts >= t_min
+    t, s = ts[m], signal[m]
+    if t.size < 16:
+        raise ValueError(f"tail t >= {t_min} has only {int(t.size)} samples")
+    rms0 = float(np.sqrt(np.mean((s - s.mean()) ** 2)))
+    ones = np.ones_like(t)
+
+    def solve(ws):
+        cols = [ones]
+        for w in ws:
+            cols += [np.cos(w * t), np.sin(w * t)]
+        G = np.stack(cols, axis=1)
+        coef, *_ = np.linalg.lstsq(G, s, rcond=None)
+        rms = float(np.sqrt(np.mean((G @ coef - s) ** 2)))
+        return rms, coef
+
+    # 1 línea: barrido fino 1D
+    grid1 = np.arange(w_lo, w_hi, dw)
+    rms1, w1s = min((solve([w])[0], w) for w in grid1)
+
+    # 2 líneas: el barrido greedy (1 línea y luego la otra) queda SESGADO
+    # cuando la separación baja de la resolución de Rayleigh 2π/T — la
+    # regresión conjunta no: barrido 2D grueso + refinamiento local.
+    coarse = np.arange(w_lo, w2_hi, 0.004)
+    best = None
+    for i, wa in enumerate(coarse):
+        for wb in coarse[i + 1:]:
+            if wb - wa < 0.02:
+                continue
+            r, _ = solve([wa, wb])
+            if best is None or r < best[0]:
+                best = (r, wa, wb)
+    _, wa, wb = best
+    # Refinamiento iterativo con re-centrado: la trinchera de rms es
+    # DIAGONAL en (wa, wb) — desplazamientos correlacionados de ambas
+    # líneas compensan parcialmente — así que el mínimo grueso puede caer
+    # a varios pasos del verdadero; una caja fija se queda en el borde.
+    for _ in range(8):
+        fine_a = np.arange(wa - 0.006, wa + 0.006 + dw / 2, dw)
+        fine_b = np.arange(wb - 0.006, wb + 0.006 + dw / 2, dw)
+        best = None
+        for fa in fine_a:
+            for fb in fine_b:
+                r, c = solve([fa, fb])
+                if best is None or r < best[0]:
+                    best = (r, fa, fb, c)
+        rms2, wa_new, wb_new, coef = best
+        on_edge = (
+            abs(wa_new - fine_a[0]) < dw / 2 or abs(wa_new - fine_a[-1]) < dw / 2
+            or abs(wb_new - fine_b[0]) < dw / 2 or abs(wb_new - fine_b[-1]) < dw / 2
+        )
+        wa, wb = wa_new, wb_new
+        if not on_edge:
+            break
+
+    amp_a = float(np.hypot(coef[1], coef[2]))
+    amp_b = float(np.hypot(coef[3], coef[4]))
+
+    def half_width(w_free, w_other):
+        """Semiancho de PERFIL (rms ≤ 1.05·rms2 re-optimizando la otra
+        línea en cada punto): la incertidumbre honesta de cada línea. Con
+        colas cortas y líneas sub-Rayleigh la verosimilitud es una
+        trinchera DIAGONAL — barrer un eje con el otro fijo la
+        subestima; el perfil sigue la trinchera."""
+        others = np.arange(w_other - 0.02, w_other + 0.02 + dw, 2 * dw)
+        span = 0.0
+        for sign in (-1.0, 1.0):
+            w = w_free
+            while abs(w - w_free) < 0.05:
+                w += sign * dw
+                prof = min(solve([w, wo])[0] for wo in others)
+                if prof > 1.05 * rms2:
+                    break
+            span = max(span, abs(w - w_free))
+        return float(span)
+
+    dwa = half_width(wa, wb)
+    dwb = half_width(wb, wa)
+    if amp_b > amp_a:  # w1 = línea dominante por amplitud
+        wa, wb, amp_a, amp_b = wb, wa, amp_b, amp_a
+        dwa, dwb = dwb, dwa
+    return {
+        "w1": float(wa), "w2": float(wb),
+        "dw1": dwa, "dw2": dwb,
+        "amp1": amp_a, "amp2": amp_b,
+        "rms0": rms0, "rms1": float(rms1), "rms2": float(rms2),
+    }
