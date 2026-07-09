@@ -22,8 +22,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   step is `_apply_spectral_filter`. New doc derives the operator, its
   spectral damping factors, the `ε·dt·λmax < 2` stability bound, and states
   the observable-contamination case (reference interior runs use ε = 0).
+- **The spectral filter now enforces its stability bound.** λmax(M⁻¹K) is
+  power-iterated for *both* orders (previously only order 4) and the first
+  step checks `ε·dt·λmax < 2`: crossing it raises `RuntimeError` reporting
+  the mesh's concrete ε_max instead of silently amplifying — the bound is
+  mesh-dependent (ε_max ∝ h_min under CFL), and a fine-mesh sweep at
+  ε = 0.05 had diverged to ~10¹⁴⁸ over t = 20M with no warning. The damping
+  number `ε·dt·λmax` is logged when the filter is active.
+  (`tests/test_filter_stability_guard.py`.)
 
 ### Added
+- **Mass-lumping option** (`optimization.mass_lumping`, P1 only): replaces
+  the consistent-mass CG solve of every RK stage with a pointwise scale by
+  the row-sum diagonal M_L⁻¹ (strictly positive for P1; `degree > 1`
+  raises). 251 → 7.2 ms/step (×35) at 262k cells — mass solves dominated
+  the step after the fast path. For mesh-resolved fields the lumped state
+  differs from the consistent one by the expected O(hᵖ) mass-discretization
+  gap (2.8 % rel L2 at lc = 0.8, shrinking with h); under-resolved fronts
+  differ O(1) in L∞ by spectral design. Default OFF — A/B once on a
+  production config before adopting for extraction-quality runs.
+  (`tests/test_mass_lumping.py`, `benchmarks/benchmark_mass_lumping.py`.)
 - **Killing-energy diagnostic** (`docs/math/killing_energy.md`): the energy
   E_K = ∫√γ(αρ + Π β·∇φ) associated with the stationary Killing vector
   ξ = ∂_t obeys an exact surface-flux balance on Kerr–Schild backgrounds —
