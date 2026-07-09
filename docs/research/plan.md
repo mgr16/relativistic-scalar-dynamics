@@ -7,8 +7,8 @@ este archivo primero** y **actualizar la sección correspondiente al cerrar cada
 capítulo**. El plan original se estableció el 2026-06-12/13.
 
 **Estado en una línea:** Fase 0 cerrada (GO). Fase 1 en curso — capítulos de
-convergencia y disipación CERRADOS, mass lumping hecho; queda el resto de
-§3.1 (nada en vuelo: árbol de trabajo limpio a 2026-07-09).
+convergencia, disipación y **cavidad** CERRADOS, mass lumping hecho; queda
+el resto de §3.1 (nada en vuelo: árbol de trabajo limpio a 2026-07-09).
 
 ---
 
@@ -120,12 +120,25 @@ Informe completo: [`phase0/report.md`](phase0/report.md). Números clave:
   extracción. Tests `tests/test_mass_lumping.py`, benchmark
   `benchmarks/benchmark_mass_lumping.py`.
 
+- **Capítulo de cavidad CERRADO** (2026-07-09; interpretación:
+  [`phase1/cavity/note.md`](phase1/cavity/note.md)): la espectroscopía de
+  F2 queda DISEÑADA — **l=2, r_ext=6, R=20, ventanas ancladas** (3.5 %/2 %
+  a lc=1.0, scatter ×9 menor que l=1; resolución-limitado, mejorable por
+  convergencia). Post-proceso l=1 (ajuste conjunto, sustracción) probado y
+  descartado; pulso angosto nulo; r_ext=4 sube pico/suelo a 6.4 pero
+  sesga (near-zone). Sub-1 % si el paper lo exige: una validación
+  R≥40 + esponja ancha (~×8/corrida). El doblete de cavidad l=2
+  (0.351±0.003 / 0.560±0.007) tiene canario:
+  `tests/test_cavity_mode_slow.py`. Nuevo estimador de líneas
+  `rsd.analysis.ringdown.fit_tail_lines` (regresión conjunta + perfil de
+  verosimilitud; la cifra histórica "0.209+armónico 0.419" era artefacto
+  de bins de FFT y está retractada en la nota de convergencia).
+
 **Resto de F1 (pendiente):** opción interpolate-coefficients; excisión
-esferoidal (a > 0.9718M); checkpoint/restart; recalibrar tests lentos de Kerr;
-**mitigación del modo de cavidad antes de la espectroscopía de F2** (R ≥ 40 +
-esponja más ancha, o l=2 — periodo 13M —, o ajuste conjunto ring+cavidad).
-Pregunta menor abierta: degradación residual de orden en el triplete fino
-(¿interpolación de extracción / esponja / ruido de remallado no anidado?).
+esferoidal (a > 0.9718M); checkpoint/restart; recalibrar tests lentos de
+Kerr. Pregunta menor abierta: degradación residual de orden en el triplete
+fino (¿interpolación de extracción / esponja / ruido de remallado no
+anidado?).
 
 ### 3.2 Fase 2 — Producción física (PENDIENTE)
 
@@ -144,8 +157,14 @@ dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2.
 - El perfil interior ES logarítmico sobre 2 décadas durante la fase activa
   (pendiente log independiente de r); la amplitud a r fijo decae conforme la
   cola de Price alimenta el horizonte.
-- Modo de cavidad Mω = 0.209: suelo espectral plano ~2·10⁻⁴, independiente de
-  resolución — NO es cola de Price ni error de malla.
+- Modos de cavidad del dominio R=20 (barrera↔esponja): el suelo de cola
+  (~2–4·10⁻⁴) es cuasi-estacionario, independiente de resolución Y de la
+  excitación — NO es cola de Price ni error de malla. En l=2 es un doblete
+  limpio w₁ = 0.351±0.003 / w₂ = 0.560±0.007 (no armónico; canario
+  `test_cavity_mode_slow.py`); en l=1 NO es un doblete limpio. La cifra
+  histórica "Mω=0.209 + armónico 0.419" era artefacto de bins de FFT
+  (Δω = 2π/30M) — retractada. Pico/suelo ≈ 4 en ambos l e invariante del
+  pulso; extraer en r_ext=4 lo sube a 6.4 a costa de sesgo near-zone.
 
 ## 5. Mapa de artefactos
 
@@ -154,6 +173,7 @@ dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2.
 | Informe Fase 0 (GO) | `docs/research/phase0/report.md` |
 | Convergencia F1 (interpretación) | `docs/research/phase1/convergence/note.md` |
 | Disipación F1 (interpretación + datos) | `docs/research/phase1/dissipation/note.md` |
+| Cavidad F1 (diseño espectroscopía F2) | `docs/research/phase1/cavity/note.md` |
 | Matemática: 3+1, excisión, energía, Killing, disipación | `docs/math/*.md` |
 | Validación general | `docs/validation/summary.md` |
 | Oráculo 1D | `src/rsd/reference/spherical1d.py` |

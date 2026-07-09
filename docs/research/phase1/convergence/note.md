@@ -51,6 +51,18 @@ sobre los waveforms guardados:
    0.7): una onda cuasi-estacionaria débilmente amortiguada entre la
    barrera de potencial (~3M) y la esponja/borde exterior (R=20, esponja
    en r>15).
+
+   **Corrección (2026-07-09, capítulo de cavidad):** las cifras
+   "0.209 + armónico 0.419" son un **artefacto de bins de FFT** — con una
+   cola de T≈30M la resolución es Δω = 2π/T ≈ 0.21 y esos valores son
+   exactamente k·2π/T. El ajuste continuo
+   (`rsd.analysis.ringdown.fit_tail_lines`) muestra que la cola l=1 ni
+   siquiera es un doblete limpio (mezcla secular + líneas que vagan entre
+   resoluciones); la l=2 sí: doblete 0.351±0.003 / 0.560±0.007, no
+   armónico. La conclusión cualitativa de este punto (suelo
+   cuasi-estacionario resolución-independiente, no-Price, no-malla)
+   **sobrevive intacta**; el inventario de frecuencias queda retractado.
+   Análisis completo: `docs/research/phase1/cavity/note.md`.
 3. La primera pasada además usaba ventanas de 42M (ajustaban suelo) y
    selección por max|f| (elegía espurios) — corregido en `fe9d8c0`; el
    "0.61 %" de lc=2.0 de esa pasada fue azar (el error sistemático P1 real
@@ -65,8 +77,9 @@ sobre los waveforms guardados:
   barrera, pulso más angosto (excita más QNM), y/o **l=2** (período 13M ⇒
   ~2× más ciclos útiles). Para sub-1 %: ajuste conjunto ring+fondo
   (modelo QNM + modo de cavidad) en vez de Prony puro.
-- El modo de cavidad Mω≈0.209 merece un test de regresión propio cuando se
-  ataque (depende de R y la esponja, no de la malla).
+- El modo de cavidad merece un test de regresión propio cuando se
+  ataque (depende de R y la esponja, no de la malla). **[Hecho 2026-07-09:
+  `tests/test_cavity_mode_slow.py` fija el doblete l=2.]**
 
 ## Datos
 

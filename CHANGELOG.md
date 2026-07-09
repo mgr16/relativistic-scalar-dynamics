@@ -32,6 +32,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`tests/test_filter_stability_guard.py`.)
 
 ### Added
+- **Quasi-stationary line estimator** `fit_tail_lines`
+  (`rsd.analysis.ringdown`): joint two-sinusoid frequency regression (2D
+  scan + re-centering refinement) with profile-likelihood uncertainties.
+  Born from a real failure: FFT "peaks" of a ~30M tail sit on the bin grid
+  (Δω = 2π/T ≈ 0.21) and manufactured a fake harmonic ladder
+  "0.209/0.419"; greedy sequential fitting is also biased for sub-Rayleigh
+  line pairs (synthetic tests demonstrate both). Cavity-doublet regression
+  canary: `tests/test_cavity_mode_slow.py` pins the R=20 domain artifact
+  (l=2 doublet 0.351±0.003 / 0.560±0.007); if R/sponge/BCs change, it
+  fails and spectroscopy calibrations must be revisited.
+  (`tests/test_tail_lines.py`.)
 - **Mass-lumping option** (`optimization.mass_lumping`, P1 only): replaces
   the consistent-mass CG solve of every RK stage with a pointwise scale by
   the row-sum diagonal M_L⁻¹ (strictly positive for P1; `degree > 1`
