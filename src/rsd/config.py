@@ -209,6 +209,45 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
             raise ValueError("analysis.extraction.radius must be in (0, mesh.R)")
         if int(extraction.get("lmax", 2)) < 0:
             raise ValueError("analysis.extraction.lmax must be >= 0")
+    # Banco interior de a(t): K radios de extracción para el fit logarítmico
+    # de Fournodavlos-Sbierski (docs/research/phase2/interior/note.md)
+    interior = (cfg.get("analysis", {}) or {}).get("interior_profile") or {}
+    if interior.get("enabled", False):
+        from rsd.analysis.interior import MAX_ORDER
+
+        int_r_lo = float(interior.get("r_lo", r_inner))
+        int_r_hi = float(interior.get("r_hi", 0.5 * M))
+        if int_r_lo <= 0:
+            raise ValueError(
+                "analysis.interior_profile.r_lo must be > 0 (defaults to "
+                "mesh.r_inner; set one of them)"
+            )
+        if not (int_r_lo < int_r_hi < R):
+            raise ValueError(
+                "analysis.interior_profile needs r_lo < r_hi < mesh.R, got "
+                f"({int_r_lo}, {int_r_hi}) with R={R}"
+            )
+        if r_inner > 0 and int_r_lo < r_inner:
+            raise ValueError(
+                f"analysis.interior_profile.r_lo = {int_r_lo} is inside the "
+                f"excised region (mesh.r_inner = {r_inner})"
+            )
+        fit_order = int(interior.get("fit_order", 2))
+        if not (0 <= fit_order <= MAX_ORDER):
+            raise ValueError(
+                f"analysis.interior_profile.fit_order must be in [0, {MAX_ORDER}]"
+            )
+        n_radii = int(interior.get("n_radii", 16))
+        if n_radii < 2 * (fit_order + 1) + 2:
+            raise ValueError(
+                f"analysis.interior_profile.n_radii = {n_radii} cannot support "
+                f"fit_order = {fit_order} (need >= {2 * (fit_order + 1) + 2}; "
+                "the calibrated production setup uses K >= 16)"
+            )
+        if int(interior.get("lmax", 2)) < 0:
+            raise ValueError("analysis.interior_profile.lmax must be >= 0")
+        if str(interior.get("spacing", "log")).lower() not in {"log", "linear"}:
+            raise ValueError("analysis.interior_profile.spacing must be log or linear")
     physical_units = cfg["output"].get("physical_units") or {}
     if physical_units and float(physical_units.get("M_solar", 0.0)) <= 0:
         raise ValueError("output.physical_units.M_solar must be > 0")

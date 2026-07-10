@@ -88,6 +88,49 @@ def test_intractable_mesh_resolution_is_rejected():
         validate_config(cfg)
 
 
+def _interior_cfg(**interior) -> dict:
+    return {
+        "mesh": {"R": 15.0, "lc": 1.2, "r_inner": 0.1, "lc_inner": 0.04},
+        "metric": {"type": "kerr", "M": 1.0, "a": 0.0},
+        "solver": {"cfl": 0.3, "degree": 1},
+        "initial_conditions": {"type": "gaussian"},
+        "evolution": {"t_end": 1.0},
+        "output": {"dir": "out"},
+        "analysis": {"interior_profile": {"enabled": True, **interior}},
+    }
+
+
+def test_interior_profile_config_defaults_validate():
+    validated = validate_config(_interior_cfg())
+    assert validated["analysis"]["interior_profile"]["enabled"] is True
+
+
+def test_interior_profile_config_rejects_bad_windows():
+    # r_lo dentro de la región excisada
+    with pytest.raises(ValueError, match="excised"):
+        validate_config(_interior_cfg(r_lo=0.05))
+    # ventana invertida
+    with pytest.raises(ValueError, match="r_lo < r_hi"):
+        validate_config(_interior_cfg(r_lo=0.5, r_hi=0.1))
+    # sin excisión ni r_lo explícito no hay borde interno del banco
+    cfg = _interior_cfg()
+    cfg["mesh"]["r_inner"] = 0.0
+    cfg["metric"] = {"type": "flat"}
+    with pytest.raises(ValueError, match="r_lo"):
+        validate_config(cfg)
+
+
+def test_interior_profile_config_rejects_insufficient_radii():
+    with pytest.raises(ValueError, match="n_radii"):
+        validate_config(_interior_cfg(n_radii=6))  # orden 2 pide >= 8
+    validated = validate_config(_interior_cfg(n_radii=8, fit_order=2))
+    assert validated["analysis"]["interior_profile"]["n_radii"] == 8
+    with pytest.raises(ValueError, match="fit_order"):
+        validate_config(_interior_cfg(fit_order=3))
+    with pytest.raises(ValueError, match="spacing"):
+        validate_config(_interior_cfg(spacing="cubic"))
+
+
 def test_qnm_detrend_and_extended_prony():
     t = np.linspace(0, 10, 500)
     signal = np.cos(2 * np.pi * 1.2 * t) * np.exp(-0.1 * t) + 0.01

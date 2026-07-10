@@ -41,7 +41,8 @@ from typing import Dict, Sequence, Tuple
 
 import numpy as np
 
-__all__ = ["LogProfileFit", "fit_log_profile", "fit_log_profile_series", "local_log_slope"]
+__all__ = ["LogProfileFit", "fit_log_profile", "fit_log_profile_series",
+           "fit_log_profile_multipole", "local_log_slope"]
 
 _SERIES_KEYS = ("a", "b", "c", "d", "a_err", "b_err", "c_err", "d_err",
                 "resid_rms", "cond", "n_points")
@@ -177,6 +178,47 @@ def fit_log_profile_series(
     """
     fits = [fit_log_profile(r, u_k, r_window, order=order) for u_k in snapshots_u]
     return {key: np.array([getattr(f, key) for f in fits]) for key in _SERIES_KEYS}
+
+
+def fit_log_profile_multipole(
+    radii: np.ndarray,
+    coeffs: np.ndarray,
+    modes: Sequence[Tuple[int, int]],
+    r_window: Tuple[float, float],
+    order: int = 0,
+) -> Dict[Tuple[int, int], Dict[str, np.ndarray]]:
+    """Ajusta a_lm(t) sobre las series del banco de extracción 3D.
+
+    Args:
+        radii: los K radios de extracción (forma (K,)).
+        coeffs: series c_lm(t, r_k) con forma (n_times, K, n_modes) — lo que
+            produce MultiRadiusExtractor.extract apilado en el tiempo.
+        modes: lista de (l, m) en el orden del eje n_modes.
+        r_window, order: como en fit_log_profile.
+
+    Returns:
+        {(l, m): dict de series} con las mismas claves que
+        fit_log_profile_series; a_lm(t) es la clave "a" de cada modo.
+
+    Convención de normalización: c_lm es el coeficiente de proyección
+    ∮ φ Y_lm dΩ, así que para un campo esféricamente simétrico φ = f(r) el
+    modo (0,0) lleva un factor √(4π) respecto de f (Y_00 = 1/√(4π)). Los
+    cocientes entre corridas con el mismo dato (el discriminador A/B de H2)
+    son independientes de esta convención.
+    """
+    radii = np.asarray(radii, dtype=float)
+    coeffs = np.asarray(coeffs, dtype=float)
+    if radii.ndim != 1:
+        raise ValueError(f"radii must be 1D, got shape {radii.shape}")
+    if coeffs.ndim != 3 or coeffs.shape[1] != radii.size or coeffs.shape[2] != len(modes):
+        raise ValueError(
+            f"coeffs must have shape (n_times, {radii.size}, {len(modes)}), "
+            f"got {coeffs.shape}"
+        )
+    return {
+        (int(l), int(m)): fit_log_profile_series(radii, coeffs[:, :, j], r_window, order=order)
+        for j, (l, m) in enumerate(modes)
+    }
 
 
 def local_log_slope(r: np.ndarray, u: np.ndarray) -> np.ndarray:

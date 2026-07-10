@@ -165,3 +165,47 @@ def test_validation_errors():
     with pytest.raises(ValueError):
         # ventana sin puntos suficientes
         fit_log_profile(R_GRID[:5], u[:5], (0.011, 0.0111), order=1)
+
+
+def test_multipole_fit_recovers_per_mode():
+    """El wrapper 3D: pila (n_times, K, n_modes) del banco de extracción →
+    a_lm(t) por modo, con la misma OLS calibrada (K=16 radios log como en
+    producción)."""
+    from rsd.analysis.interior import fit_log_profile, fit_log_profile_multipole
+
+    radii = np.geomspace(0.1, 0.5, 16)
+    modes = [(0, 0), (1, -1), (1, 0), (1, 1)]
+    # cada modo con su (a, b) y una evolución temporal distinta
+    a_of_mode = {(0, 0): -0.37, (1, -1): 0.09, (1, 0): 0.21, (1, 1): 0.0}
+    times = [1.0, 2.0, 3.0]
+    coeffs = np.stack([
+        np.stack([
+            _hierarchy(radii, a=a_of_mode[mode] * tk, b=0.01 * j, z1=0.3, e1=-0.2)
+            for j, mode in enumerate(modes)
+        ], axis=1)
+        for tk in times
+    ])
+    assert coeffs.shape == (3, 16, 4)
+
+    fits = fit_log_profile_multipole(radii, coeffs, modes, (0.1, 0.5), order=1)
+    assert set(fits.keys()) == set(modes)
+    for j, mode in enumerate(modes):
+        for k, tk in enumerate(times):
+            assert fits[mode]["a"][k] == pytest.approx(a_of_mode[mode] * tk, abs=1e-9)
+        # idéntico a ajustar el modo a mano
+        single = fit_log_profile(radii, coeffs[0, :, j], (0.1, 0.5), order=1)
+        assert fits[mode]["a"][0] == pytest.approx(single.a, abs=0.0)
+
+
+def test_multipole_fit_validates_shapes():
+    from rsd.analysis.interior import fit_log_profile_multipole
+
+    radii = np.geomspace(0.1, 0.5, 16)
+    modes = [(0, 0), (1, 0)]
+    good = np.zeros((4, 16, 2))
+    with pytest.raises(ValueError, match="shape"):
+        fit_log_profile_multipole(radii, good[:, :, :1], modes, (0.1, 0.5))
+    with pytest.raises(ValueError, match="shape"):
+        fit_log_profile_multipole(radii, good[:, :10, :], modes, (0.1, 0.5))
+    with pytest.raises(ValueError, match="shape"):
+        fit_log_profile_multipole(radii, good[0], modes, (0.1, 0.5))

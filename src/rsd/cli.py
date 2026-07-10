@@ -298,6 +298,28 @@ def run_main(argv=None) -> int:
         extractor = MultipoleExtractor(mesh, radius=ext_radius, lmax=ext_lmax)
         logger.info(f"Multipole extraction enabled: R_ext={ext_radius}, lmax={ext_lmax}")
 
+    # Banco interior de a(t): c_lm(r_k, t) en K radios -> fit logarítmico F-S
+    # (ventana y orden calibrados en docs/research/phase2/interior/note.md)
+    interior_bank = None
+    interior_series = []
+    interior_cfg = sample_cfg.get("interior_profile", {}) or {}
+    if interior_cfg.get("enabled", False):
+        from rsd.analysis.extraction import MultiRadiusExtractor
+
+        int_r_lo = float(interior_cfg.get("r_lo", r_inner))
+        int_r_hi = float(interior_cfg.get("r_hi", 0.5 * float(cfg["metric"].get("M", 1.0))))
+        int_n = int(interior_cfg.get("n_radii", 16))
+        int_lmax = int(interior_cfg.get("lmax", 2))
+        if str(interior_cfg.get("spacing", "log")).lower() == "log":
+            interior_radii = np.geomspace(int_r_lo, int_r_hi, int_n)
+        else:
+            interior_radii = np.linspace(int_r_lo, int_r_hi, int_n)
+        interior_bank = MultiRadiusExtractor(mesh, interior_radii, lmax=int_lmax)
+        logger.info(
+            f"Interior profile bank enabled: {int_n} radii in [{int_r_lo:g}, {int_r_hi:g}], "
+            f"lmax={int_lmax}"
+        )
+
     # Evolution parameters
     t, step = 0.0, 0
     t_end = cfg["evolution"]["t_end"]
@@ -363,6 +385,9 @@ def run_main(argv=None) -> int:
                     multipole_series.append(
                         (t, [coeffs[mode] for mode in extractor.modes])
                     )
+
+                if interior_bank is not None:
+                    interior_series.append((t, interior_bank.extract(phi)))
 
                 # Diagnostics
                 if diagnostics:
@@ -474,6 +499,37 @@ def run_main(argv=None) -> int:
                 row = ",".join(f"{c:.12e}" for c in coeff_row)
                 fcsv.write(f"{t_val:.12e},{row}\n")
         logger.info(f"Multipole series saved: {len(multipole_series)} samples")
+
+    if save_series and interior_series and mesh.comm.rank == 0:
+        from rsd.analysis.interior import fit_log_profile_multipole
+
+        int_t = np.array([t_val for t_val, _ in interior_series])
+        int_u = np.stack([u_k for _, u_k in interior_series])  # (T, K, n_modes)
+        np.savez_compressed(
+            os.path.join(series_dir, "interior_profiles.npz"),
+            t=int_t, radii=interior_bank.radii,
+            modes=np.array(interior_bank.modes, dtype=int), u=int_u,
+        )
+        # Fit primario sobre la ventana completa del banco; los contrastes
+        # (otras ventanas/órdenes) se rehacen offline desde el NPZ
+        fit_order = int(interior_cfg.get("fit_order", 2))
+        fit_window = (float(interior_bank.radii[0]), float(interior_bank.radii[-1]))
+        alm = fit_log_profile_multipole(
+            interior_bank.radii, int_u, interior_bank.modes, fit_window, order=fit_order
+        )
+        with open(os.path.join(series_dir, "interior_alm.csv"), "w", encoding="utf-8") as fcsv:
+            names = [f"l{l}_m{m}" for (l, m) in interior_bank.modes]
+            fcsv.write("t," + ",".join(f"a_{n}" for n in names)
+                       + "," + ",".join(f"aerr_{n}" for n in names) + "\n")
+            for i, t_val in enumerate(int_t):
+                a_row = ",".join(f"{alm[mode]['a'][i]:.12e}" for mode in interior_bank.modes)
+                e_row = ",".join(f"{alm[mode]['a_err'][i]:.12e}" for mode in interior_bank.modes)
+                fcsv.write(f"{t_val:.12e},{a_row},{e_row}\n")
+        a00_peak = float(np.max(np.abs(alm[(0, 0)]["a"]))) if (0, 0) in alm else float("nan")
+        logger.info(
+            f"Interior a_lm(t) saved: {len(int_t)} samples, fit order {fit_order} "
+            f"on [{fit_window[0]:g}, {fit_window[1]:g}]; peak |a_00| = {a00_peak:.3e}"
+        )
 
     # Balance de energía: E(t) + ∫F dt - E(0) ≈ 0 detecta inconsistencias
     # de discretización o de la BC (con flujo saliente positivo)
