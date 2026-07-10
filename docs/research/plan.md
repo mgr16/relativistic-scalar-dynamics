@@ -8,9 +8,10 @@ capítulo**. El plan original se estableció el 2026-06-12/13.
 
 **Estado en una línea:** Fase 0 cerrada (GO). Fase 1: todo lo que bloquea la
 física está CERRADO (convergencia, disipación, cavidad, mass lumping); quedan
-extras de §3.1 que no bloquean H2. **Fase 2 ABIERTA**: pase de literatura
-(capítulo 1, enunciado F–S) CERRADO 2026-07-09; siguiente capítulo =
-diagnóstico interior 3D.
+extras de §3.1 que no bloquean H2. **Fase 2 ABIERTA**: literatura (F–S)
+CERRADA; diagnóstico interior EN CURSO — estimador y calibración de ventana
+HECHOS (decisión: corridas interiores con r_inner = 0.1M, fit orden 2 en
+[0.1, 0.5]); falta el estimador 3D multipolar + humo A/B.
 
 ---
 
@@ -156,15 +157,28 @@ anidado?).
   contraste **lineal-vs-Higgs con dato idéntico** queda fijado como
   discriminador primario. Refs H1 (Burda–Gregory–Moss) ancladas + contrapunto
   2023 anotado. El related-work amplio queda para F3.
-- **Siguiente capítulo: diagnóstico interior 3D** — estimador de a(t,ω)
-  (fit φ vs ln r por rayos/armónicos en [r_inner, ~0.5M]) + comparador
-  lineal/Higgs. Primer paso: calibrar con el oráculo 1D el sesgo de
-  truncamiento del fit según ventana ([0.25, 0.5] vs [0.1, 0.5]) y decidir
-  r_inner de producción (sondas F0 estables hasta 0.1M).
+- **Diagnóstico interior (EN CURSO 2026-07-09;
+  [`phase2/interior/note.md`](phase2/interior/note.md))** — hecho: estimador
+  `rsd.analysis.interior.fit_log_profile` (base F–S truncada, órdenes 0–2,
+  8 tests sintéticos) + **calibración 1D del sesgo de ventana** (script
+  `scripts/interior_window_calibration.py`; reusa el piloto F0 y agrega
+  l=2 lineal, mexican hat u∞=v A=0.1 y réplica de resolución). Decisión:
+  - **[0.25, 0.5] RECHAZADA** para a(t) cuantitativo (fase activa: errores
+    O(1) y hasta de signo, con cualquier orden) — el r_inner=0.25M que
+    este plan traía para corridas interiores queda corregido;
+  - **producción interior: r_inner = 0.1M, fit orden 2 en [0.1, 0.5]**
+    (sesgo fase-fuerte ≤ 2.6 % en l=0,1 y 0.5 % en la config H2; estable
+    en resolución) con orden 1 en [0.1, 0.3] de contraste;
+  - caveats: verdad de l=2 con piso 7 % (recalibrar a n≥2600 si el
+    interior l=2 exige menos); en 3D usar K ≥ 16 radios de extracción
+    (cond(o2) alto).
+  Falta: estimador 3D multipolar (MultipoleExtractor en K radios →
+  a_lm(t)) + humo A/B lineal-vs-mexhat con dato idéntico.
 - Después: corridas de producción — campo iniciando en el vacío (u∞ = v),
-  dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2 (+ posible corrida ℓ=0
-  larga para tasas tardías, opcional); espectroscopía exterior según diseño
-  del capítulo de cavidad (l=2, r_ext=6, R=20, ventanas ancladas).
+  dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2, **interiores con
+  r_inner = 0.1M** (+ posible corrida ℓ=0 larga para tasas tardías,
+  opcional); espectroscopía exterior según diseño del capítulo de cavidad
+  (l=2, r_ext=6, R=20, ventanas ancladas — sin cambios).
 
 ### 3.3 Fase 3 — Pipeline de paper (PENDIENTE)
 
@@ -176,6 +190,12 @@ anidado?).
 - El perfil interior ES logarítmico sobre 2 décadas durante la fase activa
   (pendiente log independiente de r); la amplitud a r fijo decae conforme la
   cola de Price alimenta el horizonte.
+- Ventana radial del observable interior a(t): el perfil en [0.25, 0.5]M
+  está fuertemente contaminado por la jerarquía ζ/η (fits con errores O(1)
+  y de signo en la fase activa — el "zona log hasta r~0.5" de F0 era
+  visual); [0.1, 0.5] con fit de orden 2 da ≤ 2.6 % (l=0,1). El término
+  ζ₁·r·ln r tiene pendiente logarítmica nula en r = 1/e ≈ 0.37: los sesgos
+  NO son monótonos entre ventanas — calibrar por ventana, no extrapolar.
 - Modos de cavidad del dominio R=20 (barrera↔esponja): el suelo de cola
   (~2–4·10⁻⁴) es cuasi-estacionario, independiente de resolución Y de la
   excitación — NO es cola de Price ni error de malla. En l=2 es un doblete
@@ -194,6 +214,7 @@ anidado?).
 | Disipación F1 (interpretación + datos) | `docs/research/phase1/dissipation/note.md` |
 | Cavidad F1 (diseño espectroscopía F2) | `docs/research/phase1/cavity/note.md` |
 | Literatura F2 (enunciado F–S verificado + refs ancla) | `docs/research/phase2/literature.md` |
+| Diagnóstico interior F2 (estimador a(t) + calibración de ventana) | `docs/research/phase2/interior/note.md` |
 | Matemática: 3+1, excisión, energía, Killing, disipación | `docs/math/*.md` |
 | Validación general | `docs/validation/summary.md` |
 | Oráculo 1D | `src/rsd/reference/spherical1d.py` |
