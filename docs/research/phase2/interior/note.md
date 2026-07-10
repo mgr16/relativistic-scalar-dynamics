@@ -1,11 +1,14 @@
 # Fase 2 — Diagnóstico interior: estimador de a(t) y calibración de ventana
 
-**Fecha:** 2026-07-09. **Estado:** capítulo EN CURSO — §1 (estimador) y §2
-(calibración 1D de ventana) listos; queda el estimador 3D (§4) y su humo A/B.
-**Datos:** `window_calibration.json`, `data/*.npz`,
-`figures/window_calibration.png`; script
-`scripts/interior_window_calibration.py`; estimador
-`rsd.analysis.interior` (tests `tests/test_interior_fit.py`).
+**Fecha:** 2026-07-09 (§1–2), 2026-07-10 (§4–5). **Estado:** capítulo
+CERRADO — estimador (§1), calibración 1D de ventana (§2), estimador 3D
+multipolar (§4) y humo A/B lineal-vs-mexhat (§5) hechos; la decisión de
+producción 3D queda en §5 (revisa la de §2 para el caso 3D).
+**Datos:** `window_calibration.json`, `ab_smoke.json`, `data/*.npz`,
+`figures/window_calibration.png`, `figures/ab_smoke.png`; scripts
+`scripts/interior_window_calibration.py`, `scripts/interior_ab_smoke.py`;
+estimadores `rsd.analysis.interior` + `rsd.analysis.extraction`
+(tests `tests/test_interior_fit.py`, `tests/test_extraction.py`).
 **Contexto:** el pase de literatura ([`../literature.md`](../literature.md))
 verificó que el observable de H2, a(t), es exactamente el coeficiente
 A(t,ω) del teorema de Fournodavlos–Sbierski, con jerarquía completa
@@ -114,18 +117,22 @@ Lecturas principales:
 - **r_inner de producción para corridas interiores: 0.1M** (las sondas F0
   fueron estables ahí; el plan §3.2 queda corregido — 0.25M rechazado por
   el punto 1). Las corridas de espectroscopía exterior no cambian.
-- **Estimador de producción: orden 2 sobre [0.1, 0.5]** (primario) con
-  **orden 1 sobre [0.1, 0.3]** de contraste; el sistemático de ventana se
-  cita de esta calibración y del acuerdo entre ambas configuraciones.
-- El diagnóstico 3D usa K ≥ 16 radios de extracción para soportar los 6
-  parámetros del o2 (§4).
+- Estimador por SESGO (válido en 1D/grids densos): orden 2 sobre
+  [0.1, 0.5] primario, orden 1 sobre [0.1, 0.3] de contraste.
+  **REVISADO PARA 3D por el humo A/B (§5): en 3D el error de malla
+  correlacionado × cond invierte la jerarquía — primario 3D = o1 sobre
+  [0.1, 0.5], con o0 de ancla de fase; o2 y ventana angosta quedan
+  inusables a resolución práctica.**
+- El diagnóstico 3D usa K ≥ 16 radios de extracción (el humo corrió K=32;
+  el costo de extracción es despreciable).
 
 ## 3. Límites honestos de esta calibración
 
 - Es 1D (modo a modo). El 3D agrega error de malla, interpolación de
   extracción y mezcla de modos — la calibración fija SOLO el término de
-  sesgo de ventana; el presupuesto total de error del diagnóstico 3D se
-  medirá con el humo A/B (§4) y la escalera de convergencia si hace falta.
+  sesgo de ventana; el presupuesto total de error del diagnóstico 3D quedó
+  medido en el humo A/B (§5): término de malla ≈ 10–15 % mediana a
+  lc_inner=0.04 con el primario 3D (escalera de convergencia a producción).
 - La "verdad" es a su vez un fit (orden 1 profundo); su piso medido
   (spread por ventana de verdad) acota lo que esta calibración puede
   resolver.
@@ -133,12 +140,105 @@ Lecturas principales:
   la incertidumbre de programa del a(t) 3D vendrá del scan de
   ventanas/resoluciones, como en el resto del proyecto.
 
-## 4. Diseño del estimador 3D (siguiente paso del capítulo)
+## 4. El estimador 3D multipolar (HECHO 2026-07-10)
 
-Reusar `MultipoleExtractor` (rsd.analysis.extraction) en K ~ 12–16 radios
-de extracción dentro de [r_inner, 0.5M] → series u_lm(r_k, t) por modo →
-`fit_log_profile_series` sobre los K radios da a_lm(t) con la misma
-maquinaria calibrada aquí (la OLS es idéntica con K puntos). Humo A/B:
-par de corridas 3D lineal vs sombrero-mexicano-en-vacío con dato
-idéntico, r_inner según §2, resolución moderada — valida el pipeline y da
-la primera medición 3D del discriminador de H2.
+`rsd.analysis.extraction.MultiRadiusExtractor`: banco de K radios de
+extracción con cuadratura angular compartida, una sola pasada de
+localización y una reducción MPI por llamada; **valida cobertura completa
+en la construcción** (un punto de cuadratura fuera de malla — p.ej. el
+radio interno rozando la excisión facetada — aborta con la lista de
+radios afectados, en vez de sesgar c_lm en silencio). extract() →
+(K, n_modes) con c_lm(r_k) = ∮ φ Y_lm dΩ.
+`rsd.analysis.interior.fit_log_profile_multipole` aplica la OLS calibrada
+en §2 a la pila (t, K, modos) → a_lm(t) por modo.
+
+Cableado de corrida: `analysis.interior_profile` en la config
+(r_lo/r_hi/n_radii/lmax/spacing/fit_order, validada en `rsd.config`);
+el CLI guarda `series/interior_profiles.npz` (crudo) +
+`series/interior_alm.csv` (fit primario). Radios log-uniformes por
+defecto — la calibración §2 se hizo sobre el grid log del oráculo y el
+sesgo de ventana depende de la distribución de muestras.
+
+Convención: c_00 = √4π·u para campos esféricos (Y_00 = 1/√4π); los
+cocientes A/B son independientes de la norma.
+
+## 5. Humo A/B 3D: lineal vs mexhat con dato idéntico (2026-07-10)
+
+**Protocolo** (`scripts/interior_ab_smoke.py`; resumen `ab_smoke.json`,
+figura `figures/ab_smoke.png`): dos corridas 3D con la MISMA perturbación
+(gaussiana A=0.1, r0=5, w=1, `ingoing_curved`) sobre su vacío respectivo —
+lineal V=0 con φ∞=0 y sombrero mexicano λ=0.1, v=1 con φ∞=v (la config
+H2) —, malla de la sonda C de F0 (R=15, lc=1.2, r_inner=0.1,
+lc_inner=0.04), t_end=12M, banco K=32 log en [0.1, 0.5], lmax=2. BC
+característica en ambas (es exactamente compatible con el vacío constante:
+con φ=cte, Π=0 el término de borde es cero; la variante
+`sommerfeld_spherical` NO lo es — su término φ/r advectaría el vacío).
+Verdad: oráculo 1D con el mismo dato, muestreo denso (80 snapshots/15M;
+la referencia de §2, cada ~1M, submuestrea el pico angosto del mexhat),
+verdad profunda o1 [0.02, 0.2], comparada como √4π·a_1D. Fase fuerte
+anclada en el fit o0 (cond ~6: el timing no debe definirlo un estimador
+de varianza alta). Costo: 406 s (lineal) / 1272 s (mexhat) serial.
+
+**Presupuesto de error medido** (dev = |a00_3D − √4π·a_1D| máx/mediana
+sobre la fase fuerte, en unidades de la escala 1D; "sesgo 1D" = el mismo
+estimador sobre el grid denso del oráculo — separa sesgo de ventana del
+término de malla):
+
+| estimador | dev 3D lin | dev 3D hat | sesgo 1D lin | σ_a med | cond |
+|---|---|---|---|---|---|
+| o0 [0.1,0.5] | 45 % / 19 % | 45 % / 17 % | 60 % / 26 % | 0.5 % | 6 |
+| **o1 [0.1,0.5]** | **33 % / 15 %** | **25 % / 10 %** | 13 % / 2.3 % | 12–15 % | 573 |
+| o1 [0.1,0.3] | 134 % / 106 % | 120 % / 82 % | 6.7 % / 0.7 % | 41–45 % | 1946 |
+| o2 [0.1,0.5] | 884 % / 651 % | 728 % / 521 % | 7.7 % / 1.6 % | ~3× la señal | 5·10⁴ |
+
+Lecturas:
+
+1. **La jerarquía calibrada por sesgo se INVIERTE en 3D por varianza**: el
+   error de malla correlacionado entre radios (~pocos % de u00) se
+   amplifica con el cond de la base; el o2, óptimo en 1D, produce series
+   sin sentido (su "pico" cae en tiempos tardíos de señal chica — puro
+   junk amplificado), y la ventana angosta [0.1,0.3] (14 de los 32 radios)
+   tampoco sobrevive. Esto materializa la advertencia del §2 punto 4.
+2. **Decisión de producción 3D: primario o1 [0.1, 0.5]** (sesgo 1D ≤ 2.3 %
+   mediana + término de malla ≈ 10–15 % mediana a lc_inner=0.04, con σ_a
+   OLS honesta de esa magnitud) **con o0 [0.1, 0.5] de ancla de fase y
+   consistencia** (dev mediana 17–19 % dominado por su sesgo de
+   truncamiento, varianza despreciable). Mejorar el ~10–15 % es cuestión
+   de resolución (escalera de convergencia en producción), no de ventana.
+3. **El pipeline 3D reproduce la física del oráculo**: a00(t) sigue a
+   √4π·a_1D en toda la fase activa para ambos potenciales (figura, panel
+   a); el vacío del mexhat se proyecta exacto (u00(t=0) = √4π·v a 4
+   decimales). Fuga de modos l>0: 0.7–1.6 % de la escala en fase fuerte
+   (crece a ~3–6 % en tiempos tardíos de señal chica).
+4. **Primer número 3D del discriminador de H2** (a00_hat/a00_lin, dato
+   idéntico, fase fuerte común; el cociente puntual es mal condicionado en
+   el cruce por cero de a_lin — se citan resúmenes robustos):
+   cociente de picos 0.86 (3D) vs 1.15 (1D); **cociente L2 0.94 (3D) vs
+   1.03 (1D)**. Ambos mundos dan O(1) dentro del presupuesto: con dato
+   idéntico, la estructura de vacío Higgs NO altera cualitativamente el
+   perfil a(t) — consistente con H2 (la dominación cinética manda). Es un
+   humo (una resolución, un pulso), no la medición.
+
+**Caveats de salud (honestos):**
+
+- El residual del balance de Killing es 40–41 % en ambas corridas, y salta
+  exactamente durante la absorción del pulso por el borde excisado
+  (t≈3.5–7): a r_inner=0.1 con lc_inner=0.04 la esfera de excisión tiene
+  facetas de ~23° y la cuadratura del flujo interior no captura la energía
+  absorbida (el benchmark de F1 con residual 11 % era la malla sonda-B,
+  geometría mucho más benigna). Es una limitación DEL DIAGNÓSTICO de
+  balance en esta geometría, no del campo (validado directo contra el
+  oráculo, punto 3); si producción quiere citar el balance como métrica de
+  calidad a r_inner=0.1, necesita su propio estudio de resolución.
+- El ζ_max de Cowling reportado por el monitor es GLOBAL y está dominado
+  por el exterior de curvatura débil (T/curvatura → grande donde la
+  curvatura → 0): 5.4–5.9 aquí. NO es comparable con el ζ ≤ 1.2·10⁻³
+  interior de F0; el monitor interior-restringido queda como mejora
+  pendiente si el paper lo cita.
+
+**Límites del humo:** una resolución (el término de malla del punto 2 se
+midió, no se extrapoló — la escalera va en producción); t_end=12M (no
+cubre la era tardía); comparación 3D↔1D interpolada en tiempo (offsets de
+timing inflan los máximos cerca del pico/cruce; las medianas son lo
+robusto); disipación apagada en 3D (ε=0, la regla de producción de F1)
+mientras el oráculo usa KO ε=0.02.

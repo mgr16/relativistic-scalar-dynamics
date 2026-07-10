@@ -9,9 +9,11 @@ capítulo**. El plan original se estableció el 2026-06-12/13.
 **Estado en una línea:** Fase 0 cerrada (GO). Fase 1: todo lo que bloquea la
 física está CERRADO (convergencia, disipación, cavidad, mass lumping); quedan
 extras de §3.1 que no bloquean H2. **Fase 2 ABIERTA**: literatura (F–S)
-CERRADA; diagnóstico interior EN CURSO — estimador y calibración de ventana
-HECHOS (decisión: corridas interiores con r_inner = 0.1M, fit orden 2 en
-[0.1, 0.5]); falta el estimador 3D multipolar + humo A/B.
+CERRADA; **diagnóstico interior CERRADO (2026-07-10)** — estimador 1D+3D,
+calibración de ventana y humo A/B hechos (decisión 3D: r_inner = 0.1M,
+banco K≥16 radios log en [0.1, 0.5], **primario o1 [0.1,0.5] + ancla o0**;
+el o2 óptimo-en-sesgo es inusable en 3D por varianza). Siguiente:
+corridas de producción.
 
 ---
 
@@ -43,7 +45,7 @@ HECHOS (decisión: corridas interiores con r_inner = 0.1M, fit orden 2 en
 - Oráculo 1D: `src/rsd/reference/spherical1d.py` — reducción esférica exacta
   por modos l sobre Schwarzschild-KS, validada contra Leaver (QNM l=1: 0.1 %
   Re ω / 1.9 % Im ω; l=2: 1 % / 2.2 %).
-- Suite rápida de tests: 144 en verde (a 2026-07-09; corre con
+- Suite rápida de tests: 164 en verde (a 2026-07-10; corre con
   `python -m pytest -m "not slow"` dentro del entorno).
 - Nota histórica: el paquete fue renombrado el 2026-07-07 (commit `f5f3f74`);
   los commits anteriores usan el nombre viejo del proyecto — es historia, no
@@ -157,28 +159,39 @@ anidado?).
   contraste **lineal-vs-Higgs con dato idéntico** queda fijado como
   discriminador primario. Refs H1 (Burda–Gregory–Moss) ancladas + contrapunto
   2023 anotado. El related-work amplio queda para F3.
-- **Diagnóstico interior (EN CURSO 2026-07-09;
-  [`phase2/interior/note.md`](phase2/interior/note.md))** — hecho: estimador
-  `rsd.analysis.interior.fit_log_profile` (base F–S truncada, órdenes 0–2,
-  8 tests sintéticos) + **calibración 1D del sesgo de ventana** (script
-  `scripts/interior_window_calibration.py`; reusa el piloto F0 y agrega
-  l=2 lineal, mexican hat u∞=v A=0.1 y réplica de resolución). Decisión:
-  - **[0.25, 0.5] RECHAZADA** para a(t) cuantitativo (fase activa: errores
-    O(1) y hasta de signo, con cualquier orden) — el r_inner=0.25M que
-    este plan traía para corridas interiores queda corregido;
-  - **producción interior: r_inner = 0.1M, fit orden 2 en [0.1, 0.5]**
-    (sesgo fase-fuerte ≤ 2.6 % en l=0,1 y 0.5 % en la config H2; estable
-    en resolución) con orden 1 en [0.1, 0.3] de contraste;
-  - caveats: verdad de l=2 con piso 7 % (recalibrar a n≥2600 si el
-    interior l=2 exige menos); en 3D usar K ≥ 16 radios de extracción
-    (cond(o2) alto).
-  Falta: estimador 3D multipolar (MultipoleExtractor en K radios →
-  a_lm(t)) + humo A/B lineal-vs-mexhat con dato idéntico.
-- Después: corridas de producción — campo iniciando en el vacío (u∞ = v),
-  dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2, **interiores con
-  r_inner = 0.1M** (+ posible corrida ℓ=0 larga para tasas tardías,
-  opcional); espectroscopía exterior según diseño del capítulo de cavidad
-  (l=2, r_ext=6, R=20, ventanas ancladas — sin cambios).
+- **Diagnóstico interior CERRADO (2026-07-09/10;
+  [`phase2/interior/note.md`](phase2/interior/note.md))** — estimador
+  `rsd.analysis.interior.fit_log_profile` (base F–S truncada, órdenes 0–2)
+  + **calibración 1D del sesgo de ventana**
+  (`scripts/interior_window_calibration.py`) + **estimador 3D multipolar**
+  (`MultiRadiusExtractor`: banco de K radios, cobertura validada al
+  construir; config `analysis.interior_profile`; el CLI escribe
+  `interior_profiles.npz` + `interior_alm.csv`) + **humo A/B 3D
+  lineal-vs-mexhat con dato idéntico** (`scripts/interior_ab_smoke.py`,
+  malla sonda-C, K=32, validado contra el oráculo 1D denso). Decisiones:
+  - **[0.25, 0.5] RECHAZADA** para a(t) cuantitativo; corridas interiores
+    con **r_inner = 0.1M**;
+  - por sesgo (1D) el óptimo era o2 [0.1,0.5], pero el humo mostró que
+    **en 3D la varianza (error de malla correlacionado × cond) invierte
+    la jerarquía**: o2 y o1-angosto inusables; **primario 3D = o1
+    [0.1, 0.5] + o0 de ancla de fase** (presupuesto medido: sesgo ≤2.3 %
+    med + malla ≈10–15 % med a lc_inner=0.04; junk l>0 ~1–1.6 %);
+  - primer número 3D del discriminador de H2 (dato idéntico): cociente L2
+    a_hat/a_lin = 0.94 (3D) vs 1.03 (oráculo 1D) — O(1) en ambos mundos,
+    consistente con H2; es humo, no medición;
+  - caveats: balance de Killing NO citable a r_inner=0.1 sin estudio
+    propio (residual 40 % por cuadratura del flujo en la esfera facetada);
+    ζ de Cowling del monitor es global (dominado por el exterior débil),
+    no comparable con el ζ interior de F0; verdad l=2 con piso 7 %
+    (recalibrar a n≥2600 si el interior l=2 exige menos).
+- **SIGUIENTE — corridas de producción:** campo iniciando en el vacío
+  (u∞ = v), dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2, interiores con
+  r_inner = 0.1M y banco interior activado (K≥16; el humo usó 32), con
+  escalera de convergencia para bajar el término de malla del 10–15 %
+  (+ posible corrida ℓ=0 larga para tasas tardías, opcional);
+  espectroscopía exterior según diseño del capítulo de cavidad (l=2,
+  r_ext=6, R=20, ventanas ancladas — sin cambios). Nota: el dato l>0 en
+  3D (gaussiana × Y_lm) aún no está implementado en `initial_conditions`.
 
 ### 3.3 Fase 3 — Pipeline de paper (PENDIENTE)
 
@@ -196,6 +209,23 @@ anidado?).
   visual); [0.1, 0.5] con fit de orden 2 da ≤ 2.6 % (l=0,1). El término
   ζ₁·r·ln r tiene pendiente logarítmica nula en r = 1/e ≈ 0.37: los sesgos
   NO son monótonos entre ventanas — calibrar por ventana, no extrapolar.
+- Sesgo vs varianza del fit interior EN 3D: el error de malla correlacionado
+  entre radios se amplifica ∝ cond de la base — a resolución práctica el
+  o2 (cond ~5·10⁴) da series sin sentido aunque su sesgo 1D sea el menor.
+  Primario 3D = o1 [0.1,0.5] (cond ~600) + o0 de ancla de fase (cond ~6).
+  El cociente puntual a_hat/a_lin es mal condicionado en el cruce por cero
+  de a_lin: citar cocientes de picos/L2 sobre la fase fuerte.
+- La BC característica es exactamente compatible con un vacío constante
+  (φ=cte, Π=0 ⇒ término de borde nulo): correcta para corridas mexhat con
+  u∞=v. La `sommerfeld_spherical` (término φ/r) advectaría el vacío — no
+  usarla con u∞ ≠ 0.
+- Balance de Killing a r_inner=0.1: la cuadratura del flujo interior sobre
+  la esfera de excisión facetada (lc_inner=0.04 ⇒ facetas ~23°) pierde
+  ~40 % de la energía absorbida durante el cruce del pulso — el residual
+  NO es métrica de calidad del campo en esta geometría sin su propio
+  estudio de resolución. El ζ_max del monitor de Cowling es global y lo
+  domina el exterior de curvatura débil; el número interior de F0
+  (ζ ≤ 1.2·10⁻³) sale de la versión restringida al interior.
 - Modos de cavidad del dominio R=20 (barrera↔esponja): el suelo de cola
   (~2–4·10⁻⁴) es cuasi-estacionario, independiente de resolución Y de la
   excitación — NO es cola de Price ni error de malla. En l=2 es un doblete
@@ -214,7 +244,8 @@ anidado?).
 | Disipación F1 (interpretación + datos) | `docs/research/phase1/dissipation/note.md` |
 | Cavidad F1 (diseño espectroscopía F2) | `docs/research/phase1/cavity/note.md` |
 | Literatura F2 (enunciado F–S verificado + refs ancla) | `docs/research/phase2/literature.md` |
-| Diagnóstico interior F2 (estimador a(t) + calibración de ventana) | `docs/research/phase2/interior/note.md` |
+| Diagnóstico interior F2 (estimador a(t) 1D+3D, calibración, humo A/B) | `docs/research/phase2/interior/note.md` |
+| Humo A/B interior (números + protocolo) | `docs/research/phase2/interior/ab_smoke.json` + `scripts/interior_ab_smoke.py` |
 | Matemática: 3+1, excisión, energía, Killing, disipación | `docs/math/*.md` |
 | Validación general | `docs/validation/summary.md` |
 | Oráculo 1D | `src/rsd/reference/spherical1d.py` |

@@ -1,0 +1,261 @@
+{
+  "runs": {
+    "linear": {
+      "n_samples": 128,
+      "t_end": 11.939976825883452,
+      "n_strong": 28,
+      "scale_1d_c00": 0.8138444509109152,
+      "estimators": {
+        "o0 [0.1,0.5]": {
+          "window": [
+            0.1,
+            0.5
+          ],
+          "order": 0,
+          "dev_vs_1d_max": 0.4477510135326062,
+          "dev_vs_1d_median": 0.18951142867318593,
+          "bias_1d_only": {
+            "max": 0.6014863095444569,
+            "median": 0.25826276254209785
+          },
+          "sigma_a_median_over_scale": 0.004849720042775756,
+          "cond_median": 6.405584962707349
+        },
+        "o1 [0.1,0.5]": {
+          "window": [
+            0.1,
+            0.5
+          ],
+          "order": 1,
+          "dev_vs_1d_max": 0.32930732057472417,
+          "dev_vs_1d_median": 0.1468477996613587,
+          "bias_1d_only": {
+            "max": 0.12990719098781037,
+            "median": 0.02307279378288934
+          },
+          "sigma_a_median_over_scale": 0.14502268056459353,
+          "cond_median": 573.4272714010032
+        },
+        "o1 [0.1,0.3]": {
+          "window": [
+            0.1,
+            0.3
+          ],
+          "order": 1,
+          "dev_vs_1d_max": 1.3445808848170677,
+          "dev_vs_1d_median": 1.0599157695165913,
+          "bias_1d_only": {
+            "max": 0.06661251721096506,
+            "median": 0.007191669291725339
+          },
+          "sigma_a_median_over_scale": 0.4485374080752138,
+          "cond_median": 1946.1344896674561
+        },
+        "o2 [0.1,0.5]": {
+          "window": [
+            0.1,
+            0.5
+          ],
+          "order": 2,
+          "dev_vs_1d_max": 8.843791351130948,
+          "dev_vs_1d_median": 6.506316754187469,
+          "bias_1d_only": {
+            "max": 0.076463122330701,
+            "median": 0.01571907563115313
+          },
+          "sigma_a_median_over_scale": 3.502301028813629,
+          "cond_median": 52681.0520567481
+        }
+      },
+      "junk_over_scale": {
+        "l1": 0.010405100965831993,
+        "l2": 0.014793647114735974
+      },
+      "killing_residual_rel": 0.4063707656888893,
+      "cowling_zeta_max_global": 5.85313458222
+    },
+    "mexhat": {
+      "n_samples": 128,
+      "t_end": 11.939976825883452,
+      "n_strong": 33,
+      "scale_1d_c00": 0.9332185475283673,
+      "estimators": {
+        "o0 [0.1,0.5]": {
+          "window": [
+            0.1,
+            0.5
+          ],
+          "order": 0,
+          "dev_vs_1d_max": 0.4484449225096284,
+          "dev_vs_1d_median": 0.17023334221481604,
+          "bias_1d_only": {
+            "max": 0.5487023702356622,
+            "median": 0.22159250461309074
+          },
+          "sigma_a_median_over_scale": 0.0048086597096791625,
+          "cond_median": 6.405584962707349
+        },
+        "o1 [0.1,0.5]": {
+          "window": [
+            0.1,
+            0.5
+          ],
+          "order": 1,
+          "dev_vs_1d_max": 0.2499983909599936,
+          "dev_vs_1d_median": 0.1022264055164901,
+          "bias_1d_only": {
+            "max": 0.1091428970928046,
+            "median": 0.016772049908718837
+          },
+          "sigma_a_median_over_scale": 0.11193440681218174,
+          "cond_median": 573.4272714010032
+        },
+        "o1 [0.1,0.3]": {
+          "window": [
+            0.1,
+            0.3
+          ],
+          "order": 1,
+          "dev_vs_1d_max": 1.2032171158085734,
+          "dev_vs_1d_median": 0.8153260243463193,
+          "bias_1d_only": {
+            "max": 0.057325778496177836,
+            "median": 0.015126081988390976
+          },
+          "sigma_a_median_over_scale": 0.4056662284552293,
+          "cond_median": 1946.1344896674561
+        },
+        "o2 [0.1,0.5]": {
+          "window": [
+            0.1,
+            0.5
+          ],
+          "order": 2,
+          "dev_vs_1d_max": 7.282694762331049,
+          "dev_vs_1d_median": 5.2069884934875565,
+          "bias_1d_only": {
+            "max": 0.06330159282413313,
+            "median": 0.02070248139937897
+          },
+          "sigma_a_median_over_scale": 3.055728124567333,
+          "cond_median": 52681.0520567481
+        }
+      },
+      "junk_over_scale": {
+        "l1": 0.007354061937417296,
+        "l2": 0.015533700994898645
+      },
+      "killing_residual_rel": 0.4002488512924259,
+      "cowling_zeta_max_global": 5.38677787456
+    }
+  },
+  "primary_3d_estimator": "o1 [0.1,0.5]",
+  "discriminator": {
+    "definition": "a00_mexhat / a00_linear (mismo pulso), fase fuerte comun",
+    "primary": {
+      "estimator": "o1 [0.1,0.5]",
+      "ratio_median": 1.1162059129544923,
+      "ratio_iqr": [
+        0.6593445544659174,
+        1.3787065213940541
+      ],
+      "n_samples": 26
+    },
+    "anchor_o0": {
+      "estimator": "o0 [0.1,0.5]",
+      "ratio_median": 1.0986298464342252,
+      "ratio_iqr": [
+        0.867599115742183,
+        1.3644257667323647
+      ],
+      "n_samples": 26
+    },
+    "oracle_1d": {
+      "ratio_median": 0.8572920281181325,
+      "ratio_iqr": [
+        0.7103096991124528,
+        1.2055924765400428
+      ],
+      "n_samples": 15
+    },
+    "robust": {
+      "definition": "cociente de picos y cociente L2 de a00 (o1 [0.1,0.5]) sobre fase fuerte comun (inmunes al cruce por cero)",
+      "peak_ratio_3d": 0.8557,
+      "l2_ratio_3d": 0.9361,
+      "peak_ratio_1d": 1.1467,
+      "l2_ratio_1d": 1.0321
+    }
+  },
+  "protocol": {
+    "pulse": {
+      "A": 0.1,
+      "r0": 5.0,
+      "w": 1.0,
+      "direction": "ingoing_curved"
+    },
+    "runs": {
+      "linear": {
+        "potential_type": "zero",
+        "potential_params": {},
+        "v0": 0.0
+      },
+      "mexhat": {
+        "potential_type": "mexican_hat",
+        "potential_params": {
+          "lambda_coupling": 0.1,
+          "vacuum_value": 1.0
+        },
+        "v0": 1.0
+      }
+    },
+    "estimators": {
+      "o0 [0.1,0.5]": {
+        "window": [
+          0.1,
+          0.5
+        ],
+        "order": 0
+      },
+      "o1 [0.1,0.5]": {
+        "window": [
+          0.1,
+          0.5
+        ],
+        "order": 1
+      },
+      "o1 [0.1,0.3]": {
+        "window": [
+          0.1,
+          0.3
+        ],
+        "order": 1
+      },
+      "o2 [0.1,0.5]": {
+        "window": [
+          0.1,
+          0.5
+        ],
+        "order": 2
+      }
+    },
+    "phase_anchor": "o0 [0.1,0.5]",
+    "truth_1d": {
+      "window": [
+        0.02,
+        0.2
+      ],
+      "order": 1,
+      "normalization": "sqrt(4pi)"
+    },
+    "mesh": {
+      "type": "gmsh",
+      "R": 15.0,
+      "lc": 1.2,
+      "r_inner": 0.1,
+      "lc_inner": 0.04
+    },
+    "t_end": 12.0,
+    "fast_mode": false
+  },
+  "total_wall_seconds": 270.62160162500004
+}
