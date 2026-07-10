@@ -6,9 +6,11 @@ Cualquier persona, herramienta o modelo que continúe el trabajo debe **leer
 este archivo primero** y **actualizar la sección correspondiente al cerrar cada
 capítulo**. El plan original se estableció el 2026-06-12/13.
 
-**Estado en una línea:** Fase 0 cerrada (GO). Fase 1 en curso — capítulos de
-convergencia, disipación y **cavidad** CERRADOS, mass lumping hecho; queda
-el resto de §3.1 (nada en vuelo: árbol de trabajo limpio a 2026-07-09).
+**Estado en una línea:** Fase 0 cerrada (GO). Fase 1: todo lo que bloquea la
+física está CERRADO (convergencia, disipación, cavidad, mass lumping); quedan
+extras de §3.1 que no bloquean H2. **Fase 2 ABIERTA**: pase de literatura
+(capítulo 1, enunciado F–S) CERRADO 2026-07-09; siguiente capítulo =
+diagnóstico interior 3D.
 
 ---
 
@@ -16,8 +18,9 @@ el resto de §3.1 (nada en vuelo: árbol de trabajo limpio a 2026-07-09).
 
 - **H2 (titular):** *la dominación cinética cerca de la singularidad de
   Schwarzschild borra la estructura de vacío tipo Higgs; se recuperan
-  asintóticas logarítmicas lineales* (à la Fournodavlos–Sbierski; el enunciado
-  exacto se verificará en el pase de literatura de Fase 2).
+  asintóticas logarítmicas lineales* (Fournodavlos–Sbierski; **enunciado
+  exacto VERIFICADO 2026-07-09** — ψ = A(t,ω)·log r + B(t,ω) + O(r·log r),
+  con genericidad; ver [`phase2/literature.md`](phase2/literature.md)).
 - **H1 (respaldo):** decaimiento clásico de vacío catalizado por el agujero
   negro (línea Burda–Gregory–Moss).
 - **Alcance declarado honestamente:** aproximación de Cowling (campo de prueba
@@ -140,12 +143,28 @@ Kerr. Pregunta menor abierta: degradación residual de orden en el triplete
 fino (¿interpolación de extracción / esponja / ruido de remallado no
 anidado?).
 
-### 3.2 Fase 2 — Producción física (PENDIENTE)
+### 3.2 Fase 2 — Producción física (EN CURSO)
 
-Pase de literatura (verificar el enunciado exacto de Fournodavlos–Sbierski) +
-diagnósticos interiores 3D + corridas de producción: campo iniciando en el
-vacío (u∞ = v), r_inner = 0.25M (la zona logarítmica llega hasta r ~ 0.5M),
-dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2.
+- **Pase de literatura, capítulo 1 CERRADO (2026-07-09)** — enunciado exacto
+  de Fournodavlos–Sbierski verificado contra el texto completo
+  ([`phase2/literature.md`](phase2/literature.md)): expansión
+  ψ = A(t,ω)·log r + B(t,ω) + O(r·log r) hacia {r=0} (Thm 1.7), con A =
+  L²-lim ψ/log r ≡ **nuestro a(t)**; jerarquía completa Σ ζₙ rⁿ log r +
+  Σ ηₙ rⁿ (Thm 1.18); genericidad: abierto en topología de energía sobre
+  toda {r=0} (Thm 1.17) y datos suaves genéricos cerca de los extremos con
+  |A₀| ~ |t|^{−3 ó −4} vía AAG (Cor 1.16). H2 sobrevive sin enmiendas; el
+  contraste **lineal-vs-Higgs con dato idéntico** queda fijado como
+  discriminador primario. Refs H1 (Burda–Gregory–Moss) ancladas + contrapunto
+  2023 anotado. El related-work amplio queda para F3.
+- **Siguiente capítulo: diagnóstico interior 3D** — estimador de a(t,ω)
+  (fit φ vs ln r por rayos/armónicos en [r_inner, ~0.5M]) + comparador
+  lineal/Higgs. Primer paso: calibrar con el oráculo 1D el sesgo de
+  truncamiento del fit según ventana ([0.25, 0.5] vs [0.1, 0.5]) y decidir
+  r_inner de producción (sondas F0 estables hasta 0.1M).
+- Después: corridas de producción — campo iniciando en el vacío (u∞ = v),
+  dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2 (+ posible corrida ℓ=0
+  larga para tasas tardías, opcional); espectroscopía exterior según diseño
+  del capítulo de cavidad (l=2, r_ext=6, R=20, ventanas ancladas).
 
 ### 3.3 Fase 3 — Pipeline de paper (PENDIENTE)
 
@@ -174,6 +193,7 @@ dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2.
 | Convergencia F1 (interpretación) | `docs/research/phase1/convergence/note.md` |
 | Disipación F1 (interpretación + datos) | `docs/research/phase1/dissipation/note.md` |
 | Cavidad F1 (diseño espectroscopía F2) | `docs/research/phase1/cavity/note.md` |
+| Literatura F2 (enunciado F–S verificado + refs ancla) | `docs/research/phase2/literature.md` |
 | Matemática: 3+1, excisión, energía, Killing, disipación | `docs/math/*.md` |
 | Validación general | `docs/validation/summary.md` |
 | Oráculo 1D | `src/rsd/reference/spherical1d.py` |
