@@ -7,14 +7,15 @@ este archivo primero** y **actualizar la sección correspondiente al cerrar cada
 capítulo**. El plan original se estableció el 2026-06-12/13.
 
 **Estado en una línea:** Fase 0 cerrada (GO). Fase 1: todo lo que bloquea la
-física está CERRADO (convergencia, disipación, cavidad, mass lumping); quedan
-extras de §3.1 que no bloquean H2. **Fase 2 ABIERTA**: literatura (F–S)
-CERRADA; **diagnóstico interior CERRADO (2026-07-10)** — estimador 1D+3D,
-calibración de ventana y humo A/B hechos (decisión 3D: r_inner = 0.1M,
-banco K≥16 radios log en [0.1, 0.5], **primario o1 [0.1,0.5] + ancla o0**;
-el o2 óptimo-en-sesgo es inusable en 3D por varianza). Siguiente:
-corridas de producción — su prerrequisito, el dato l>0 en 3D
-(gaussiana × Y_lm), quedó implementado el 2026-07-11.
+física está CERRADO; quedan extras de §3.1 que no bloquean H2. **Fase 2
+AVANZADA**: literatura (F–S) CERRADA; diagnóstico interior CERRADO
+(2026-07-10); **PRODUCCIÓN INTERIOR CERRADA (2026-07-11)** — matriz
+completa l = 0, 1, 2 con escalera y dato idéntico:
+**a_hat/a_lin = O(1) en todos los modos (L2 0.87–0.94, estable en la
+escalera al 2–3 %) — el borrado de H2 confirmado a ~10–15 % y por modo**;
+acoplamiento de modos no lineal ACOTADO < 5 % de la señal; mass lumping
+RECHAZADO para el interior (Δa00 28 %). Siguiente: espectroscopía
+exterior de producción (diseño de F1: l=2, r_ext=6, R=20); luego F3.
 
 ---
 
@@ -185,24 +186,51 @@ anidado?).
     ζ de Cowling del monitor es global (dominado por el exterior débil),
     no comparable con el ζ interior de F0; verdad l=2 con piso 7 %
     (recalibrar a n≥2600 si el interior l=2 exige menos).
-- **SIGUIENTE — corridas de producción:** campo iniciando en el vacío
-  (u∞ = v), dato `ingoing_curved`, A ≤ 0.1, modos l = 1, 2, interiores con
-  r_inner = 0.1M y banco interior activado (K≥16; el humo usó 32), con
-  escalera de convergencia para bajar el término de malla del 10–15 %
-  (+ posible corrida ℓ=0 larga para tasas tardías, opcional);
-  espectroscopía exterior según diseño del capítulo de cavidad (l=2,
-  r_ext=6, R=20, ventanas ancladas — sin cambios). **Dato l>0 en 3D
-  implementado (2026-07-11):** gaussiana × Y_lm real ortonormal en
-  `GaussianBump` (config `initial_conditions.l`/`.m`); usa la misma
-  `real_ylm` del extractor ⇒ c_lm(r, 0) = A·g(r) en el canal (l, m),
-  igual al modo del oráculo 1D con dato idéntico; el momento factoriza
-  con el mismo ansatz radial del oráculo para todo l; l=0 conserva la
-  normalización esférica histórica (sin factor Y_00). Tests:
+- **PRODUCCIÓN INTERIOR CERRADA (2026-07-11;
+  [`phase2/production/note.md`](phase2/production/note.md))** — matriz de
+  12 corridas (0 fallos, 88 min pool-3, `scripts/interior_production.py`
+  idempotente): escalera l=0 lc_inner {0.056, 0.04, 0.028} × {lineal,
+  mexhat u∞=v}, l=1 @ 0.04, l=2 @ {0.04, 0.028} (banco lmax=4), pulso
+  idéntico al humo. Resultados:
+  - **Mass lumping RECHAZADO en la config de producción** (A/B etapa 0:
+    Δa00 mediana 27.7 %, máx 38.6 % — el caveat de F1 materializado en el
+    perfil interior sub-resuelto); producción = masa consistente.
+  - Presupuesto: rung 0.056 fuera de régimen (no citable); diferencia
+    0.04→0.028 rms 9–12 % (l=0) / 19–21 % (l=2); dev vs oráculo en fino
+    13 %/8.6 % mediana (lin/hat l=0) con piso de sistemáticas de
+    comparación 3D↔1D, σ_a OLS sí contrae (7.6 % en fino). l>0: error
+    ABSOLUTO igual a l=0; relativo ×2 porque la señal cae con l (barrera
+    centrífuga).
+  - **El número de H2: a_hat/a_lin = O(1) en todos los modos** (L2
+    0.92/0.94/0.94 escalera l=0; 0.87 l=1; 0.88–0.90 l=2; picos
+    0.86–1.06; oráculo 1.01) — el borrado por dominación cinética se
+    confirma por modo al nivel ~10–15 %; el déficit sistemático ~10 % del
+    L2 3D (estable bajo refinamiento, se cancela parcialmente por
+    correlación del par) queda abierto — paso barato: calibrar sesgo o1
+    por perfil con el oráculo mexhat denso.
+  - **Acoplamiento de modos no lineal: COTA < 4–5 % de la señal del modo**
+    (A=0.1, fase fuerte); el "×3.3 en l=2 fino" pre-tope era junk tardío
+    (retractado). Única señal débil: l=1 →0 ×2.2.
+  - **Fase fuerte con tope t ≤ 10M** (nuevo): el junk tardío de dominio
+    (R=15 sin esponja) crece a ~escala de señal en canales l>0 tras
+    t≈10M; sin tope contamina dev/discriminador.
+- **Dato l>0 en 3D implementado (2026-07-11):** gaussiana × Y_lm real
+  ortonormal en `GaussianBump` (config `initial_conditions.l`/`.m`); usa
+  la misma `real_ylm` del extractor ⇒ c_lm(r, 0) = A·g(r) en el canal
+  (l, m), igual al modo del oráculo 1D con dato idéntico; el momento
+  factoriza con el mismo ansatz radial del oráculo para todo l; l=0
+  conserva la normalización esférica histórica (sin factor Y_00). Tests:
   `tests/test_initial_data_ylm.py` (convención dato↔extracción pineada
-  exacta; fuga de canal ≤ 2.5 % en φ sobre la malla de test,
-  convergente con h). Caveat: con potencial no lineal la reducción 1D
-  solo es exacta para l=0 — el mexhat con l>0 acopla multipolos y es
-  física exclusiva del 3D (el oráculo lo advierte en runtime).
+  exacta; fuga de canal ≤ 2.5 % en φ sobre la malla de test, convergente
+  con h). Caveat: con potencial no lineal la reducción 1D solo es exacta
+  para l=0 — el mexhat con l>0 acopla multipolos y es física exclusiva
+  del 3D (el oráculo lo advierte en runtime).
+- **SIGUIENTE — espectroscopía exterior de producción:** según diseño del
+  capítulo de cavidad (l=2, r_ext=6, R=20, ventanas ancladas — sin
+  cambios). Opcionales de F2 (no bloquean): corrida larga ℓ=0 para la era
+  tardía (necesita esponja/R mayor y probablemente checkpoint/restart);
+  calibración del sesgo o1 por perfil con el oráculo mexhat denso (ataca
+  el déficit sistemático ~10 % del L2 del discriminador).
 
 ### 3.3 Fase 3 — Pipeline de paper (PENDIENTE)
 
@@ -226,6 +254,22 @@ anidado?).
   Primario 3D = o1 [0.1,0.5] (cond ~600) + o0 de ancla de fase (cond ~6).
   El cociente puntual a_hat/a_lin es mal condicionado en el cruce por cero
   de a_lin: citar cocientes de picos/L2 sobre la fase fuerte.
+- Mass lumping y el observable interior NO se llevan: en la config de
+  producción (P1, lc_inner=0.04) desplaza a00 un 28 % mediana / 39 % máx
+  (A/B 2026-07-11) aunque acelere ×3 — el perfil logarítmico junto a la
+  excisión facetada es una estructura sub-resuelta en el sentido del
+  caveat de F1. Interior = masa consistente, siempre.
+- Los cocientes A/B con dato idéntico son mucho más estables que los dev
+  individuales (spread de escalera 2–3 % vs dev 10–15 %): malla y
+  estimador idénticos correlacionan los errores del par y se cancelan al
+  primer orden. Diseñar TODA medición comparativa como par con dato
+  idéntico, no como valores absolutos por corrida.
+- Junk tardío de dominio en los canales interiores l>0 (R=15 sin
+  esponja): crece hasta ~la escala de la señal después de t ≈ 10M.
+  Ventana fuerte del interior SIEMPRE con tope superior (producción usa
+  t ∈ [4, 10] M) — sin él, dev/discriminador/acoplamiento se contaminan
+  (un falso "acoplamiento ×3.3" salió de ahí y está retractado en la
+  nota de producción).
 - La BC característica es exactamente compatible con un vacío constante
   (φ=cte, Π=0 ⇒ término de borde nulo): correcta para corridas mexhat con
   u∞=v. La `sommerfeld_spherical` (término φ/r) advectaría el vacío — no
@@ -257,6 +301,7 @@ anidado?).
 | Literatura F2 (enunciado F–S verificado + refs ancla) | `docs/research/phase2/literature.md` |
 | Diagnóstico interior F2 (estimador a(t) 1D+3D, calibración, humo A/B) | `docs/research/phase2/interior/note.md` |
 | Humo A/B interior (números + protocolo) | `docs/research/phase2/interior/ab_smoke.json` + `scripts/interior_ab_smoke.py` |
+| Producción interior F2 (escalera l=0,1,2 + número de H2 por modo) | `docs/research/phase2/production/note.md` + `production.json` + `scripts/interior_production.py` |
 | Matemática: 3+1, excisión, energía, Killing, disipación | `docs/math/*.md` |
 | Validación general | `docs/validation/summary.md` |
 | Oráculo 1D | `src/rsd/reference/spherical1d.py` |
