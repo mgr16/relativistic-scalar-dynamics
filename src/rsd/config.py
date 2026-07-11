@@ -36,7 +36,10 @@ DEFAULT_CONFIG: Dict[str, Any] = {
         "enable_sommerfeld": True,
     },
     "metric": {"type": "flat", "M": 1.0},
-    "initial_conditions": {"type": "gaussian", "A": 0.01, "r0": 10.0, "w": 3.0, "v0": 1.0},
+    "initial_conditions": {
+        "type": "gaussian", "A": 0.01, "r0": 10.0, "w": 3.0, "v0": 1.0,
+        "l": 0, "m": 0,
+    },
     "evolution": {"t_end": 50.0, "output_every": 10, "verbose": True},
     "output": {"dir": "results", "qnm_analysis": True, "diagnostics": True, "save_series": True},
 }
@@ -201,6 +204,20 @@ def validate_config(cfg: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError(
             "initial_conditions.direction must be static, ingoing, outgoing "
             "or ingoing_curved"
+        )
+    ic_l = cfg["initial_conditions"].get("l", 0)
+    ic_m = cfg["initial_conditions"].get("m", 0)
+    try:
+        l_ok = int(ic_l) == ic_l and int(ic_m) == ic_m
+    except (TypeError, ValueError):
+        l_ok = False
+    if not l_ok:
+        raise ValueError(
+            f"initial_conditions.l and .m must be integers, got l={ic_l!r}, m={ic_m!r}"
+        )
+    if int(ic_l) < 0 or abs(int(ic_m)) > int(ic_l):
+        raise ValueError(
+            f"initial_conditions needs l >= 0 and |m| <= l, got l={ic_l}, m={ic_m}"
         )
     extraction = (cfg.get("analysis", {}) or {}).get("extraction") or {}
     if extraction.get("enabled", False):

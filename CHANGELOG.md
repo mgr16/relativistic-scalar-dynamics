@@ -32,6 +32,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   (`tests/test_filter_stability_guard.py`.)
 
 ### Added
+- **l > 0 initial data in 3D** (`GaussianBump`, the F2 production
+  prerequisite): the Gaussian shell — and its momentum, since the radial
+  ansatz factorizes and is the same relation the 1D oracle's
+  `set_initial_gaussian` uses for every l — can now be modulated by an
+  orthonormal real Y_lm via `initial_conditions.l` / `.m` (validated:
+  integers, l ≥ 0, |m| ≤ l). The angular factor reuses the extractor's
+  `real_ylm` (single source for the sign convention), so in the continuum
+  the extracted channel obeys c_lm(r, 0) = A·g(r) exactly and equals the
+  identical-data 1D-oracle mode u_l(r, 0). l = 0 keeps the historical
+  spherical normalization (no Y_00 factor). Physics caveat in the
+  docstring: for l > 0 the 1D reduction is exact only for potentials
+  linear in u — nonlinear (Higgs) l > 0 dynamics is 3D-only mode-coupling
+  physics. (`tests/test_initial_data_ylm.py`: exact data↔extraction
+  convention pin at 1e−12; on the 16³ test mesh, main-channel amplitude
+  within 1.4 % of the spherical reference and φ-channel leakage ≤ 2.5 %,
+  mesh-convergent.)
 - **Quasi-stationary line estimator** `fit_tail_lines`
   (`rsd.analysis.ringdown`): joint two-sinusoid frequency regression (2D
   scan + re-centering refinement) with profile-likelihood uncertainties.

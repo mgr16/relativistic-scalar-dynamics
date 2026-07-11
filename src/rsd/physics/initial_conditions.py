@@ -27,13 +27,28 @@ def _scalar_functionspace(mesh: dmesh.Mesh, degree: int = 1) -> fem.FunctionSpac
 class GaussianBump:
     """
     Condición inicial tipo bump gaussiano para campo escalar.
-    φ(r) = v0 + A * exp(-((r - r0)²)/w²)
+    φ(x) = v0 + A * exp(-((r - r0)²)/w²) · F(θ, ϕ)
+
+    Factor angular F:
+        l = 0: F ≡ 1 — convención esférica histórica (SIN factor Y_00);
+            el canal extraído lleva c_00 = √(4π)·A·g(r), como documenta
+            fit_log_profile_multipole.
+        l ≥ 1: F = Y_lm real ortonormal — la MISMA real_ylm del extractor
+            multipolar (una sola fuente para la convención de signos), de
+            modo que en el continuo c_lm(r, t=0) = A·g(r) exacto en el canal
+            (l, m) y cero en el resto. Con dato idéntico, el modo del
+            oráculo 1D es u_l(r, 0) = A·g(r) y la relación de momento
+            radial es la misma para todo l (set_initial_gaussian del
+            oráculo): el junk del ansatz advectivo es idéntico en ambos
+            mundos. Ojo física: para l > 0 la reducción 1D solo es exacta
+            con potencial lineal (cuadrático) — un potencial no lineal
+            acopla multipolos y eso es física exclusiva del 3D.
 
     Nota: la forma histórica v0*(1 + A·exp(...)) producía φ ≡ 0 cuando
     v0 = 0 (la amplitud quedaba multiplicada por el vacío). La forma
     aditiva coincide con la anterior para v0 = 1 y es correcta para v0 = 0.
     """
-    
+
     VALID_DIRECTIONS = ("static", "ingoing", "outgoing", "ingoing_curved")
 
     def __init__(
@@ -46,15 +61,20 @@ class GaussianBump:
         v0: float = 1.0,
         direction: str = "static",
         background=None,
+        l: int = 0,
+        m: int = 0,
     ):
         """
         Parámetros:
             mesh: Malla del dominio
             V: Espacio de funciones
-            A: Amplitud de la perturbación
+            A: Amplitud de la perturbación (para l ≥ 1 la amplitud física
+                del campo es A·max|Y_lm| < A — el presupuesto de
+                no-linealidad con A es conservador)
             r0: Centro radial de la perturbación
             w: Ancho de la perturbación
-            v0: Valor de vacío del campo
+            v0: Valor de vacío del campo (siempre esférico: solo la
+                perturbación lleva el factor angular)
             direction: "static" (Π=0, el pulso se divide en mitades entrante
                 y saliente), "ingoing" o "outgoing" (momento de onda esférica
                 en espacio PLANO: Π = ±(∂_r φ_pert + φ_pert/r)), o
@@ -66,6 +86,10 @@ class GaussianBump:
                 con c_in = β·r̂ + α√γ^rr la velocidad coordenada entrante
                 (en Kerr-Schild c_in = 1 exactamente y se reduce a
                 Π = ((1−β_r)∂_rφ + φ/r)/α, validada contra el oráculo 1D).
+            l, m: multipolo de la perturbación (enteros, l ≥ 0, |m| ≤ l);
+                l=0 es el bump esférico histórico. El momento (cualquier
+                direction) lleva el mismo factor angular que φ: el ansatz
+                radial factoriza.
         """
         if direction not in self.VALID_DIRECTIONS:
             raise ValueError(
@@ -76,6 +100,12 @@ class GaussianBump:
                 "direction='ingoing_curved' requires the `background` argument "
                 "(a BackgroundCoeffs with radial_factors_np)"
             )
+        if int(l) != l or int(m) != m:
+            raise ValueError(f"l and m must be integers, got l={l!r}, m={m!r}")
+        if int(l) < 0:
+            raise ValueError(f"l must be >= 0, got {l}")
+        if abs(int(m)) > int(l):
+            raise ValueError(f"|m| must be <= l, got l={l}, m={m}")
         self.mesh = mesh
         self.V = V if V is not None else _scalar_functionspace(mesh)
         self.A = float(A)
@@ -84,8 +114,13 @@ class GaussianBump:
         self.v0 = float(v0)
         self.direction = direction
         self.background = background
+        self.l = int(l)
+        self.m = int(m)
 
-        logger.debug(f"Creando GaussianBump: A={A}, r0={r0}, w={w}, v0={v0}, dir={direction}")
+        logger.debug(
+            f"Creando GaussianBump: A={A}, r0={r0}, w={w}, v0={v0}, "
+            f"dir={direction}, (l, m)=({self.l}, {self.m})"
+        )
         self.phi = fem.Function(self.V, name="phi_initial")
         # interpolate() evalúa en los puntos correctos de cada elemento
         # (válido en paralelo y para cualquier grado, a diferencia de copiar
@@ -98,10 +133,30 @@ class GaussianBump:
             self.Pi.interpolate(self._momentum_profile)
         logger.info("GaussianBump inicializado")
 
+    def _angular_factor(self, x: np.ndarray) -> np.ndarray:
+        """F(θ, ϕ) en puntos cartesianos (gdim, npuntos); 1 para l = 0.
+
+        Usa la MISMA real_ylm que la extracción multipolar: si esta
+        convención y la del extractor divergieran, el canal (l, m) se
+        rompería en silencio. El piso de r solo fija ángulos arbitrarios
+        donde la perturbación ya es despreciable (r ≈ 0, sin excisión);
+        el clip evita que z/r caiga fuera de [−1, 1] por redondeo.
+        """
+        if self.l == 0:
+            return np.ones(x.shape[1])
+        from rsd.analysis.extraction import real_ylm
+
+        r = np.sqrt(x[0] ** 2 + x[1] ** 2 + x[2] ** 2)
+        r_safe = np.maximum(r, 1e-12)
+        theta = np.arccos(np.clip(x[2] / r_safe, -1.0, 1.0))
+        phi_az = np.arctan2(x[1], x[0])
+        return real_ylm(self.l, self.m, theta, phi_az)
+
     def _profile(self, x: np.ndarray) -> np.ndarray:
         """Perfil gaussiano; x tiene forma (gdim, npuntos) según DOLFINx."""
         r = np.sqrt(x[0] ** 2 + x[1] ** 2 + x[2] ** 2)
-        return self.v0 + self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
+        pert = self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
+        return self.v0 + pert * self._angular_factor(x)
 
     def _momentum_profile(self, x: np.ndarray) -> np.ndarray:
         """
@@ -127,12 +182,13 @@ class GaussianBump:
         r_safe = np.maximum(r, 0.1 * self.w)
         pert = self.A * np.exp(-((r - self.r0) ** 2) / (self.w ** 2))
         dpert_dr = -2.0 * (r - self.r0) / (self.w ** 2) * pert
+        ang = self._angular_factor(x)
         if self.direction == "ingoing_curved":
             alpha, beta_r, sqrt_grr = self.background.radial_factors_np(r_safe)
             c_in = beta_r + alpha * sqrt_grr
-            return sqrt_grr * dpert_dr + (c_in / alpha) * pert / r_safe
+            return (sqrt_grr * dpert_dr + (c_in / alpha) * pert / r_safe) * ang
         sign = 1.0 if self.direction == "ingoing" else -1.0
-        return sign * (dpert_dr + pert / r_safe)
+        return sign * (dpert_dr + pert / r_safe) * ang
     
     def get_function(self) -> fem.Function:
         """Retorna la función inicializada."""

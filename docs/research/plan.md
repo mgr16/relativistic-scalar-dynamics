@@ -13,7 +13,8 @@ CERRADA; **diagnóstico interior CERRADO (2026-07-10)** — estimador 1D+3D,
 calibración de ventana y humo A/B hechos (decisión 3D: r_inner = 0.1M,
 banco K≥16 radios log en [0.1, 0.5], **primario o1 [0.1,0.5] + ancla o0**;
 el o2 óptimo-en-sesgo es inusable en 3D por varianza). Siguiente:
-corridas de producción.
+corridas de producción — su prerrequisito, el dato l>0 en 3D
+(gaussiana × Y_lm), quedó implementado el 2026-07-11.
 
 ---
 
@@ -45,7 +46,7 @@ corridas de producción.
 - Oráculo 1D: `src/rsd/reference/spherical1d.py` — reducción esférica exacta
   por modos l sobre Schwarzschild-KS, validada contra Leaver (QNM l=1: 0.1 %
   Re ω / 1.9 % Im ω; l=2: 1 % / 2.2 %).
-- Suite rápida de tests: 164 en verde (a 2026-07-10; corre con
+- Suite rápida de tests: 170 en verde (a 2026-07-11; corre con
   `python -m pytest -m "not slow"` dentro del entorno).
 - Nota histórica: el paquete fue renombrado el 2026-07-07 (commit `f5f3f74`);
   los commits anteriores usan el nombre viejo del proyecto — es historia, no
@@ -190,8 +191,18 @@ anidado?).
   escalera de convergencia para bajar el término de malla del 10–15 %
   (+ posible corrida ℓ=0 larga para tasas tardías, opcional);
   espectroscopía exterior según diseño del capítulo de cavidad (l=2,
-  r_ext=6, R=20, ventanas ancladas — sin cambios). Nota: el dato l>0 en
-  3D (gaussiana × Y_lm) aún no está implementado en `initial_conditions`.
+  r_ext=6, R=20, ventanas ancladas — sin cambios). **Dato l>0 en 3D
+  implementado (2026-07-11):** gaussiana × Y_lm real ortonormal en
+  `GaussianBump` (config `initial_conditions.l`/`.m`); usa la misma
+  `real_ylm` del extractor ⇒ c_lm(r, 0) = A·g(r) en el canal (l, m),
+  igual al modo del oráculo 1D con dato idéntico; el momento factoriza
+  con el mismo ansatz radial del oráculo para todo l; l=0 conserva la
+  normalización esférica histórica (sin factor Y_00). Tests:
+  `tests/test_initial_data_ylm.py` (convención dato↔extracción pineada
+  exacta; fuga de canal ≤ 2.5 % en φ sobre la malla de test,
+  convergente con h). Caveat: con potencial no lineal la reducción 1D
+  solo es exacta para l=0 — el mexhat con l>0 acopla multipolos y es
+  física exclusiva del 3D (el oráculo lo advierte en runtime).
 
 ### 3.3 Fase 3 — Pipeline de paper (PENDIENTE)
 

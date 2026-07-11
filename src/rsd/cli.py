@@ -260,9 +260,11 @@ def run_main(argv=None) -> int:
     ic = cfg["initial_conditions"]
     if ic.get("type") == "gaussian":
         direction = str(ic.get("direction", "static")).lower()
+        ic_l = int(ic.get("l", 0))
+        ic_m = int(ic.get("m", 0))
         logger.info(
             f"Setting Gaussian initial conditions: A={ic['A']}, r0={ic['r0']}, "
-            f"w={ic['w']}, direction={direction}"
+            f"w={ic['w']}, direction={direction}, (l, m)=({ic_l}, {ic_m})"
         )
         phi0 = GaussianBump(
             mesh=mesh,
@@ -273,6 +275,8 @@ def run_main(argv=None) -> int:
             v0=ic["v0"],
             direction=direction,
             background=bg,
+            l=ic_l,
+            m=ic_m,
         )
         solver.set_initial_conditions(phi0.get_function(), phi0.get_momentum())
 
