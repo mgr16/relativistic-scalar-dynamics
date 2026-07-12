@@ -18,8 +18,13 @@ el interior. **ESPECTROSCOPÍA EXTERIOR DE PRODUCCIÓN CERRADA (2026-07-12)**
 −Im +5.0 % ± 5.6 % (ventanas tardías R=40); los dos sistemáticos de −Im
 identificados (suelo de cavidad R=20 — punto-estimado del capítulo de
 cavidad RETRACTADO — y overtone n=1 no separable); modo de cavidad
-confirmado por experimento de dominio R=40 apareado. Siguiente: F3
-(pipeline de paper); opcionales de F2 no bloquean.
+confirmado por experimento de dominio R=40 apareado. **F3 ABIERTA
+(2026-07-12)**: pipeline definido en §3.3 (C1–C5); **C1 related-work
+CERRADO** — scoop check limpio (nadie mide F–S numéricamente ni el
+discriminador interior; la línea Higgs–BH publicada es exterior y se
+congela en el horizonte por construcción); declaración de novedad
+borrador en [`phase3/related_work.md`](phase3/related_work.md).
+Siguiente: C2 (congelado de números); opcionales de F2 no bloquean.
 
 ---
 
@@ -258,7 +263,48 @@ anidado?).
   el déficit sistemático ~10 % del L2 del discriminador).
 - **SIGUIENTE:** F3 — pipeline de paper.
 
-### 3.3 Fase 3 — Pipeline de paper (PENDIENTE)
+### 3.3 Fase 3 — Pipeline de paper (ABIERTA 2026-07-12)
+
+Objetivo: manuscrito arXiv-ready (inglés; **default revtex4-2 estilo PRD** —
+el venue final lo decide Marco y no bloquea) con reproducibilidad total:
+cada número y figura del paper debe regenerarse por script desde artefactos
+versionados, nada re-tipeado a mano.
+
+Capítulos, en orden:
+
+1. **C1 — Related work (CERRADO 2026-07-12;
+   [`phase3/related_work.md`](phase3/related_work.md)):** scoop check
+   LIMPIO — no existe verificación numérica de F–S ni medición del perfil
+   a(t) hacia r=0 (test field, lineal o Higgs). Lo más cercano:
+   Thuestad–Khanna–Price 2017 (interior test-field, oscilaciones-l, sin
+   asintóticas — cross-check pendiente y citable), Traykova–Braden–Peiris
+   2018 + Marsden et al. 2024 (Higgs–BH EXTERIOR: tortuga 1+1 ⇒ nunca
+   entran al horizonte; cascarones/burbujas) — somos su complemento
+   interior. Contexto de quiescencia anclado (Rodnianski–Speck, FRS,
+   +2026); contrastes en gravedad modificada identificados (Bars).
+   Métodos: claim FEM = "poco común/to our knowledge", no "primero"; el
+   sesgo de overtone conecta con el debate start-time (Giesler+ y
+   2025–26). Declaración de novedad borrador en §5 de la nota; regla:
+   toda ref [S] se promueve a [A/T] en el pase de bib de C4.
+2. **C2 — Congelado de números:** calibración o1 por perfil contra el
+   oráculo mexhat denso (el opcional de F2 que ataca el déficit ~10 % del
+   L2 del discriminador) + tabla canónica de números citables con
+   presupuesto de error (a_hat/a_lin por modo; QNM Re/−Im con sus dos
+   sistemáticos; balance de Killing; ζ de Cowling con su caveat global).
+   Entregable: `phase3/numbers.md` + JSON.
+3. **C3 — Pipeline de figuras:** `scripts/paper_figures.py` regenera
+   todas las figuras del manuscrito desde `production.json`,
+   `spectroscopy.json` y los npz commiteados. Entregable:
+   `paper/figures/`.
+4. **C4 — Manuscrito:** `paper/main.tex` + `paper/refs.bib`. Estructura
+   prevista: intro (usa C1), setup (3+1 Kerr-Schild, excisión, alcance
+   Cowling declarado), métodos (FEM + fast path, energía de Killing,
+   estimadores interior/exterior con sus calibraciones), resultados
+   interior (H2 por modo), validación exterior (QNM l=2 con presupuesto
+   honesto), discusión y límites, apéndices técnicos.
+5. **C5 — Empaquetado reproducible:** README del paper, tag de versión,
+   configs; depósito externo (p. ej. Zenodo) = acción externa, la decide
+   Marco.
 
 ## 4. Hechos técnicos establecidos (no re-derivar)
 
@@ -343,6 +389,7 @@ anidado?).
 | Humo A/B interior (números + protocolo) | `docs/research/phase2/interior/ab_smoke.json` + `scripts/interior_ab_smoke.py` |
 | Producción interior F2 (escalera l=0,1,2 + número de H2 por modo) | `docs/research/phase2/production/note.md` + `production.json` + `scripts/interior_production.py` |
 | Espectroscopía exterior F2 (QNM l=2 vs Leaver + dominio R=40) | `docs/research/phase2/exterior/note.md` + `spectroscopy.json` + `scripts/exterior_spectroscopy.py` |
+| Related work F3 (linaje de refs + declaración de novedad) | `docs/research/phase3/related_work.md` |
 | Matemática: 3+1, excisión, energía, Killing, disipación | `docs/math/*.md` |
 | Validación general | `docs/validation/summary.md` |
 | Oráculo 1D | `src/rsd/reference/spherical1d.py` |
