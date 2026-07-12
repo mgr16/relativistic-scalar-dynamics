@@ -1,6 +1,6 @@
 # Plan de investigación — Relativistic Scalar Dynamics (RSD)
 
-**Estado a 2026-07-09.** Este archivo es la **copia canónica y versionada** del
+**Estado a 2026-07-12.** Este archivo es la **copia canónica y versionada** del
 plan del programa (antes vivía solo en la memoria local de Claude Code).
 Cualquier persona, herramienta o modelo que continúe el trabajo debe **leer
 este archivo primero** y **actualizar la sección correspondiente al cerrar cada
@@ -8,14 +8,18 @@ capítulo**. El plan original se estableció el 2026-06-12/13.
 
 **Estado en una línea:** Fase 0 cerrada (GO). Fase 1: todo lo que bloquea la
 física está CERRADO; quedan extras de §3.1 que no bloquean H2. **Fase 2
-AVANZADA**: literatura (F–S) CERRADA; diagnóstico interior CERRADO
-(2026-07-10); **PRODUCCIÓN INTERIOR CERRADA (2026-07-11)** — matriz
-completa l = 0, 1, 2 con escalera y dato idéntico:
-**a_hat/a_lin = O(1) en todos los modos (L2 0.87–0.94, estable en la
-escalera al 2–3 %) — el borrado de H2 confirmado a ~10–15 % y por modo**;
-acoplamiento de modos no lineal ACOTADO < 5 % de la señal; mass lumping
-RECHAZADO para el interior (Δa00 28 %). Siguiente: espectroscopía
-exterior de producción (diseño de F1: l=2, r_ext=6, R=20); luego F3.
+COMPLETA en sus dos capítulos de medición**: literatura (F–S) CERRADA;
+diagnóstico interior CERRADO (2026-07-10); **PRODUCCIÓN INTERIOR CERRADA
+(2026-07-11)** — a_hat/a_lin = O(1) en todos los modos (L2 0.87–0.94,
+escalera estable al 2–3 %): **el borrado de H2 confirmado a ~10–15 % y por
+modo**; acoplamiento no lineal ACOTADO < 5 %; mass lumping RECHAZADO para
+el interior. **ESPECTROSCOPÍA EXTERIOR DE PRODUCCIÓN CERRADA (2026-07-12)**
+— QNM l=2 validado vs Leaver: Re −1.9 % (escalera R=20, p≈1.8) / +0.8 % y
+−Im +5.0 % ± 5.6 % (ventanas tardías R=40); los dos sistemáticos de −Im
+identificados (suelo de cavidad R=20 — punto-estimado del capítulo de
+cavidad RETRACTADO — y overtone n=1 no separable); modo de cavidad
+confirmado por experimento de dominio R=40 apareado. Siguiente: F3
+(pipeline de paper); opcionales de F2 no bloquean.
 
 ---
 
@@ -47,7 +51,7 @@ exterior de producción (diseño de F1: l=2, r_ext=6, R=20); luego F3.
 - Oráculo 1D: `src/rsd/reference/spherical1d.py` — reducción esférica exacta
   por modos l sobre Schwarzschild-KS, validada contra Leaver (QNM l=1: 0.1 %
   Re ω / 1.9 % Im ω; l=2: 1 % / 2.2 %).
-- Suite rápida de tests: 170 en verde (a 2026-07-11; corre con
+- Suite rápida de tests: 172 en verde (a 2026-07-12; corre con
   `python -m pytest -m "not slow"` dentro del entorno).
 - Nota histórica: el paquete fue renombrado el 2026-07-07 (commit `f5f3f74`);
   los commits anteriores usan el nombre viejo del proyecto — es historia, no
@@ -225,12 +229,34 @@ anidado?).
   con h). Caveat: con potencial no lineal la reducción 1D solo es exacta
   para l=0 — el mexhat con l>0 acopla multipolos y es física exclusiva
   del 3D (el oráculo lo advierte en runtime).
-- **SIGUIENTE — espectroscopía exterior de producción:** según diseño del
-  capítulo de cavidad (l=2, r_ext=6, R=20, ventanas ancladas — sin
-  cambios). Opcionales de F2 (no bloquean): corrida larga ℓ=0 para la era
+- **ESPECTROSCOPÍA EXTERIOR DE PRODUCCIÓN CERRADA (2026-07-12;
+  [`phase2/exterior/note.md`](phase2/exterior/note.md))** — diseño del
+  capítulo de cavidad sin cambios (l=2, r_ext=6, ventanas ancladas) +
+  validación de dominio R=40 con **graduación apareada** (misma lc(r) en
+  r<20 ⇒ aísla dominio de resolución a ~×2 de costo) y esponja ancha:
+  - **Re Mω:** escalera R=20 converge como el diseño predijo (−3.5 % →
+    **−1.9 %** a lc=0.7, p≈1.8); dominio acotado ≲0.5 % (par apareado);
+    pooled tardío R=40: +0.8 % ± 2.6 %.
+  - **−Im Mω = 0.1016 ± 0.0055 (+5.0 % ± 5.6 %)** por barrido declarado de
+    ventanas tardías en R=40 (14 ventanas × 2 rungs) — imposible en R=20.
+    Dos sistemáticos medidos: (a) el suelo de cavidad R=20 hace in-medible
+    −Im ahí (deriva de abanico; **el "−Im err 2.1 %" del capítulo de
+    cavidad queda RETRACTADO como punto-estimado**); (b) el overtone n=1
+    (Δω 4 %, decaimiento ×3) no es separable por Prony y sesga el abanico
+    temprano +14–16 % independiente de la resolución (p≈−0.3: protocolo,
+    no malla).
+  - Modo de cavidad CONFIRMADO por manipulación del pozo: en R=40 el
+    doblete no llena a t=70 (round-trip ~74M), suelo ×25–50 menor,
+    pico/suelo 4 → 109–196; el doblete R=20 a lc=0.7 sigue en las bandas
+    del canario.
+  - Costos: lc=0.7 1 779 s; R=40 apareado 1 025 s (lc=1-eq) / 3 177 s
+    (0.7-eq). Sub-1 % en Re (lc=0.5, ~2.4 h) y −Im < 5 % (R≥60,
+    t_end≳100M) quedan como vías costeadas opcionales.
+- **Opcionales de F2 (no bloquean):** corrida larga ℓ=0 para la era
   tardía (necesita esponja/R mayor y probablemente checkpoint/restart);
   calibración del sesgo o1 por perfil con el oráculo mexhat denso (ataca
   el déficit sistemático ~10 % del L2 del discriminador).
+- **SIGUIENTE:** F3 — pipeline de paper.
 
 ### 3.3 Fase 3 — Pipeline de paper (PENDIENTE)
 
@@ -289,6 +315,20 @@ anidado?).
   histórica "Mω=0.209 + armónico 0.419" era artefacto de bins de FFT
   (Δω = 2π/30M) — retractada. Pico/suelo ≈ 4 en ambos l e invariante del
   pulso; extraer en r_ext=4 lo sube a 6.4 a costa de sesgo near-zone.
+  CONFIRMACIÓN experimental (2026-07-12): alargar el pozo (R=40, esponja
+  r>30) evita que llene a t=70 — suelo ×25–50 menor y sin doblete.
+- El −Im de un QNM NO es medible con suelo de cavidad a pico/suelo ≈ 4:
+  las ventanas tardías del abanico caen al suelo y el −Im por ventana
+  deriva monótonamente (la media del abanico es ruido de esa deriva — así
+  murió el "−Im err 2.1 %" de l=2/R=20, retractado). Medir −Im exige
+  dominio grande (R≥40, pico/suelo ≳ 100) Y ventanas tardías: el overtone
+  n=1 (Δω 4 %, decaimiento ×3) no es separable por Prony (devuelve el
+  conjugado como "segundo modo") y sesga las ventanas tempranas +14–16 %
+  con independencia de la resolución.
+- Validación de dominio barata para mallas graduadas lc(r) lineal:
+  aparear la graduación (lc_out' = lc_inner + (lc − lc_inner)·R'/R_base)
+  reproduce la malla base en r < R_base y aísla el efecto de dominio del
+  de resolución a ~×2 de costo (R'=2R_base), no ×8.
 
 ## 5. Mapa de artefactos
 
@@ -302,6 +342,7 @@ anidado?).
 | Diagnóstico interior F2 (estimador a(t) 1D+3D, calibración, humo A/B) | `docs/research/phase2/interior/note.md` |
 | Humo A/B interior (números + protocolo) | `docs/research/phase2/interior/ab_smoke.json` + `scripts/interior_ab_smoke.py` |
 | Producción interior F2 (escalera l=0,1,2 + número de H2 por modo) | `docs/research/phase2/production/note.md` + `production.json` + `scripts/interior_production.py` |
+| Espectroscopía exterior F2 (QNM l=2 vs Leaver + dominio R=40) | `docs/research/phase2/exterior/note.md` + `spectroscopy.json` + `scripts/exterior_spectroscopy.py` |
 | Matemática: 3+1, excisión, energía, Killing, disipación | `docs/math/*.md` |
 | Validación general | `docs/validation/summary.md` |
 | Oráculo 1D | `src/rsd/reference/spherical1d.py` |

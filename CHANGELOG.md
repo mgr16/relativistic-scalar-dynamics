@@ -5,6 +5,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added
+- **F2 exterior spectroscopy production closes** (`docs/research/phase2/
+  exterior/note.md` + `spectroscopy.json`; script
+  `scripts/exterior_spectroscopy.py`, idempotent, subprocess workers,
+  `--refit`/`--fast`): l=2 QNM validated against Leaver — Re Mω −1.9 % at
+  the new lc=0.7 rung (R=20 ladder converges at p≈1.8, as the cavity
+  chapter predicted) and −Im Mω = 0.1016 ± 0.0055 (+5.0 %) from a declared
+  late-window sweep at R=40. Two −Im systematics identified and measured:
+  the R=20 cavity floor makes −Im unmeasurable there (fan means drift with
+  the floor — the cavity chapter's "−Im err 2.1 %" point estimate is
+  **retracted**; its ±0.019 scatter was the honest content), and the n=1
+  overtone (Δω 4 %, decay ×3) is not Prony-separable, biasing early
+  windows +14–16 % independent of resolution. The R=40 runs use
+  **matched grading** (lc_out chosen so lc(r) in r<20 equals the base
+  rung's: isolates domain effects from resolution at ~×2 cost, not ×8)
+  and a wide sponge (r>30): the trapped-mode interpretation of the R=20
+  tail floor is confirmed experimentally (well round-trip ~74M ⇒ no
+  doublet by t=70, floor ×25–50 lower, peak/floor 4 → 109–196).
+- **`rsd.analysis.ringdown.fit_anchored_windows`**: the anchored-window
+  Prony fan protocol (peak-anchored windows, per-window dominant mode,
+  fan mean/scatter vs a complex reference) factored out of
+  `scripts/cavity_l2_probe.py` — reproduces the frozen cavity-chapter
+  `summary.json` bit-for-bit; degrades to `n_windows == 0` on short
+  signals instead of crashing. Guard: `tests/test_ringdown_windows.py`.
+  `evolve_kerr_ringdown` gains a `sponge_width` parameter (default 5.0,
+  unchanged behaviour) for wide-sponge large domains.
+
 ### Changed
 - **Package renamed `psyop` → `rsd`** (Relativistic Scalar Dynamics). The
   import package (`src/rsd/`, `import rsd`), the distribution name, and the
