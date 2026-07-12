@@ -27,27 +27,47 @@ of a spherical domain, absorbed by the characteristic boundary condition.*
 - Potentials: quadratic, Higgs (`½m²φ² + ¼λφ⁴`), Mexican hat, zero
 - Initial data: Gaussian bump with consistent ingoing/outgoing/static
   momentum, plus `ingoing_curved` (momentum consistent with the curved
-  background — less spurious junk radiation)
+  background — less spurious junk radiation); optional angular structure
+  via orthonormal real Yₗₘ (`initial_conditions.l`, `.m`), matching the
+  extractor and 1D-oracle mode conventions exactly
 
 **Numerics**
 - First-order reduction (φ, Π) with SSP-RK3 and CFL-adaptive timestep
 - Preassembled linear-operator fast path with exact nonlinear remainder
   (×4.2 linear / ×2.1 Higgs RHS at 262k cells)
+- Optional row-sum mass lumping (`optimization.mass_lumping`, P1 only):
+  turns the RK mass solves into pointwise scaling (×35 per step at 262k
+  cells). A/B-test it per observable — it shifts under-resolved
+  structures O(1) and is rejected for the interior log-profile
 - Lagrange P1–P5 elements (DOLFINx), PETSc mass-matrix solves
 - Characteristic Sommerfeld absorbing boundary; horizon excision
   (`mesh.r_inner > 0`) with inner "do-nothing" boundary, validated against
   the spin-dependent admissible excision window on Kerr–Schild
 - Sponge layer for dispersive tails of massive fields
 - KO-style spectral FEM dissipation (2nd/4th-order M⁻¹K Laplacian/biharmonic
-  filter, λmax-normalized — not finite-difference KO; see `docs/math/dissipation.md`)
+  filter, λmax-normalized — not finite-difference KO; see
+  `docs/math/dissipation.md`). The solver power-iterates λmax and rejects
+  configurations that cross the ε·dt·λmax < 2 stability bound with a
+  `RuntimeError` reporting the mesh's ε_max
 - Gmsh spherical/shell meshes with radial grading (`lc_inner`) and optional
   curved second-order cells (`mesh.geom_order = 2`)
 
 **Analysis & output**
-- Point sampling, multipole (real Yₗₘ) extraction on a sphere
+- Point sampling, multipole (real Yₗₘ) extraction on a sphere; multi-radius
+  interior extraction bank (`analysis.interior_profile`) with strict
+  coverage validation → `interior_profiles.npz` / `interior_alm.csv`
+- **Interior log-slope estimator** (`rsd.analysis.interior`): OLS fits of
+  a_lm(t) on the truncated Fournodavlos–Sbierski basis {rⁿ ln r, rⁿ}
+  (orders 0–2, conditioning diagnostics) — the H2 observable
 - Energy/flux series with discrete energy-balance residual; on excised
   domains `flux.csv` also records the horizon absorption flux (`flux_inner`)
-- QNM spectra via FFT or Prony; XDMF fields + CSV series + run manifest
+- **Killing-energy balance** (`series/killing.csv`): closes exactly on
+  stationary slicings and is the reference balance under excision
+  (`docs/math/killing_energy.md`)
+- Ringdown estimators: QNM spectra via FFT or Prony, peak-anchored
+  window-fan protocol (`fit_anchored_windows`, fan scatter = quotable fit
+  uncertainty), and bin-free quasi-stationary tail-line fits
+  (`fit_tail_lines`, joint VarPro — immune to FFT bin quantization)
 - **Leaver reference QNMs**: continued-fraction solver for scalar Kerr
   quasinormal frequencies, any (l, m, n, spin) — no lookup tables needed
 - **Cowling validity monitor**: quantifies the test-field approximation
@@ -60,14 +80,38 @@ of a spherical domain, absorbed by the characteristic boundary condition.*
 **Visualization**
 - Interactive live view of φ during evolution (`--live`, PyVista)
 
-See [CHANGELOG.md](CHANGELOG.md) for what's new in 3.2.
+See [CHANGELOG.md](CHANGELOG.md) for the full history (the Unreleased
+section tracks everything since 3.2).
+
+## Research program
+
+The repository also hosts the research program built on the solver; the
+canonical, versioned plan and status live in
+[docs/research/plan.md](docs/research/plan.md). Headline results so far:
+
+- **Interior (H2):** with identical initial data, the Higgs-vacuum
+  (Mexican-hat) and free scalar develop the same logarithmic-slope profile
+  a_lm(t) in the black-hole interior — a_hat/a_lin = O(1) in every mode
+  l = 0, 1, 2 (L2 ratios 0.87–0.94, ladder-stable at 2–3 %): kinetic
+  domination erases the vacuum structure at the ~10–15 % level, per mode
+  ([phase 2 production note](docs/research/phase2/production/note.md)).
+- **Exterior spectroscopy:** the 3D pipeline reproduces the Leaver l=2
+  QNM to −1.9 % in Re Mω (mesh ladder converging at p ≈ 1.8) and
+  +5.0 % ± 5.6 % in −Im Mω (declared late-window sweep on a floor-free
+  R=40 domain), with the measurement systematics identified — the R=20
+  domain cavity floor and the non-separable n=1 overtone
+  ([exterior note](docs/research/phase2/exterior/note.md)).
+- Method chapters with quantified error budgets: convergence, dissipation
+  stability bound, domain cavity modes, interior estimator calibration
+  (`docs/research/phase1/`, `docs/research/phase2/`).
 
 ## Project Structure
 
 ```
 rsd/
 ├── src/rsd/             # Main package
-│   ├── analysis/          # QNM (FFT/Prony), multipole extraction
+│   ├── analysis/          # QNM (FFT/Prony/Leaver), ringdown fits, multipole
+│   │                      #   extraction, interior log-profile, Cowling, tails
 │   ├── backends/          # DOLFINx numerical abstractions
 │   ├── mesh/              # Gmsh ball/shell meshes, boundary tags, grading
 │   ├── physics/           # Metrics, potentials, initial conditions
@@ -78,11 +122,13 @@ rsd/
 │   └── config.py          # Defaults, loading, validation
 ├── tests/                 # Pytest suite (markers: slow, mpi, requires_dolfinx, ...)
 ├── docs/
-│   ├── math/              # 3+1 derivation and conventions
+│   ├── math/              # 3+1, excision window, Killing energy, dissipation
 │   ├── media/             # README assets (live demo GIF)
-│   ├── research/          # Research program (Fase 0 report, data, figures)
+│   ├── research/          # Research program: plan.md (canonical) + phase
+│   │                      #   chapters F0–F2 (notes, JSON, data, figures)
 │   └── validation/        # Validation & reproducibility summary
-├── scripts/               # Env setup, profile runner, demo GIF recorder
+├── scripts/               # Env setup, research production scripts (interior
+│                          #   matrix, exterior spectroscopy), demo recorder
 ├── benchmarks/            # Solver benchmarks
 └── config_example.json    # Example configuration
 ```
@@ -223,8 +269,11 @@ Advanced solver options:
 | `solver.sponge {enabled, width, strength}` | Sponge layer damping dispersive tails near the outer boundary. Width should be comparable to the wavelength to absorb — a narrow, strong sponge reflects slow modes instead of absorbing them. |
 | `solver.filter_strength`, `solver.filter_order` (aliases `ko_eps`, `ko_order`) | KO-style spectral FEM dissipation, order 2 (Laplacian) or 4 (biharmonic M⁻¹K filter). The 4th-order filter barely touches smooth modes. Not finite-difference Kreiss–Oliger — see `docs/math/dissipation.md`. |
 | `initial_conditions.direction` | `"ingoing"` / `"outgoing"` (pure spherical pulse, Π = ±(∂ᵣφ + φ/r)), `"static"` (Π = 0, pulse splits in halves), or `"ingoing_curved"` (Π consistent with the curved background — suppresses spurious junk radiation). |
+| `initial_conditions.l`, `.m` | Angular structure of the Gaussian shell: perturbation and momentum × orthonormal real Yₗₘ, so c_lm(r, 0) = A·g(r) in the chosen channel (identical-data match to the 1D oracle's mode u_l). Default l = 0 keeps the historical spherical normalization. |
+| `optimization.mass_lumping` | Row-sum lumped mass (P1 only): RK mass solves become pointwise scaling (×35/step at 262k cells). Deviates O(hᵖ) on resolved fields but O(1) on under-resolved structures — A/B against consistent mass before adopting for any observable (rejected for the interior profile). |
 | `mesh.geom_order` | Geometric order of the cells: 1 (default, flat facets) or 2 (curved cells; use when the boundary-geometry error would dominate at high resolution). |
 | `analysis.extraction {enabled, radius, lmax}` | Multipole projection of φ onto real Yₗₘ on an extraction sphere → `series/multipoles.csv`. |
+| `analysis.interior_profile {enabled, r_lo, r_hi, n_radii, lmax, spacing, fit_order}` | Multi-radius extraction bank for the interior log-slope observable: K radii in [r_lo, r_hi], coverage validated at construction → `series/interior_profiles.npz` + `series/interior_alm.csv`. |
 | `analysis.qnm_method`, `analysis.qnm_modes` | `"fft"` or `"prony"` QNM estimation. |
 | `output.physical_units {M_solar}` | Report QNM results in physical units (Hz, ms) for a black hole of the given mass → `series/qnm_physical.json`. A 30 M☉ remnant rings at ~521 Hz (LIGO band). |
 
@@ -264,6 +313,13 @@ triggers a warning (note: a sponge layer breaks this balance by design).
 On excised domains the balance also includes the inner (horizon) flux,
 currently a qualitative diagnostic — see
 [docs/research/phase0/report.md](docs/research/phase0/report.md), §5.
+The quantitative reference under excision is the **Killing-energy
+balance** (`series/killing.csv`): E_K = ∫√γ(αρ + Πβ·∇φ) closes exactly on
+stationary slicings ([docs/math/killing_energy.md](docs/math/killing_energy.md)).
+Caveat: at very small excision radii the inner-flux quadrature over the
+faceted sphere dominates the residual (e.g. ~40 % at r_inner = 0.1M,
+lc_inner = 0.04) — there, field quality is validated against the 1D
+oracle and mesh ladders instead.
 
 Full derivation and conventions: [docs/math/3p1_scalar_field.md](docs/math/3p1_scalar_field.md).
 Validation and reproducibility summary: [docs/validation/summary.md](docs/validation/summary.md).
@@ -279,7 +335,9 @@ results/run_YYYYmmdd_HHMMSS/
 ├── series/
 │   ├── time_series.csv      # φ at the sample point
 │   ├── energy.csv, flux.csv, balance.csv
+│   ├── killing.csv          # Killing-energy balance (reference under excision)
 │   ├── multipoles.csv       # if extraction enabled
+│   ├── interior_profiles.npz, interior_alm.csv   # if interior_profile enabled
 │   └── qnm_spectrum.csv / qnm_peak.json / qnm_modes.json
 └── plots/
     └── qnm_spectrum.png     # optional (postprocess --plots)
@@ -317,6 +375,13 @@ The test suite validates physics at increasing depth (deepest are `slow`):
    as the Price power law t^-(2l+3) on a causally clean domain.
 5. **Honesty checks** — every run logs the Cowling validity measure; the
    suite asserts it scales as A² and warns at the right threshold.
+6. **Domain-artifact canary** (`slow`) — the late-time tail floor on the
+   production domain is a physical artifact of the domain (a doublet
+   trapped between the potential barrier and the sponge, confirmed
+   experimentally by lengthening the well at R=40). Its l=2 frequencies
+   are pinned by `test_cavity_mode_slow.py`: changing R, the sponge or
+   the BCs makes it fail, forcing a recalibration of spectroscopy
+   windows and floors.
 
 - **Core CI** — lightweight tests without DOLFINx (pure NumPy/SciPy paths)
 - **CI** — full suite inside the `dolfinx/dolfinx:stable` container
