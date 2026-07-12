@@ -87,7 +87,19 @@ section tracks everything since 3.2).
 
 The repository also hosts the research program built on the solver; the
 canonical, versioned plan and status live in
-[docs/research/plan.md](docs/research/plan.md). Headline results so far:
+[docs/research/plan.md](docs/research/plan.md).
+
+![Showcase: l=2 field slice around the excised black hole; interior H2 discriminator (linear vs Higgs overlapping); exterior QNM vs Leaver with the cavity floor removed at R=40](docs/media/research_showcase.png)
+
+*Left: φ on a y=0 slice during the l=2 ringdown (excision disk in black,
+horizon and extraction sphere marked). Center: the H2 result — with
+identical initial data, the interior log-slope profile a₀₀(t) of a Higgs
+vacuum field is indistinguishable from the free field (L2 ratio 0.92).
+Right: the exterior l=2 QNM against Leaver's decay; the R=20 late-time
+plateau is a domain cavity artifact and disappears on the matched R=40
+domain. Regenerate with `python scripts/render_readme_showcase.py`.*
+
+Headline results so far:
 
 - **Interior (H2):** with identical initial data, the Higgs-vacuum
   (Mexican-hat) and free scalar develop the same logarithmic-slope profile
