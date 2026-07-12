@@ -20,11 +20,17 @@ identificados (suelo de cavidad R=20 — punto-estimado del capítulo de
 cavidad RETRACTADO — y overtone n=1 no separable); modo de cavidad
 confirmado por experimento de dominio R=40 apareado. **F3 ABIERTA
 (2026-07-12)**: pipeline definido en §3.3 (C1–C5); **C1 related-work
-CERRADO** — scoop check limpio (nadie mide F–S numéricamente ni el
-discriminador interior; la línea Higgs–BH publicada es exterior y se
-congela en el horizonte por construcción); declaración de novedad
-borrador en [`phase3/related_work.md`](phase3/related_work.md).
-Siguiente: C2 (congelado de números); opcionales de F2 no bloquean.
+CERRADO** (scoop check limpio; declaración de novedad borrador en
+[`phase3/related_work.md`](phase3/related_work.md)); **C2 congelado de
+números CERRADO** (mismo día; implementó GPT-5.6 Sol bajo
+[`phase3/HANDOFF.md`](phase3/HANDOFF.md), revisó/cerró el orquestador):
+calibración o1 = diagnóstico parcial (~31 % del déficit L2 explicado;
+peak_ratio degradado a no-citable — el discriminador citable es
+l2_ratio + ratio_median/IQR; l>0 sin corrección por piso de verdad) +
+tabla canónica `phase3/numbers.{json,md}` (222 entradas, procedencia
+RFC 6901, 0 pendientes); suite 184. Siguiente: C3 (pipeline de
+figuras, requiere contrato del orquestador); opcionales de F2 no
+bloquean.
 
 ---
 
@@ -286,12 +292,38 @@ Capítulos, en orden:
    sesgo de overtone conecta con el debate start-time (Giesler+ y
    2025–26). Declaración de novedad borrador en §5 de la nota; regla:
    toda ref [S] se promueve a [A/T] en el pase de bib de C4.
-2. **C2 — Congelado de números:** calibración o1 por perfil contra el
-   oráculo mexhat denso (el opcional de F2 que ataca el déficit ~10 % del
-   L2 del discriminador) + tabla canónica de números citables con
-   presupuesto de error (a_hat/a_lin por modo; QNM Re/−Im con sus dos
-   sistemáticos; balance de Killing; ζ de Cowling con su caveat global).
-   Entregable: `phase3/numbers.md` + JSON.
+2. **C2 — Congelado de números (CERRADO 2026-07-12; implementó GPT-5.6
+   Sol bajo contrato [`phase3/HANDOFF.md`](phase3/HANDOFF.md), revisó y
+   cerró el orquestador — log §7 del handoff):**
+   - **Calibración o1 por perfil** (`scripts/o1_profile_calibration.py`
+     + `phase3/o1_calibration.json`, status reviewed-diagnostic):
+     veredicto **parcial** — el sesgo de ventana o1 explica ~19–31 % del
+     dev l=0 en los rungs en régimen (fino: 10.31→7.11 % lin,
+     4.83→3.89 % hat) y ~31 % del déficit L2 del discriminador en
+     soporte común (6.04→4.16 puntos vs oráculo 1.0055); el residual
+     4.16 pts queda declarado como sistemática 3D real. c(t) estable en
+     resolución (≤0.5 %) y muestreo K=32 subdominante (≤0.44 %); piso
+     TRUTH_SCAN 1.8–2.4 % (l=0). Los números corregidos son DIAGNÓSTICO
+     con soporte declarado — nunca sustituyen a `production.json`.
+   - **La alarma contractual del discriminador tuvo mecanismo verificado**
+     (réplica exacta del orquestador): el pico del par vive en tiempos
+     distintos por miembro (lin t≈4.45 entrada del pulso, c≈1.11; hat
+     t=5.88 fase fuerte, c≈0.99) ⇒ el peak_ratio congelado arrastra
+     ~11 % de sesgo diferencial de ventana. **peak_ratio queda
+     no-citable como número de H2; el discriminador citable es l2_ratio
+     (primario) + ratio_median/IQR (secundario).** Refuerza H2: el l2
+     corregido tiende al oráculo en los tres rungs (0.964/0.978/1.010).
+   - **Corrección l>0 DENEGADA en forma definitiva** (piso TRUTH_SCAN de
+     la propia verdad 10.1 %/6.6 % ≥ efecto; c_l>0 oscila ±40–80 %);
+     el discriminador l>0 citable es el congelado.
+   - **Tabla canónica** (`scripts/paper_numbers.py` →
+     `phase3/numbers.{json,md}`): 222 entradas con procedencia
+     `archivo::/JSON-Pointer` (RFC 6901) revalidada al emitir, cero
+     números re-tipeados; transformaciones e incertidumbres con
+     procedencia propia. Counts: 34 citable / 156 citable-con-caveat /
+     22 no-citable / 10 degradado-a-prosa / 0 pendiente. Spot-checks
+     del orquestador con resolutor independiente: 7/7.
+   - Suite tras C2: **184 rápidos en verde** (+12 tests C2).
 3. **C3 — Pipeline de figuras:** `scripts/paper_figures.py` regenera
    todas las figuras del manuscrito desde `production.json`,
    `spectroscopy.json` y los npz commiteados. Entregable:
@@ -375,6 +407,17 @@ Capítulos, en orden:
   aparear la graduación (lc_out' = lc_inner + (lc − lc_inner)·R'/R_base)
   reproduce la malla base en r < R_base y aísla el efecto de dominio del
   de resolución a ~×2 de costo (R'=2R_base), no ×8.
+- El peak_ratio de un par A/B compara argmax que viven en TIEMPOS
+  distintos por miembro (lin: entrada del pulso t≈4.5; hat: fase fuerte
+  t≈5.9), y el sesgo de ventana o1 difiere ~11 % entre esos instantes
+  (c(t) va de ~1.18 en la entrada a ~0.97 en el corazón): todo cociente
+  de picos hereda ese diferencial. Citar L2 (integral, mismo soporte
+  para ambos miembros) como primario del discriminador; el sesgo de
+  ventana o1 explica ~19–31 % del dev l=0 en régimen y el resto es
+  malla/extracción (C2, `phase3/o1_calibration.json`). La fase fuerte
+  del ORÁCULO tiene un hueco interno (cruce por cero de a_truth,
+  t≈5.1–5.6) y termina en t≈7.1 < tope 3D t=10: toda corrección por
+  perfil se define solo en la intersección, sin relleno.
 
 ## 5. Mapa de artefactos
 
@@ -390,6 +433,9 @@ Capítulos, en orden:
 | Producción interior F2 (escalera l=0,1,2 + número de H2 por modo) | `docs/research/phase2/production/note.md` + `production.json` + `scripts/interior_production.py` |
 | Espectroscopía exterior F2 (QNM l=2 vs Leaver + dominio R=40) | `docs/research/phase2/exterior/note.md` + `spectroscopy.json` + `scripts/exterior_spectroscopy.py` |
 | Related work F3 (linaje de refs + declaración de novedad) | `docs/research/phase3/related_work.md` |
+| Contrato C2 + log de orquestación F3 | `docs/research/phase3/HANDOFF.md` |
+| Calibración o1 F3 (diagnóstico de sistemática del discriminador) | `docs/research/phase3/o1_calibration.json` + `scripts/o1_profile_calibration.py` |
+| Tabla canónica de números del paper (procedencia RFC 6901) | `docs/research/phase3/numbers.{json,md}` + `scripts/paper_numbers.py` |
 | Matemática: 3+1, excisión, energía, Killing, disipación | `docs/math/*.md` |
 | Validación general | `docs/validation/summary.md` |
 | Oráculo 1D | `src/rsd/reference/spherical1d.py` |

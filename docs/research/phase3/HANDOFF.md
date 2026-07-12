@@ -39,7 +39,7 @@ de abajo tiene sentido sin ese contexto.
 | Cap. | Qué | Estado |
 |---|---|---|
 | C1 | Related work + declaración de novedad | **CERRADO** (commit `b3e8df9`; [`related_work.md`](related_work.md)) |
-| C2 | Congelado de números (calibración o1 + tabla canónica) | **ESTE HANDOFF — lo ejecuta Sol** |
+| C2 | Congelado de números (calibración o1 + tabla canónica) | **CERRADO 2026-07-12** (implementó Sol, revisó y cerró Fable — log §7) |
 | C3 | Pipeline de figuras (`scripts/paper_figures.py`) | NO ARRANCAR sin revisión del orquestador |
 | C4 | Manuscrito revtex (`paper/`) | NO ARRANCAR |
 | C5 | Empaquetado reproducible | NO ARRANCAR |
@@ -347,3 +347,245 @@ están). Para estabilidad en resolución en l>0: TRUTH_SCAN; si querés una
 segunda n, generá una ref 1D nueva a archivo NUEVO (oráculo puro, minutos,
 regla §4.8 — no toca nada 3D). Sigue vigente: sin commits (Marco), corridas
 >15 min no deberían hacer falta — si aparece una, se propone aquí primero.
+
+### 2026-07-12 18:26 — Calibración ejecutada; alarma del discriminador y STOP
+- Hecho: se volvió a listar `results/phase2_production/` antes de tocar
+  código (11 `run_*` visibles) y se releyeron completos §3a corregido y §7.
+  No se invocó `interior_production.py` ni se regeneró ningún dato.
+- Hecho: se implementó `scripts/o1_profile_calibration.py`, postproceso
+  numpy puro que (a) valida las 12 series canónicas + el A/B `_ml` excluido,
+  (b) lee las cuatro refs versionadas y los dos checks n=800 l=0, (c) usa
+  deep truth o1 `(0.02,0.2)`, (d) calcula c(t) continuo y en los K=32 radios
+  leídos, solo en fase fuerte y sin extrapolar/rellenar sus huecos, (e)
+  corrige ambos miembros antes de recomputar, y (f) emite JSON estricto y
+  figuras. Durante el primer pase se corrigieron dos bugs internos de
+  implementación (resolución de globs y comparación del delta contra
+  soporte desigual); no afectaron artefactos congelados.
+- Hecho: estabilidad l=0 del c K=32 n=1600↔n=800: máx 0.50 % linear y
+  0.37 % mexhat. Piso TRUTH_SCAN: 1.83 % linear l=0, 2.43 % mexhat l=0,
+  10.09 % linear l=1 y 6.58 % linear l=2. Efecto continuo↔K=32: máx
+  0.24 % / 0.44 % en linear/mexhat l=0 (subdominante).
+- Hecho: c_l0 K=32 tiene mediana 1.0202 (linear) / 1.0145 (mexhat). En los
+  13 snapshots fuertes comunes, `|c_mexhat/c_linear-1|` tiene mediana
+  0.97 %, p95 5.75 % y máximo 10.06 %. Con el criterio conservador de
+  máximo ≤3 %, la transferencia a l>0 FALLA y los pares l=1,2 quedaron sin
+  corregir, como ordena §7.
+- Hecho: en el rung fino l=0 y sobre el mismo soporte válido de calibración,
+  dev mediano baja 10.31 %→7.11 % (linear; 31.0 % explicado) y
+  4.83 %→3.89 % (mexhat; 19.3 % explicado). El soporte corregible es un
+  subconjunto del congelado porque c(t) no se rellena fuera de la fase
+  fuerte del oráculo.
+- Hecho: ALARMA del discriminador en l=0.028 K=32, comparando antes/después
+  sobre los mismos 22 samples: ratio_median 1.07755→1.07031 (−0.72 puntos
+  absolutos), peak_ratio 0.94125→1.05105 (**+10.98 puntos**) y l2_ratio
+  0.94515→0.96389 (+1.87 puntos). La variante continua da el mismo
+  diagnóstico (movimiento máximo 11.00 %). El script escribió el artefacto
+  con `status=review-required`, `stop_required=true` y terminó rc=2. El
+  veredicto “partial” (provisional, NO promovido) atribuye 31 % del déficit
+  L2 sobre soporte común y deja 4.16 puntos absolutos respecto del oráculo.
+- Decisiones tomadas: (1) definición de fase fuerte de c idéntica a
+  `interior_window_calibration.py` (`t≥4`, umbral sobre deep truth); dev y
+  discriminador conservan la máscara 3D congelada o0, `4≤t≤10`; (2) la
+  interpolación temporal se limita a segmentos fuertes contiguos, sin la
+  extrapolación constante de `np.interp`; (3) el gate l>0 usa el máximo
+  relativo común, no la mediana, por ser la lectura conservadora de
+  “difieren ≲2–3 %”; (4) la alarma se evalúa antes/después sobre soporte
+  idéntico y el delta contra el resumen congelado se guarda aparte; (5) al
+  superar 3 %, se detuvo C2 antes de `paper_numbers.py` y de toda promoción.
+- Ambigüedades / preguntas para el orquestador: (1) ¿confirma el máximo
+  relativo como estadístico del gate l>0? La mediana (0.97 %) pasaría pero
+  máximo/p95 (10.06 %/5.75 %) no. (2) ¿El soporte corregido debe seguir
+  siendo estrictamente la intersección de las fases fuertes, aun cuando
+  reduce l=0 fino de 31 a 22 samples, o se aprueba otro tratamiento que no
+  viole “c solo en fase fuerte / sin relleno”? (3) El peak_ratio cambia
+  9–11 % en todos los rungs l=0 aun sobre soporte idéntico, mientras L2 se
+  mueve 1.9–2.3 %: ¿se rechaza la corrección para el discriminador, se
+  degrada peak_ratio, o se requiere otra revisión antes de continuar C2?
+- Artefactos producidos/modificados:
+  `scripts/o1_profile_calibration.py`,
+  `docs/research/phase3/o1_calibration.json`,
+  `docs/research/phase3/figures/o1_calibration_{c,dev}.png`, y esta entrada.
+- Suite: sintaxis Python verificada; postproceso completo en ~30 s (la
+  mayor parte fue caché inicial de fuentes), rc=2 intencional por alarma.
+  Pytest no ejecutado porque el contrato exige STOP antes de seguir.
+- [REVIEW] No usar/promover números corregidos ni iniciar `paper_numbers.py`
+  hasta que Fable/Marco resuelvan preguntas 1–3. `related_work.md`,
+  `plan.md` y todos los artefactos F0–F2 permanecen intactos. No hubo commit.
+
+### 2026-07-12 — Revisión del orquestador (Fable): alarma RESUELTA con mecanismo; 3b autorizado
+Revisé script, JSON y figuras; repliqué el discriminador del rung fino
+importando las funciones de `o1_profile_calibration.py` sobre los npz de
+producción: **reproduce exacto** (0.94125→1.05105). Las definiciones son
+fieles a producción (`_fit_run` = multipole o1/o0 + máscara congelada;
+`raw_discriminator` = definición de `production.py`). El trabajo se acepta.
+
+**Mecanismo de la alarma (verificado, no especulado):** el pico del par
+vive en tiempos DISTINTOS por miembro — pico lineal en t≈4.45 (entrada del
+pulso, donde el sesgo de ventana o1 vale c≈1.11) y pico mexhat en t=5.88
+(plena fase fuerte, c≈0.99). El `peak_ratio` congelado 0.9413 incorpora ese
+diferencial de sesgo (~11 %); **la corrección lo EXPONE, no lo crea**. Por
+eso peak se mueve +9.0/+9.6/+11.0 pts en los tres rungs mientras L2
+(integral, mismo soporte ambos miembros) solo +1.9/+2.3 pts y ratio_median
+−0.6/−0.8 pts. Complemento: el máx del gate (10.06 %) vive en t=4.87,
+pegado al borde interno del hueco del cruce por cero (t≈5.1–5.6), donde
+|a_truth| se hunde y el cociente c degenera; en el corazón de la fase
+(t=5.6–6.9) las c's difieren ≤1.1 %.
+
+**Respuestas 1–3:**
+1. **Gate l>0: transferencia DENEGADA en forma definitiva** — pero la razón
+   que manda no es el estadístico: el piso `TRUTH_SCAN` de las c_l>0
+   propias (10.09 % l=1, 6.58 % l=2) es ≥ el efecto a corregir, y c_l>0
+   llega a ±40–80 % (figura): una "corrección" así puede inyectar más error
+   del que quita. NINGUNA corrección l>0 es citable — ni transferida ni
+   propia. El discriminador l>0 citable = el congelado, tal cual. Para
+   futuros usos del gate queda fijado: mediana ≤2–3 % Y p95 ≤5 % sobre
+   soporte común, excluyendo los 2 puntos adyacentes a cada borde de
+   segmento (ahí el cociente está mal condicionado); acá es moot.
+   **Ajuste pedido (1 línea, sin recomputar):** el `reason` de los runs
+   linear l1/l2 en el JSON debe decir "own-truth TRUTH_SCAN floor ≥ effect"
+   — su c propia existe; lo que los mata no es el gate de transferencia.
+2. **Soporte 31→22: intersección estricta CONFIRMADA** (sin relleno). Los
+   números corregidos NUNCA reemplazan a los congelados: el canónico del
+   discriminador sigue siendo `production.json` sobre su máscara completa;
+   la calibración entra en `numbers.md` como **análisis de sistemática**
+   con soporte declarado (n=22 disc / n=24–27 dev) y con el before
+   recomputado en el mismo soporte al lado (el JSON ya lo guarda así —
+   correcto). El hueco (cruce por cero de a_truth) y el techo t≈7.1 (fin
+   de fase fuerte 1D < tope 3D t=10) se explican en la nota.
+3. **peak_ratio: DEGRADADO a no-citable como número de H2** (compara
+   argmax en tiempos distintos ⇒ hereda el diferencial del sesgo de
+   ventana ~11 %; su versión corregida tampoco se promueve — la corrección
+   puntual en la entrada del pulso hereda el gradiente fuerte de c). El
+   discriminador citable = **l2_ratio (primario) + ratio_median/IQR
+   (secundario)**. Nota: esto REFUERZA H2 — el l2 corregido se acerca al
+   oráculo (1.0055) en los tres rungs: 0.964/0.978/1.010.
+
+**Veredicto de 3a (cerrado):** "partial" de Sol CONFIRMADO — el sesgo de
+ventana o1 explica ~19–31 % del dev l=0 en los rungs en régimen (fino:
+10.31→7.11 lin / 4.83→3.89 hat) y ~31 % del déficit L2 en soporte común
+(6.04→4.16 pts vs oráculo); rung 0.056 casi no mejora (0.7–8 % — fuera de
+régimen, domina malla: valida la interpretación); floor de calibración
+2.43 pts; estabilidad en n excelente (≤0.5 %) y muestreo K subdominante
+(≤0.44 %). El residual 4.16 pts queda declarado como sistemática 3D real.
+
+**Autorización 3b (`paper_numbers.py`) con reglas de promoción:**
+- Discriminador por modo: números CONGELADOS. `l2_ratio` status=citable
+  (primario), `ratio_median`+IQR citable (secundario), `peak_ratio`
+  status=no-citable con caveat del mecanismo (puntero a esta entrada).
+- Fila nueva de presupuesto por rung l=0: fracción del dev explicada por
+  ventana, dev residual, l2 corregido (diagnóstico, soporte declarado),
+  floor de calibración. Fuente: `o1_calibration.json::(runs|verdict)`.
+- l>0: congelados sin corrección; caveat "piso de verdad 6.6–10.1 %".
+- Tras el ajuste del `reason`, re-emitir el JSON con
+  `status=reviewed-diagnostic`, `stop_required=false` y un campo
+  `review: {by: "Fable", date: 2026-07-12, log: "§7"}`.
+- Al cierre de 3b: pytest completo (`-m "not slow"`) y entrada §7 con el
+  formato de siempre. Sigue vigente: sin commits (Marco), C3–C5 cerrados.
+
+### 2026-07-12 19:26 — 3b ejecutado; tabla canónica emitida y suite verde
+- Hecho: se aplicó la revisión de Fable a la calibración sin alterar sus
+  números ni soporte: `o1_calibration.json` quedó
+  `status=reviewed-diagnostic`, `stop_required=false`, con
+  `review={by:Fable,date:2026-07-12,log:§7}`. Los flags de umbral y deltas
+  peak/L2 se conservan como evidencia diagnóstica revisada. Las correcciones
+  l>0 están desactivadas en forma definitiva; los runs lineales declaran
+  `own-truth TRUTH_SCAN floor ≥ effect` y los mexhat, ausencia de oráculo
+  exacto + piso lineal. Re-emisión idempotente verificada byte a byte
+  (SHA-256 sin cambios al segundo pase).
+- Hecho: se implementó `scripts/paper_numbers.py`. Usa procedencia
+  `archivo::/JSON/Pointer` (RFC 6901, necesaria porque labels como
+  `l0_lc0.028` contienen puntos), resuelve y revalida cada valor, cada
+  incertidumbre y cada transformación (`%`, `abs(-Im)`, recíproco de piso),
+  y escribe atómicamente `numbers.json` + `numbers.md`. `--check` confirma
+  que ambos outputs están al día.
+- Hecho: la tabla contiene 222 entradas: 34 `citable`, 156
+  `citable-con-caveat`, 22 `no-citable` y 10
+  `pendiente-de-promoción`. Promoción de discriminador aplicada como ordenó
+  Fable: l2_ratio congelado primario, ratio_median/IQR congelado secundario,
+  peak_ratio no-citable; l>0 congelado con caveat del piso 6.6–10.1 %.
+  Los l2 corregidos l=0 viven solo como diagnóstico con soporte declarado,
+  nunca sustituyen a `production.json`.
+- Hecho: se agregaron 12 tests numpy/stdlib puros para C2: deep truth,
+  máscara fuerte sin relleno, radios K=32 provistos, corrección previa de
+  ambos miembros, soporte común/delta, decisión l>0 revisada, JSON Pointer,
+  procedencia de valor+incertidumbre+transformación, note-only nulo,
+  estados/caveats, idempotencia y cinco spot-checks reales. Los spot-checks
+  (`disc_l2` fino, dev residual o1, QNM −Im, cavidad w1, ζ Cowling F0)
+  reproducen exactamente las fuentes.
+- Decisiones tomadas: (1) los note-only usan `value=null`,
+  `source=note-only`, `status=pendiente-de-promoción` y puntero de nota
+  exacto; no se copió ningún número de prosa; (2) incertidumbres compuestas
+  guardan procedencia por componente, no solo la del valor central; (3) el
+  `peak_ratio` corregido y congelado permanece en la tabla como
+  `no-citable`, para conservar trazabilidad del mecanismo sin promoverlo;
+  (4) `numbers.md` interpreta la calibración como análisis de sistemática
+  parcial y mantiene explícita la jerarquía canónico vs diagnóstico.
+- Ambigüedades / preguntas para el orquestador: (1) quedan pendientes de
+  promoción los 10 ids note-only:
+  `mass_lumping_f1_speedup`, `convergence_physical_p1_coarse`,
+  `convergence_physical_p1_fine`, `convergence_physical_p2_fine`,
+  `dissipation_epsilon_max`, `cavity_doublet_headline_w1`,
+  `cavity_doublet_headline_w2`, `production_matrix_wall_pool`,
+  `production_linear_run_wall_range`,
+  `production_mexhat_run_wall_range`. Fable debe decidir promover con
+  script o degradar a texto; no se resolvieron aquí. (2) El cierre formal de
+  C2 y cualquier cambio de `plan.md` siguen reservados al orquestador.
+- Artefactos producidos/modificados:
+  `scripts/o1_profile_calibration.py`, `scripts/paper_numbers.py`,
+  `tests/test_o1_profile_calibration.py`, `tests/test_paper_numbers.py`,
+  `docs/research/phase3/o1_calibration.json`,
+  `docs/research/phase3/numbers.{json,md}`,
+  `docs/research/phase3/figures/o1_calibration_{c,dev}.png`, y esta entrada.
+- Suite: 184 pasando / 7 slow deseleccionados en 95.44 s con
+  `python -m pytest -m "not slow"`. La primera corrida dentro del sandbox
+  tuvo un único fallo de launcher MPI (`bind Operation not permitted`);
+  el test aislado y luego la suite completa pasaron fuera del sandbox.
+  `git diff --check` limpio; `paper_numbers.py --check` verde.
+- [REVIEW] Resolver los 10 `pendiente-de-promoción` y decidir cierre de C2.
+  `related_work.md`, `plan.md`, `src/rsd/`, `paper/` y todos los artefactos
+  F0–F2 permanecen intactos. No hubo commit ni push; C3–C5 no se iniciaron.
+
+### 2026-07-12 — Cierre de C2 (orquestador, Fable): checklist §6 completo
+Revisión de cierre sobre los entregables de 3b:
+
+- **Árbol verificado:** congelados F0–F2, `plan.md`, `related_work.md` y
+  `src/rsd/` intactos (git status limpio sobre esos paths); los únicos
+  cambios son los artefactos C2 declarados + este log.
+- **JSON de calibración re-emitido conforme:** `reviewed-diagnostic`,
+  `stop_required=false`, `review` con resolución, `reason` l>0 corregido
+  (own-truth floor; mexhat además sin oráculo exacto).
+- **Procedencia spot-checkeada por el orquestador con resolutor PROPIO
+  (independiente del de Sol): 7/7 MATCH** — l2_ratio congelado 0.040,
+  Killing residual fino (transform fraction-to-percent), dev residual o1
+  0.040 (+ componente de incertidumbre), fracción del déficit 31.05 %,
+  sesgo de overtone rung 0.7-eq (15.82 %), −Im pooled 0.10161±0.00545
+  (valor + incertidumbre por puntero), Leaver −Im (transform absolute).
+- **Suite verificada por el orquestador:** 184 passed / 7 slow
+  deseleccionados (96 s, fuera de sandbox por el launcher MPI — mismo
+  comportamiento que reportó Sol).
+- **Criterio de Sol validado con fuente:** `walls_s`/`total_wall_seconds`
+  de `production.json` quedaron en 0.0/51.6 s (re-análisis con caché) —
+  apuntar ahí habría citado un costo falso; note-only era lo correcto.
+- **Resolución de los 10 `pendiente-de-promoción`: TODOS degradados a
+  prosa** (edición del orquestador en `scripts/paper_numbers.py`,
+  firmada aquí: nuevo status terminal `degradado-a-prosa` + campo
+  `resolution` en `note_only()`; los números viven en sus notas y el
+  manuscrito los cita como prosa; ninguno amerita crear fuentes JSON
+  nuevas). Casos con matiz, registrado en cada `resolution`:
+  `mass_lumping_f1_speedup` (el número de DECISIÓN Δa00 28 %/39 % ya es
+  canónico vía `production.json::mass_lumping_ab`; el ×35 es contexto),
+  `dissipation_epsilon_max` (el paper cita la regla + guard, no el
+  ε_max de una malla), `cavity_doublet_headline_w1/w2` (camino de
+  promoción documentado si C4 lo tabula: `fit_tail_lines` sobre las
+  waveforms versionadas), wall-times (histórico no regenerable).
+  Re-emisión + `--check` verdes; counts finales: 34 citable /
+  156 citable-con-caveat / 22 no-citable / 10 degradado-a-prosa /
+  0 pendiente. Los 12 tests C2 pasan tras el cambio.
+- **Declaración de novedad (§5 de `related_work.md`): SIN CAMBIO** — el
+  "at the 10–15 % level" sigue siendo el presupuesto congelado citable;
+  la calibración es diagnóstico que lo explica parcialmente (~31 % del
+  déficit L2) sin sustituirlo.
+
+**C2 CERRADO.** `plan.md` §3.3 actualizado por el orquestador. Queda para
+Marco: commit (sugerido: un solo commit de todo C2). Próximo capítulo:
+C3 (pipeline de figuras) — NO arrancar sin contrato del orquestador.

@@ -1,0 +1,2689 @@
+{
+  "schema_version": 1,
+  "generated_by": "scripts/paper_numbers.py",
+  "source_syntax": "repo-relative-file::/RFC6901/JSON/Pointer",
+  "status_counts": {
+    "citable": 34,
+    "citable-con-caveat": 156,
+    "degradado-a-prosa": 10,
+    "no-citable": 22,
+    "pendiente-de-promoción": 0
+  },
+  "entries": [
+    {
+      "id": "disc_l0_lc0.056_l2_ratio_frozen",
+      "value": 0.9441888243850722,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/l2_ratio",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l0_lc0.056_ratio_median_frozen",
+      "value": 0.8796220821232668,
+      "uncertainty": {
+        "kind": "IQR",
+        "low": 0.6884956716441233,
+        "high": 1.1999994231118005,
+        "sources": {
+          "low": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/ratio_iqr/0",
+          "high": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/ratio_iqr/1"
+        }
+      },
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/ratio_median",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l0_lc0.056_peak_ratio_frozen",
+      "value": 0.9855631213364924,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/peak_ratio",
+      "status": "no-citable",
+      "caveat": "Compara máximos en tiempos distintos y hereda el sesgo diferencial de ventana; mecanismo revisado en HANDOFF §7.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l0_lc0.040_l2_ratio_frozen",
+      "value": 0.9361095938465803,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.040/l2_ratio",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l0_lc0.040_ratio_median_frozen",
+      "value": 1.1162059129544923,
+      "uncertainty": {
+        "kind": "IQR",
+        "low": 0.6593445544659174,
+        "high": 1.3787065213940541,
+        "sources": {
+          "low": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.040/ratio_iqr/0",
+          "high": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.040/ratio_iqr/1"
+        }
+      },
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.040/ratio_median",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l0_lc0.040_peak_ratio_frozen",
+      "value": 0.8557431510413583,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.040/peak_ratio",
+      "status": "no-citable",
+      "caveat": "Compara máximos en tiempos distintos y hereda el sesgo diferencial de ventana; mecanismo revisado en HANDOFF §7.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l0_lc0.028_l2_ratio_frozen",
+      "value": 0.9228305188279665,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.028/l2_ratio",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l0_lc0.028_ratio_median_frozen",
+      "value": 0.8512623571674174,
+      "uncertainty": {
+        "kind": "IQR",
+        "low": 0.5742258861445242,
+        "high": 1.1751047654129039,
+        "sources": {
+          "low": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.028/ratio_iqr/0",
+          "high": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.028/ratio_iqr/1"
+        }
+      },
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.028/ratio_median",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l0_lc0.028_peak_ratio_frozen",
+      "value": 0.9412547196682066,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.028/peak_ratio",
+      "status": "no-citable",
+      "caveat": "Compara máximos en tiempos distintos y hereda el sesgo diferencial de ventana; mecanismo revisado en HANDOFF §7.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l1_lc0.040_l2_ratio_frozen",
+      "value": 0.8671220576309374,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l1_lc0.040/l2_ratio",
+      "status": "citable",
+      "caveat": "Congelado sin corrección: el piso TRUTH_SCAN l>0 es mayor que el efecto; véanse o1_truth_floor_linear_l1/l2.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l1_lc0.040_ratio_median_frozen",
+      "value": 0.6400781170154499,
+      "uncertainty": {
+        "kind": "IQR",
+        "low": 0.32913331582003236,
+        "high": 0.8842412490260401,
+        "sources": {
+          "low": "docs/research/phase2/production/production.json::/discriminator/l1_lc0.040/ratio_iqr/0",
+          "high": "docs/research/phase2/production/production.json::/discriminator/l1_lc0.040/ratio_iqr/1"
+        }
+      },
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l1_lc0.040/ratio_median",
+      "status": "citable",
+      "caveat": "Congelado sin corrección: el piso TRUTH_SCAN l>0 es mayor que el efecto; véanse o1_truth_floor_linear_l1/l2.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l1_lc0.040_peak_ratio_frozen",
+      "value": 0.9541177601125106,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l1_lc0.040/peak_ratio",
+      "status": "no-citable",
+      "caveat": "Compara máximos en tiempos distintos y hereda el sesgo diferencial de ventana; mecanismo revisado en HANDOFF §7.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l2_lc0.040_l2_ratio_frozen",
+      "value": 0.9034897026199182,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.040/l2_ratio",
+      "status": "citable",
+      "caveat": "Congelado sin corrección: el piso TRUTH_SCAN l>0 es mayor que el efecto; véanse o1_truth_floor_linear_l1/l2.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l2_lc0.040_ratio_median_frozen",
+      "value": 0.8044302965975374,
+      "uncertainty": {
+        "kind": "IQR",
+        "low": 0.39112215523205995,
+        "high": 0.9880783441233382,
+        "sources": {
+          "low": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.040/ratio_iqr/0",
+          "high": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.040/ratio_iqr/1"
+        }
+      },
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.040/ratio_median",
+      "status": "citable",
+      "caveat": "Congelado sin corrección: el piso TRUTH_SCAN l>0 es mayor que el efecto; véanse o1_truth_floor_linear_l1/l2.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l2_lc0.040_peak_ratio_frozen",
+      "value": 1.0559520201284311,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.040/peak_ratio",
+      "status": "no-citable",
+      "caveat": "Compara máximos en tiempos distintos y hereda el sesgo diferencial de ventana; mecanismo revisado en HANDOFF §7.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l2_lc0.028_l2_ratio_frozen",
+      "value": 0.8763450297853589,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.028/l2_ratio",
+      "status": "citable",
+      "caveat": "Congelado sin corrección: el piso TRUTH_SCAN l>0 es mayor que el efecto; véanse o1_truth_floor_linear_l1/l2.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l2_lc0.028_ratio_median_frozen",
+      "value": 0.8132694178310953,
+      "uncertainty": {
+        "kind": "IQR",
+        "low": 0.48805542602265606,
+        "high": 0.974592182403315,
+        "sources": {
+          "low": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.028/ratio_iqr/0",
+          "high": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.028/ratio_iqr/1"
+        }
+      },
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.028/ratio_median",
+      "status": "citable",
+      "caveat": "Congelado sin corrección: el piso TRUTH_SCAN l>0 es mayor que el efecto; véanse o1_truth_floor_linear_l1/l2.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_l2_lc0.028_peak_ratio_frozen",
+      "value": 1.010831194080075,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/l2_lc0.028/peak_ratio",
+      "status": "no-citable",
+      "caveat": "Compara máximos en tiempos distintos y hereda el sesgo diferencial de ventana; mecanismo revisado en HANDOFF §7.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_oracle_1d_l0_l2_ratio",
+      "value": 1.0055017965308521,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/oracle_1d_l0/l2_ratio",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_oracle_1d_l0_ratio_median",
+      "value": 0.8572920281181325,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/oracle_1d_l0/ratio_median",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "interior"
+    },
+    {
+      "id": "disc_oracle_1d_l0_peak_ratio",
+      "value": 1.1466792536139305,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/discriminator/oracle_1d_l0/peak_ratio",
+      "status": "no-citable",
+      "caveat": "El cociente de picos no es el discriminador primario.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "linear_l0_lc0.056_dev_primary_median",
+      "value": 64.63146018019825,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/dev_vs_1d_primary/median",
+      "status": "no-citable",
+      "caveat": "Rung fuera del régimen de convergencia.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.056_dev_primary_max",
+      "value": 109.31557439196938,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/dev_vs_1d_primary/max",
+      "status": "no-citable",
+      "caveat": "Rung fuera del régimen de convergencia.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.056_dev_anchor_median",
+      "value": 21.264800560467446,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/dev_vs_1d_anchor/median",
+      "status": "no-citable",
+      "caveat": "Rung fuera del régimen de convergencia.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.056_dev_anchor_max",
+      "value": 43.77230535313029,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/dev_vs_1d_anchor/max",
+      "status": "no-citable",
+      "caveat": "Rung fuera del régimen de convergencia.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.056_sigma_a_median_primary",
+      "value": 0.15928482859625287,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l0_lc0.056_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l0_lc0.056_killing_residual_rel",
+      "value": 48.9024056189478,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.056_cowling_zeta_max_global",
+      "value": 6.136298253884,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "linear_l0_lc0.056_junk_offchannel_l1",
+      "value": 1.3169062005573748,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.056_junk_offchannel_l2",
+      "value": 1.3902094103434914,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/offchannel_peak_over_signal/l2",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.040_dev_primary_median",
+      "value": 14.684779966135869,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/dev_vs_1d_primary/median",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.040_dev_primary_max",
+      "value": 32.93073205747242,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/dev_vs_1d_primary/max",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.040_dev_anchor_median",
+      "value": 18.951142867318595,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/dev_vs_1d_anchor/median",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.040_dev_anchor_max",
+      "value": 44.775101353260624,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/dev_vs_1d_anchor/max",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.040_sigma_a_median_primary",
+      "value": 0.11802590383372068,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l0_lc0.040_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l0_lc0.040_killing_residual_rel",
+      "value": 40.63707656888893,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.040_cowling_zeta_max_global",
+      "value": 5.85313458222,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "linear_l0_lc0.040_junk_offchannel_l1",
+      "value": 0.7991905415523328,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.040_junk_offchannel_l2",
+      "value": 1.1362641158393205,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.040/offchannel_peak_over_signal/l2",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.028_dev_primary_median",
+      "value": 13.138830056436227,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/dev_vs_1d_primary/median",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.028_dev_primary_max",
+      "value": 30.76169548854501,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/dev_vs_1d_primary/max",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.028_dev_anchor_median",
+      "value": 17.353870090892418,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/dev_vs_1d_anchor/median",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.028_dev_anchor_max",
+      "value": 45.89984974371825,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/dev_vs_1d_anchor/max",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.028_sigma_a_median_primary",
+      "value": 0.06225096017822216,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l0_lc0.028_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l0_lc0.028_killing_residual_rel",
+      "value": 34.7438901307279,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.028_cowling_zeta_max_global",
+      "value": 11.82194044613,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "linear_l0_lc0.028_junk_offchannel_l1",
+      "value": 0.4584514433380164,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l0_lc0.028_junk_offchannel_l2",
+      "value": 0.842562030054095,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/offchannel_peak_over_signal/l2",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l1_lc0.040_dev_primary_median",
+      "value": 28.385276755272947,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/dev_vs_1d_primary/median",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l1_lc0.040_dev_primary_max",
+      "value": 67.29780863439177,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/dev_vs_1d_primary/max",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l1_lc0.040_dev_anchor_median",
+      "value": 25.38675376960225,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/dev_vs_1d_anchor/median",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l1_lc0.040_dev_anchor_max",
+      "value": 75.62174868468836,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/dev_vs_1d_anchor/max",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l1_lc0.040_sigma_a_median_primary",
+      "value": 0.021298262944207533,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l1_lc0.040_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l1_lc0.040_killing_residual_rel",
+      "value": 34.289767327467366,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l1_lc0.040_cowling_zeta_max_global",
+      "value": 1.061306514047,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "linear_l1_lc0.040_junk_offchannel_l0",
+      "value": 1.6147764618262048,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/offchannel_peak_over_signal/l0",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l1_lc0.040_junk_offchannel_l2",
+      "value": 5.989695793847956,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l1_lc0.040/offchannel_peak_over_signal/l2",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_dev_primary_median",
+      "value": 31.181437140076575,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/dev_vs_1d_primary/median",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_dev_primary_max",
+      "value": 62.69408162303797,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/dev_vs_1d_primary/max",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_dev_anchor_median",
+      "value": 50.44168200186321,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/dev_vs_1d_anchor/median",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_dev_anchor_max",
+      "value": 94.03503032614444,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/dev_vs_1d_anchor/max",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_sigma_a_median_primary",
+      "value": 0.02076316469741352,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l2_lc0.040_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l2_lc0.040_killing_residual_rel",
+      "value": 47.89294432655291,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_cowling_zeta_max_global",
+      "value": 1.781098325238,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "linear_l2_lc0.040_junk_offchannel_l0",
+      "value": 4.14739925890594,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/offchannel_peak_over_signal/l0",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_junk_offchannel_l1",
+      "value": 2.850768275333607,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_junk_offchannel_l3",
+      "value": 5.161174589582631,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/offchannel_peak_over_signal/l3",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.040_junk_offchannel_l4",
+      "value": 3.23548518617978,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.040/offchannel_peak_over_signal/l4",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_dev_primary_median",
+      "value": 29.707284157771387,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/dev_vs_1d_primary/median",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_dev_primary_max",
+      "value": 65.13156032145031,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/dev_vs_1d_primary/max",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_dev_anchor_median",
+      "value": 49.61929089260922,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/dev_vs_1d_anchor/median",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_dev_anchor_max",
+      "value": 97.36814719143379,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/dev_vs_1d_anchor/max",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_sigma_a_median_primary",
+      "value": 0.032186541906860086,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l2_lc0.028_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "linear_l2_lc0.028_killing_residual_rel",
+      "value": 38.16628105525992,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_cowling_zeta_max_global",
+      "value": 3.159457182518,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "linear_l2_lc0.028_junk_offchannel_l0",
+      "value": 1.9529537929739489,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/offchannel_peak_over_signal/l0",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_junk_offchannel_l1",
+      "value": 2.5636746452743044,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_junk_offchannel_l3",
+      "value": 2.3407942324026916,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/offchannel_peak_over_signal/l3",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "linear_l2_lc0.028_junk_offchannel_l4",
+      "value": 3.379625177593705,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/linear_l2_lc0.028/offchannel_peak_over_signal/l4",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_dev_primary_median",
+      "value": 66.3267918303893,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/dev_vs_1d_primary/median",
+      "status": "no-citable",
+      "caveat": "Rung fuera del régimen de convergencia.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_dev_primary_max",
+      "value": 79.08660976990937,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/dev_vs_1d_primary/max",
+      "status": "no-citable",
+      "caveat": "Rung fuera del régimen de convergencia.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_dev_anchor_median",
+      "value": 16.017026073089255,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/dev_vs_1d_anchor/median",
+      "status": "no-citable",
+      "caveat": "Rung fuera del régimen de convergencia.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_dev_anchor_max",
+      "value": 44.05074726914107,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/dev_vs_1d_anchor/max",
+      "status": "no-citable",
+      "caveat": "Rung fuera del régimen de convergencia.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_sigma_a_median_primary",
+      "value": 0.15463896474207367,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_killing_residual_rel",
+      "value": 48.7825567480492,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_cowling_zeta_max_global",
+      "value": 6.741755763782,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_junk_offchannel_l1",
+      "value": 2.536725482125591,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.056_junk_offchannel_l2",
+      "value": 1.739903921514801,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.056/offchannel_peak_over_signal/l2",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_dev_primary_median",
+      "value": 10.22264055164901,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/dev_vs_1d_primary/median",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_dev_primary_max",
+      "value": 24.99983909599936,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/dev_vs_1d_primary/max",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_dev_anchor_median",
+      "value": 17.023334221481605,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/dev_vs_1d_anchor/median",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_dev_anchor_max",
+      "value": 44.844492250962844,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/dev_vs_1d_anchor/max",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_sigma_a_median_primary",
+      "value": 0.10445926454371363,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_killing_residual_rel",
+      "value": 40.02488512924259,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_cowling_zeta_max_global",
+      "value": 5.38677787456,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_junk_offchannel_l1",
+      "value": 0.8105450595879529,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.040_junk_offchannel_l2",
+      "value": 1.712083023732782,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.040/offchannel_peak_over_signal/l2",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_dev_primary_median",
+      "value": 8.580950400565111,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/dev_vs_1d_primary/median",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_dev_primary_max",
+      "value": 23.538348514341425,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/dev_vs_1d_primary/max",
+      "status": "citable-con-caveat",
+      "caveat": "Comparación 3D↔1D con piso de interpolación y extracción; no es una incertidumbre puramente de malla.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_dev_anchor_median",
+      "value": 18.47680316798612,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/dev_vs_1d_anchor/median",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_dev_anchor_max",
+      "value": 45.90191788511131,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/dev_vs_1d_anchor/max",
+      "status": "citable-con-caveat",
+      "caveat": "El ancla o0 es un diagnóstico de fase y conserva sesgo de truncamiento radial.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_sigma_a_median_primary",
+      "value": 0.055785775351533284,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_killing_residual_rel",
+      "value": 33.78052532805021,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_cowling_zeta_max_global",
+      "value": 10.71921450213,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_junk_offchannel_l1",
+      "value": 0.4678884112428734,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l0_lc0.028_junk_offchannel_l2",
+      "value": 0.7461264213734261,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/offchannel_peak_over_signal/l2",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l1_lc0.040_sigma_a_median_primary",
+      "value": 0.022671418098192248,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l1_lc0.040/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l1_lc0.040_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l1_lc0.040/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l1_lc0.040_killing_residual_rel",
+      "value": 33.53051202855248,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l1_lc0.040/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l1_lc0.040_cowling_zeta_max_global",
+      "value": 1.078507479986,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l1_lc0.040/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "mexhat_l1_lc0.040_junk_offchannel_l0",
+      "value": 3.497297968818077,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l1_lc0.040/offchannel_peak_over_signal/l0",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l1_lc0.040_junk_offchannel_l2",
+      "value": 3.6003998558544645,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l1_lc0.040/offchannel_peak_over_signal/l2",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.040_sigma_a_median_primary",
+      "value": 0.02081765694679059,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.040/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l2_lc0.040_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.040/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l2_lc0.040_killing_residual_rel",
+      "value": 47.54785357000986,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.040/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.040_cowling_zeta_max_global",
+      "value": 1.809550798688,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.040/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "mexhat_l2_lc0.040_junk_offchannel_l0",
+      "value": 4.704935657368569,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.040/offchannel_peak_over_signal/l0",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.040_junk_offchannel_l1",
+      "value": 3.011907265310639,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.040/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.040_junk_offchannel_l3",
+      "value": 4.692842362406349,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.040/offchannel_peak_over_signal/l3",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.040_junk_offchannel_l4",
+      "value": 3.2908529743629975,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.040/offchannel_peak_over_signal/l4",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.028_sigma_a_median_primary",
+      "value": 0.02753092702362875,
+      "uncertainty": null,
+      "units": "a",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.028/sigma_a_median_primary",
+      "status": "citable-con-caveat",
+      "caveat": "Error OLS indicativo; el residuo radial está correlacionado.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l2_lc0.028_cond_median_primary",
+      "value": 573.4272714010032,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.028/cond_median_primary",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mexhat_l2_lc0.028_killing_residual_rel",
+      "value": 37.67551720631841,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.028/killing_residual_rel",
+      "status": "citable-con-caveat",
+      "caveat": "Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.028_cowling_zeta_max_global",
+      "value": 2.876599337092,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.028/cowling_zeta_max_global",
+      "status": "citable-con-caveat",
+      "caveat": "Monitor global dominado por el exterior de curvatura débil; no es comparable con el ζ interior de F0.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "mexhat_l2_lc0.028_junk_offchannel_l0",
+      "value": 1.8851348384557998,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.028/offchannel_peak_over_signal/l0",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.028_junk_offchannel_l1",
+      "value": 2.5610889996753907,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.028/offchannel_peak_over_signal/l1",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.028_junk_offchannel_l3",
+      "value": 2.5073268964091375,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.028/offchannel_peak_over_signal/l3",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mexhat_l2_lc0.028_junk_offchannel_l4",
+      "value": 3.3960954259920197,
+      "uncertainty": null,
+      "units": "% de señal del modo",
+      "source": "docs/research/phase2/production/production.json::/runs/mexhat_l2_lc0.028/offchannel_peak_over_signal/l4",
+      "status": "citable-con-caveat",
+      "caveat": "Cota en fase fuerte con tope temporal; el exceso sobre el canal lineal, no el valor aislado, limita acoplamiento.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mass_lumping_ab_dev_median",
+      "value": 27.735467400940202,
+      "uncertainty": null,
+      "units": "% de escala",
+      "source": "docs/research/phase2/production/production.json::/mass_lumping_ab/dev_median",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mass_lumping_ab_dev_max",
+      "value": 38.58729823691832,
+      "uncertainty": null,
+      "units": "% de escala",
+      "source": "docs/research/phase2/production/production.json::/mass_lumping_ab/dev_max",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "mass_lumping_adopted",
+      "value": false,
+      "uncertainty": null,
+      "units": "boolean",
+      "source": "docs/research/phase2/production/production.json::/mass_lumping_ab/adopted",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "mass_lumping_consistent_smoke_wall",
+      "value": 406.0,
+      "uncertainty": null,
+      "units": "s",
+      "source": "docs/research/phase2/production/production.json::/mass_lumping_ab/wall_consistent_smoke_s",
+      "status": "citable-con-caveat",
+      "caveat": "Costo de la corrida consistente reusada, no de la matriz completa.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_cached_postprocess_wall",
+      "value": 51.57378716600033,
+      "uncertainty": null,
+      "units": "s",
+      "source": "docs/research/phase2/production/production.json::/total_wall_seconds",
+      "status": "no-citable",
+      "caveat": "Mide el postproceso con corridas cacheadas, no el costo de evolución.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "o1_c_linear_l0_sampled_k32_median",
+      "value": 1.0201503900413962,
+      "uncertainty": {
+        "kind": "IQR",
+        "low": 0.9817217178151532,
+        "high": 1.0424443990680035,
+        "sources": {
+          "low": "docs/research/phase3/o1_calibration.json::/headlines/c_linear_l0_sampled_k32/iqr/0",
+          "high": "docs/research/phase3/o1_calibration.json::/headlines/c_linear_l0_sampled_k32/iqr/1"
+        }
+      },
+      "units": "1",
+      "source": "docs/research/phase3/o1_calibration.json::/headlines/c_linear_l0_sampled_k32/median",
+      "status": "citable-con-caveat",
+      "caveat": "Cociente definido sólo en la fase fuerte del oráculo.",
+      "paper_section": "interior",
+      "support": {
+        "n": 15,
+        "source": "docs/research/phase3/o1_calibration.json::/headlines/c_linear_l0_sampled_k32/n"
+      }
+    },
+    {
+      "id": "o1_c_linear_l0_max_abs_deviation",
+      "value": 17.902080147201072,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/headlines/c_linear_l0_sampled_k32/max_abs_deviation_from_one",
+      "status": "citable-con-caveat",
+      "caveat": "Máximo condicionado a la máscara fuerte; no se rellena fuera.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_linear_l0_truth_scan_floor",
+      "value": 1.8285835256426113,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/calibrations/linear_l0/truth_scan_floor_max",
+      "status": "citable-con-caveat",
+      "caveat": "Piso al mover la ventana de verdad profunda.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_linear_l0_resolution_stability_max",
+      "value": 0.49567747715646426,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/calibrations/linear_l0/resolution_stability/sampled_k32/max_relative",
+      "status": "citable-con-caveat",
+      "caveat": "Check de resolución del cociente, no error de la evolución 3D.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_linear_l0_sampling_k32_effect_max",
+      "value": 0.2418086540706077,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/calibrations/linear_l0/sampling_effect/max_relative",
+      "status": "citable-con-caveat",
+      "caveat": "Diferencia entre ventana densa y los radios K del banco 3D.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_c_mexhat_l0_sampled_k32_median",
+      "value": 1.0144648541044292,
+      "uncertainty": {
+        "kind": "IQR",
+        "low": 0.9931478017730399,
+        "high": 1.0685621525223583,
+        "sources": {
+          "low": "docs/research/phase3/o1_calibration.json::/headlines/c_mexhat_l0_sampled_k32/iqr/0",
+          "high": "docs/research/phase3/o1_calibration.json::/headlines/c_mexhat_l0_sampled_k32/iqr/1"
+        }
+      },
+      "units": "1",
+      "source": "docs/research/phase3/o1_calibration.json::/headlines/c_mexhat_l0_sampled_k32/median",
+      "status": "citable-con-caveat",
+      "caveat": "Cociente definido sólo en la fase fuerte del oráculo.",
+      "paper_section": "interior",
+      "support": {
+        "n": 14,
+        "source": "docs/research/phase3/o1_calibration.json::/headlines/c_mexhat_l0_sampled_k32/n"
+      }
+    },
+    {
+      "id": "o1_c_mexhat_l0_max_abs_deviation",
+      "value": 21.296762424922445,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/headlines/c_mexhat_l0_sampled_k32/max_abs_deviation_from_one",
+      "status": "citable-con-caveat",
+      "caveat": "Máximo condicionado a la máscara fuerte; no se rellena fuera.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_mexhat_l0_truth_scan_floor",
+      "value": 2.434826427569513,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/calibrations/mexhat_l0/truth_scan_floor_max",
+      "status": "citable-con-caveat",
+      "caveat": "Piso al mover la ventana de verdad profunda.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_mexhat_l0_resolution_stability_max",
+      "value": 0.3680390091858943,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/calibrations/mexhat_l0/resolution_stability/sampled_k32/max_relative",
+      "status": "citable-con-caveat",
+      "caveat": "Check de resolución del cociente, no error de la evolución 3D.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_mexhat_l0_sampling_k32_effect_max",
+      "value": 0.4424159935984773,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/calibrations/mexhat_l0/sampling_effect/max_relative",
+      "status": "citable-con-caveat",
+      "caveat": "Diferencia entre ventana densa y los radios K del banco 3D.",
+      "paper_section": "methods",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_truth_floor_linear_l1",
+      "value": 10.092338855100367,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/calibrations/linear_l1/truth_scan_floor_max",
+      "status": "citable-con-caveat",
+      "caveat": "Piso mayor que el efecto a corregir; impide promover l>0.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_truth_floor_linear_l2",
+      "value": 6.578219051905587,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/o1_calibration.json::/calibrations/linear_l2/truth_scan_floor_max",
+      "status": "citable-con-caveat",
+      "caveat": "Piso mayor que el efecto a corregir; impide promover l>0.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_linear_l0_lc0.056_dev_fraction_explained",
+      "value": 0.7392581737855347,
+      "uncertainty": null,
+      "units": "% del dev mediano",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.056/variants/sampled_k32/dev/median_dev_fraction_explained",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 29,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.056/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_linear_l0_lc0.056_dev_before_common_support",
+      "value": 65.44921782573887,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.056/variants/sampled_k32/dev/before_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 29,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.056/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_linear_l0_lc0.056_dev_residual",
+      "value": 64.96537913328339,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 2.434826427569513,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max",
+            "transform": "fraction-to-percent"
+          }
+        ]
+      },
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.056/variants/sampled_k32/dev/after_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 29,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.056/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.056_dev_fraction_explained",
+      "value": 8.217940741945002,
+      "uncertainty": null,
+      "units": "% del dev mediano",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.056/variants/sampled_k32/dev/median_dev_fraction_explained",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 28,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.056/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.056_dev_before_common_support",
+      "value": 70.57422952859265,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.056/variants/sampled_k32/dev/before_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 28,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.056/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.056_dev_residual",
+      "value": 64.77448116684866,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 2.434826427569513,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max",
+            "transform": "fraction-to-percent"
+          }
+        ]
+      },
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.056/variants/sampled_k32/dev/after_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 28,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.056/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_disc_l0_lc0.056_l2_before_common_support",
+      "value": 0.9911368235179742,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.056/variants/sampled_k32/before_on_calibration_support/l2_ratio",
+      "status": "no-citable",
+      "caveat": "Diagnóstico sobre soporte reducido; el número canónico sigue siendo el discriminador congelado.",
+      "paper_section": "interior",
+      "support": {
+        "n": 23,
+        "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.056/variants/sampled_k32/before_on_calibration_support/n_samples"
+      }
+    },
+    {
+      "id": "o1_disc_l0_lc0.056_l2_corrected_diagnostic",
+      "value": 1.010458478803252,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 0.024348264275695128,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max"
+          }
+        ]
+      },
+      "units": "1",
+      "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.056/variants/sampled_k32/after/l2_ratio",
+      "status": "no-citable",
+      "caveat": "Diagnóstico de sistemática sobre soporte reducido; no reemplaza el l2_ratio congelado.",
+      "paper_section": "interior",
+      "support": {
+        "n": 23,
+        "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.056/variants/sampled_k32/after/n_samples"
+      }
+    },
+    {
+      "id": "o1_linear_l0_lc0.040_dev_fraction_explained",
+      "value": 22.335703880864116,
+      "uncertainty": null,
+      "units": "% del dev mediano",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.040/variants/sampled_k32/dev/median_dev_fraction_explained",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 24,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.040/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_linear_l0_lc0.040_dev_before_common_support",
+      "value": 16.34543340784333,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.040/variants/sampled_k32/dev/before_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 24,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.040/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_linear_l0_lc0.040_dev_residual",
+      "value": 12.694565803823608,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 2.434826427569513,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max",
+            "transform": "fraction-to-percent"
+          }
+        ]
+      },
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.040/variants/sampled_k32/dev/after_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 24,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.040/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.040_dev_fraction_explained",
+      "value": 23.282904748054744,
+      "uncertainty": null,
+      "units": "% del dev mediano",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.040/variants/sampled_k32/dev/median_dev_fraction_explained",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 24,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.040/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.040_dev_before_common_support",
+      "value": 7.572943269345483,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.040/variants/sampled_k32/dev/before_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 24,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.040/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.040_dev_residual",
+      "value": 5.809742101319552,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 2.434826427569513,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max",
+            "transform": "fraction-to-percent"
+          }
+        ]
+      },
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.040/variants/sampled_k32/dev/after_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 24,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.040/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_disc_l0_lc0.040_l2_before_common_support",
+      "value": 0.955091621334535,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.040/variants/sampled_k32/before_on_calibration_support/l2_ratio",
+      "status": "no-citable",
+      "caveat": "Diagnóstico sobre soporte reducido; el número canónico sigue siendo el discriminador congelado.",
+      "paper_section": "interior",
+      "support": {
+        "n": 20,
+        "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.040/variants/sampled_k32/before_on_calibration_support/n_samples"
+      }
+    },
+    {
+      "id": "o1_disc_l0_lc0.040_l2_corrected_diagnostic",
+      "value": 0.9777069384071285,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 0.024348264275695128,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max"
+          }
+        ]
+      },
+      "units": "1",
+      "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.040/variants/sampled_k32/after/l2_ratio",
+      "status": "no-citable",
+      "caveat": "Diagnóstico de sistemática sobre soporte reducido; no reemplaza el l2_ratio congelado.",
+      "paper_section": "interior",
+      "support": {
+        "n": 20,
+        "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.040/variants/sampled_k32/after/n_samples"
+      }
+    },
+    {
+      "id": "o1_linear_l0_lc0.028_dev_fraction_explained",
+      "value": 31.002424179332174,
+      "uncertainty": null,
+      "units": "% del dev mediano",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.028/variants/sampled_k32/dev/median_dev_fraction_explained",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 26,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.028/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_linear_l0_lc0.028_dev_before_common_support",
+      "value": 10.309253180390535,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.028/variants/sampled_k32/dev/before_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 26,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.028/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_linear_l0_lc0.028_dev_residual",
+      "value": 7.113134779684568,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 2.434826427569513,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max",
+            "transform": "fraction-to-percent"
+          }
+        ]
+      },
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.028/variants/sampled_k32/dev/after_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 26,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/linear_l0_lc0.028/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.028_dev_fraction_explained",
+      "value": 19.326439454711096,
+      "uncertainty": null,
+      "units": "% del dev mediano",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.028/variants/sampled_k32/dev/median_dev_fraction_explained",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 27,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.028/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.028_dev_before_common_support",
+      "value": 4.825303319444496,
+      "uncertainty": null,
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.028/variants/sampled_k32/dev/before_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 27,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.028/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_mexhat_l0_lc0.028_dev_residual",
+      "value": 3.8927439949058904,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 2.434826427569513,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max",
+            "transform": "fraction-to-percent"
+          }
+        ]
+      },
+      "units": "% de escala 1D",
+      "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.028/variants/sampled_k32/dev/after_on_calibration_support/median",
+      "status": "citable-con-caveat",
+      "caveat": "Análisis de sistemática sobre la intersección estricta de fases fuertes; no reemplaza el dev congelado.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent",
+      "support": {
+        "n": 27,
+        "source": "docs/research/phase3/o1_calibration.json::/runs/mexhat_l0_lc0.028/variants/sampled_k32/dev/n_calibration_support"
+      }
+    },
+    {
+      "id": "o1_disc_l0_lc0.028_l2_before_common_support",
+      "value": 0.9451473532876615,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.028/variants/sampled_k32/before_on_calibration_support/l2_ratio",
+      "status": "no-citable",
+      "caveat": "Diagnóstico sobre soporte reducido; el número canónico sigue siendo el discriminador congelado.",
+      "paper_section": "interior",
+      "support": {
+        "n": 22,
+        "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.028/variants/sampled_k32/before_on_calibration_support/n_samples"
+      }
+    },
+    {
+      "id": "o1_disc_l0_lc0.028_l2_corrected_diagnostic",
+      "value": 0.9638851637410806,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 0.024348264275695128,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max"
+          }
+        ]
+      },
+      "units": "1",
+      "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.028/variants/sampled_k32/after/l2_ratio",
+      "status": "no-citable",
+      "caveat": "Diagnóstico de sistemática sobre soporte reducido; no reemplaza el l2_ratio congelado.",
+      "paper_section": "interior",
+      "support": {
+        "n": 22,
+        "source": "docs/research/phase3/o1_calibration.json::/discriminator/l0_lc0.028/variants/sampled_k32/after/n_samples"
+      }
+    },
+    {
+      "id": "o1_deficit_classification",
+      "value": "partial",
+      "uncertainty": null,
+      "units": "categoría",
+      "source": "docs/research/phase3/o1_calibration.json::/verdict/classification",
+      "status": "citable-con-caveat",
+      "caveat": "Veredicto de calibración, no una corrección sustituta del dato F2.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "o1_deficit_fraction_explained",
+      "value": 31.046281676259362,
+      "uncertainty": null,
+      "units": "% del déficit L2",
+      "source": "docs/research/phase3/o1_calibration.json::/verdict/deficit_fraction_explained",
+      "status": "citable-con-caveat",
+      "caveat": "Estimado sobre soporte común de calibración.",
+      "paper_section": "discusión",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "o1_remaining_l2_deficit",
+      "value": 4.161663278977157,
+      "uncertainty": {
+        "kind": "budget",
+        "components": [
+          {
+            "label": "piso_calibración",
+            "value": 2.434826427569513,
+            "source": "docs/research/phase3/o1_calibration.json::/verdict/calibration_floor_max",
+            "transform": "fraction-to-percent"
+          }
+        ]
+      },
+      "units": "puntos absolutos",
+      "source": "docs/research/phase3/o1_calibration.json::/verdict/deficit_after_absolute",
+      "status": "citable-con-caveat",
+      "caveat": "Residual frente al oráculo sobre soporte común.",
+      "paper_section": "discusión",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "qnm_leaver_l2_re",
+      "value": 0.48364387221071303,
+      "uncertainty": null,
+      "units": "Mω",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/leaver_l2/0",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "qnm_leaver_l2_minus_im",
+      "value": 0.09675877597828784,
+      "uncertainty": null,
+      "units": "Mω",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/leaver_l2/1",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "exterior",
+      "transform": "absolute"
+    },
+    {
+      "id": "qnm_R20_lc1.4_re",
+      "value": 0.5002000262103984,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.029541458072311313,
+        "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/0/fan_std_re"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/0/omega_re",
+      "status": "citable-con-caveat",
+      "caveat": "Abanico de ventanas ancladas; la incertidumbre es scatter de fit.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "qnm_R20_lc1.4_re_error_signed",
+      "value": 3.423211778536129,
+      "uncertainty": null,
+      "units": "% vs Leaver",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/0/err_re_signed",
+      "status": "citable-con-caveat",
+      "caveat": "Error firmado del mismo rung y protocolo de ventanas.",
+      "paper_section": "exterior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "qnm_R20_lc1.0_re",
+      "value": 0.46655177949508814,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.005824976254556704,
+        "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/1/fan_std_re"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/1/omega_re",
+      "status": "citable-con-caveat",
+      "caveat": "Abanico de ventanas ancladas; la incertidumbre es scatter de fit.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "qnm_R20_lc1.0_re_error_signed",
+      "value": -3.5340244542948014,
+      "uncertainty": null,
+      "units": "% vs Leaver",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/1/err_re_signed",
+      "status": "citable-con-caveat",
+      "caveat": "Error firmado del mismo rung y protocolo de ventanas.",
+      "paper_section": "exterior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "qnm_R20_lc0.7_re",
+      "value": 0.47455325698948164,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.01720833949503922,
+        "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/2/fan_std_re"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/2/omega_re",
+      "status": "citable-con-caveat",
+      "caveat": "Abanico de ventanas ancladas; la incertidumbre es scatter de fit.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "qnm_R20_lc0.7_re_error_signed",
+      "value": -1.8796093041929018,
+      "uncertainty": null,
+      "units": "% vs Leaver",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/2/err_re_signed",
+      "status": "citable-con-caveat",
+      "caveat": "Error firmado del mismo rung y protocolo de ventanas.",
+      "paper_section": "exterior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "qnm_R20_fine_re_order",
+      "value": 1.7701645882279284,
+      "uncertainty": null,
+      "units": "orden p",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/order_vs_leaver_re/1/p",
+      "status": "citable-con-caveat",
+      "caveat": "Orden de la pareja fina; Richardson de tres puntos no aplica.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "qnm_R40_late_pooled_re",
+      "value": 0.48772173080614273,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.012441756508292878,
+        "source": "docs/research/phase2/exterior/spectroscopy.json::/late_pooled_all_R40/omega_re_std"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/late_pooled_all_R40/omega_re",
+      "status": "citable-con-caveat",
+      "caveat": "Scatter de ventanas tardías y dos rungs, dominado por protocolo.",
+      "paper_section": "exterior",
+      "support": {
+        "n": 14,
+        "source": "docs/research/phase2/exterior/spectroscopy.json::/late_pooled_all_R40/n_windows"
+      }
+    },
+    {
+      "id": "qnm_R40_late_pooled_re_error_signed",
+      "value": 0.8431531607730289,
+      "uncertainty": null,
+      "units": "% vs Leaver",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/late_pooled_all_R40/err_re_signed",
+      "status": "citable-con-caveat",
+      "caveat": "Error firmado del pooled tardío.",
+      "paper_section": "exterior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "qnm_R40_late_pooled_minus_im",
+      "value": 0.10160973354582066,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.005450164013064952,
+        "source": "docs/research/phase2/exterior/spectroscopy.json::/late_pooled_all_R40/omega_im_neg_std"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/late_pooled_all_R40/omega_im_neg",
+      "status": "citable-con-caveat",
+      "caveat": "Scatter de ventanas tardías y dos rungs, dominado por protocolo.",
+      "paper_section": "exterior",
+      "support": {
+        "n": 14,
+        "source": "docs/research/phase2/exterior/spectroscopy.json::/late_pooled_all_R40/n_windows"
+      }
+    },
+    {
+      "id": "qnm_R40_late_pooled_minus_im_error_signed",
+      "value": 5.013454871133699,
+      "uncertainty": null,
+      "units": "% vs Leaver",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/late_pooled_all_R40/err_im_signed",
+      "status": "citable-con-caveat",
+      "caveat": "Error firmado del pooled tardío.",
+      "paper_section": "exterior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "qnm_R40_lc1match_early_overtone_bias",
+      "value": 14.143904040530018,
+      "uncertainty": null,
+      "units": "% en −Im vs Leaver",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R40_clean/rungs/0/err_im_signed",
+      "status": "citable-con-caveat",
+      "caveat": "Sesgo temprano del protocolo por overtone no separable; no es estimación del fundamental tardío.",
+      "paper_section": "exterior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "qnm_R40_lc0.7match_early_overtone_bias",
+      "value": 15.821694627224364,
+      "uncertainty": null,
+      "units": "% en −Im vs Leaver",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R40_clean/rungs/1/err_im_signed",
+      "status": "citable-con-caveat",
+      "caveat": "Sesgo temprano del protocolo por overtone no separable; no es estimación del fundamental tardío.",
+      "paper_section": "exterior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "domain_R40_lc1match_tail_floor_reduction",
+      "value": 47.08859332684689,
+      "uncertainty": null,
+      "units": "× reducción R20/R40",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/domain_checks/R40_lc1match/tail_floor_ratio_R40_over_R20",
+      "status": "citable-con-caveat",
+      "caveat": "Inverso determinista del cociente de suelos almacenado.",
+      "paper_section": "exterior",
+      "transform": "reciprocal"
+    },
+    {
+      "id": "domain_R40_lc1match_R20_peak_over_floor",
+      "value": 4.131162720370746,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/domain_checks/R40_lc1match/peak_over_floor/R20",
+      "status": "citable-con-caveat",
+      "caveat": "Diagnóstico del suelo de cavidad del dominio.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "domain_R40_lc1match_R40_peak_over_floor",
+      "value": 195.53403943933645,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/domain_checks/R40_lc1match/peak_over_floor/R40",
+      "status": "citable-con-caveat",
+      "caveat": "Diagnóstico del suelo de cavidad del dominio.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "domain_R40_lc0.7match_tail_floor_reduction",
+      "value": 27.747463857464016,
+      "uncertainty": null,
+      "units": "× reducción R20/R40",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/domain_checks/R40_lc0.7match/tail_floor_ratio_R40_over_R20",
+      "status": "citable-con-caveat",
+      "caveat": "Inverso determinista del cociente de suelos almacenado.",
+      "paper_section": "exterior",
+      "transform": "reciprocal"
+    },
+    {
+      "id": "domain_R40_lc0.7match_R20_peak_over_floor",
+      "value": 3.9237520622984414,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/domain_checks/R40_lc0.7match/peak_over_floor/R20",
+      "status": "citable-con-caveat",
+      "caveat": "Diagnóstico del suelo de cavidad del dominio.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "domain_R40_lc0.7match_R40_peak_over_floor",
+      "value": 108.77353615813824,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/domain_checks/R40_lc0.7match/peak_over_floor/R40",
+      "status": "citable-con-caveat",
+      "caveat": "Diagnóstico del suelo de cavidad del dominio.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "domain_R40_lc1match_delta_re",
+      "value": -0.0022136441112027283,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.005824976254556704,
+        "source": "docs/research/phase2/exterior/spectroscopy.json::/domain_checks/R40_lc1match/fan_scatter_re"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/domain_checks/R40_lc1match/delta_omega_re",
+      "status": "citable-con-caveat",
+      "caveat": "Par con graduación apareada; el scatter del rung es la cota.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "exterior_R20_lc0.7_wall",
+      "value": 1778.5407678330012,
+      "uncertainty": null,
+      "units": "s",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/runs/R20_lc0.7/wall_seconds",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_R40_lc1match_wall",
+      "value": 1024.5598552920019,
+      "uncertainty": null,
+      "units": "s",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/runs/R40_lc1match/wall_seconds",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_R40_lc0.7match_wall",
+      "value": 3176.9788080420003,
+      "uncertainty": null,
+      "units": "s",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/runs/R40_lc0.7match/wall_seconds",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "cavity_lc1.4_w1",
+      "value": 0.34850000000000025,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.0025000000000000022,
+        "source": "docs/research/phase1/cavity/summary.json::/runs/lc1.4/tail_lines/dw1"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase1/cavity/summary.json::/runs/lc1.4/tail_lines/w1",
+      "status": "citable-con-caveat",
+      "caveat": "Modo atrapado del dominio R20, no QNM físico.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "cavity_lc1.4_w2",
+      "value": 0.5554999999999998,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.006499999999999284,
+        "source": "docs/research/phase1/cavity/summary.json::/runs/lc1.4/tail_lines/dw2"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase1/cavity/summary.json::/runs/lc1.4/tail_lines/w2",
+      "status": "citable-con-caveat",
+      "caveat": "Modo atrapado del dominio R20, no QNM físico.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "cavity_lc1_w1",
+      "value": 0.35350000000000026,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.0010000000000000009,
+        "source": "docs/research/phase1/cavity/summary.json::/runs/lc1/tail_lines/dw1"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase1/cavity/summary.json::/runs/lc1/tail_lines/w1",
+      "status": "citable-con-caveat",
+      "caveat": "Modo atrapado del dominio R20, no QNM físico.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "cavity_lc1_w2",
+      "value": 0.5629999999999994,
+      "uncertainty": {
+        "kind": "symmetric",
+        "value": 0.0039999999999995595,
+        "source": "docs/research/phase1/cavity/summary.json::/runs/lc1/tail_lines/dw2"
+      },
+      "units": "Mω",
+      "source": "docs/research/phase1/cavity/summary.json::/runs/lc1/tail_lines/w2",
+      "status": "citable-con-caveat",
+      "caveat": "Modo atrapado del dominio R20, no QNM físico.",
+      "paper_section": "exterior"
+    },
+    {
+      "id": "cowling_phase0_zeta_max_inside_horizon",
+      "value": 0.0012356626858036235,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase0/pilot_oracle_summary.json::/cowling_interior/zeta_max_inside_horizon",
+      "status": "citable-con-caveat",
+      "caveat": "Piloto Higgs de máxima amplitud; monitor restringido al interior.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "cowling_phase0_zeta_at_rmin",
+      "value": 0.00016080250977481205,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase0/pilot_oracle_summary.json::/cowling_interior/zeta_at_rmin",
+      "status": "citable-con-caveat",
+      "caveat": "Valor del piloto en el radio mínimo, no máximo global.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "mass_lumping_f1_speedup",
+      "value": null,
+      "uncertainty": null,
+      "units": "×",
+      "source": "note-only",
+      "note_pointer": "docs/research/plan.md::§3.1, bullet ‘Mass lumping HECHO’",
+      "status": "degradado-a-prosa",
+      "caveat": "El valor no existe como scalar en un JSON versionado.",
+      "paper_section": "methods",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica. El número de decisión del rechazo (Δa00 28 %/39 %) sí es canónico: production.json::mass_lumping_ab."
+    },
+    {
+      "id": "convergence_physical_p1_coarse",
+      "value": null,
+      "uncertainty": null,
+      "units": "orden p",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase1/convergence/note.md::Resultado principal, tabla ‘tránsito+ring 0–30M’",
+      "status": "degradado-a-prosa",
+      "caveat": "El valor no existe como scalar en un JSON versionado.",
+      "paper_section": "methods",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica."
+    },
+    {
+      "id": "convergence_physical_p1_fine",
+      "value": null,
+      "uncertainty": null,
+      "units": "orden p",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase1/convergence/note.md::Resultado principal, tabla ‘tránsito+ring 0–30M’",
+      "status": "degradado-a-prosa",
+      "caveat": "El valor no existe como scalar en un JSON versionado.",
+      "paper_section": "methods",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica."
+    },
+    {
+      "id": "convergence_physical_p2_fine",
+      "value": null,
+      "uncertainty": null,
+      "units": "orden p",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase1/convergence/note.md::Resultado principal, tabla ‘tránsito+ring 0–30M’",
+      "status": "degradado-a-prosa",
+      "caveat": "El valor no existe como scalar en un JSON versionado.",
+      "paper_section": "methods",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica."
+    },
+    {
+      "id": "dissipation_epsilon_max",
+      "value": null,
+      "uncertainty": null,
+      "units": "1",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase1/dissipation/note.md::§1 ‘Qué pasó con el barrido original’",
+      "status": "degradado-a-prosa",
+      "caveat": "El valor no existe como scalar en un JSON versionado.",
+      "paper_section": "methods",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica. El paper cita la REGLA (orden 4, ε ≤ 0.5·ε_max, guard del solver), no el ε_max de la malla del estudio."
+    },
+    {
+      "id": "cavity_doublet_headline_w1",
+      "value": null,
+      "uncertainty": null,
+      "units": "Mω",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase1/cavity/note.md::§1 ‘Corrección previa’ + tests/test_cavity_mode_slow.py::docstring/canary bands",
+      "status": "degradado-a-prosa",
+      "caveat": "El agregado central y su incertidumbre no son una clave scalar; las mediciones por rung sí están trazadas arriba.",
+      "paper_section": "exterior",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica. Camino de promoción si C4 lo tabula: re-ajustar las waveforms versionadas de phase1/cavity con rsd.analysis.ringdown.fit_tail_lines y emitir un JSON dedicado."
+    },
+    {
+      "id": "cavity_doublet_headline_w2",
+      "value": null,
+      "uncertainty": null,
+      "units": "Mω",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase1/cavity/note.md::§1 ‘Corrección previa’ + tests/test_cavity_mode_slow.py::docstring/canary bands",
+      "status": "degradado-a-prosa",
+      "caveat": "El agregado central y su incertidumbre no son una clave scalar; las mediciones por rung sí están trazadas arriba.",
+      "paper_section": "exterior",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica. Camino de promoción si C4 lo tabula: re-ajustar las waveforms versionadas de phase1/cavity con rsd.analysis.ringdown.fit_tail_lines y emitir un JSON dedicado."
+    },
+    {
+      "id": "production_matrix_wall_pool",
+      "value": null,
+      "uncertainty": null,
+      "units": "min",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase2/production/note.md::apertura",
+      "status": "degradado-a-prosa",
+      "caveat": "Los campos walls_s del JSON reflejan reuso/cache y no contienen este costo de evolución.",
+      "paper_section": "methods",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica. Costo histórico de la sesión original; walls_s quedó en 0.0 tras el re-análisis y no es regenerable."
+    },
+    {
+      "id": "production_linear_run_wall_range",
+      "value": null,
+      "uncertainty": null,
+      "units": "min",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase2/production/note.md::§6 ‘Salud y costos’",
+      "status": "degradado-a-prosa",
+      "caveat": "Los campos walls_s del JSON reflejan reuso/cache y no contienen este costo de evolución.",
+      "paper_section": "methods",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica. Costo histórico de la sesión original; walls_s quedó en 0.0 tras el re-análisis y no es regenerable."
+    },
+    {
+      "id": "production_mexhat_run_wall_range",
+      "value": null,
+      "uncertainty": null,
+      "units": "min",
+      "source": "note-only",
+      "note_pointer": "docs/research/phase2/production/note.md::§6 ‘Salud y costos’",
+      "status": "degradado-a-prosa",
+      "caveat": "Los campos walls_s del JSON reflejan reuso/cache y no contienen este costo de evolución.",
+      "paper_section": "methods",
+      "resolution": "RESUELTO por el orquestador (2026-07-12, HANDOFF §7): degradado a prosa — el manuscrito lo cita desde la nota; no requiere fila canónica. Costo histórico de la sesión original; walls_s quedó en 0.0 tras el re-análisis y no es regenerable."
+    }
+  ]
+}
