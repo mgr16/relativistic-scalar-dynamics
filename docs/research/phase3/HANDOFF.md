@@ -1,8 +1,10 @@
 # F3 — HANDOFF de orquestación (C2)
 
-**Fecha:** 2026-07-12 · **Orquestador/revisor:** Claude Fable 5 (créditos
-reservados; revisa cuando vuelva el weekly de Marco, ~2026-07-15) ·
-**Implementador de C2:** GPT-5.6 Sol · **Coordinación y commits:** Marco.
+**Fecha:** 2026-07-12 · **Orquestador/revisor:** Claude Fable 5 —
+**OFFLINE desde el cierre de C2** (créditos agotados; vuelve con el weekly
+de Marco, ~2026-07-15, y AUDITA todo lo hecho en su ausencia según §9) ·
+**Implementador C2–C5:** GPT-5.6 Sol (desde C3: **modo autónomo**, contrato
+§8) · **Coordinación y commits:** Marco.
 
 **Baseline de atribución:** el commit que introduce este archivo, con
 árbol limpio. Todo cambio posterior en el árbol/historia es del
@@ -39,10 +41,10 @@ de abajo tiene sentido sin ese contexto.
 | Cap. | Qué | Estado |
 |---|---|---|
 | C1 | Related work + declaración de novedad | **CERRADO** (commit `b3e8df9`; [`related_work.md`](related_work.md)) |
-| C2 | Congelado de números (calibración o1 + tabla canónica) | **CERRADO 2026-07-12** (implementó Sol, revisó y cerró Fable — log §7) |
-| C3 | Pipeline de figuras (`scripts/paper_figures.py`) | NO ARRANCAR sin revisión del orquestador |
-| C4 | Manuscrito revtex (`paper/`) | NO ARRANCAR |
-| C5 | Empaquetado reproducible | NO ARRANCAR |
+| C2 | Congelado de números (calibración o1 + tabla canónica) | **CERRADO 2026-07-12** (implementó Sol, revisó y cerró Fable — log §7; commit `a7dcf29`) |
+| C3 | Pipeline de figuras (`scripts/paper_figures.py`) | **AUTORIZADO en modo autónomo** — contrato §8.2 |
+| C4 | Manuscrito revtex (`paper/`) | **AUTORIZADO en modo autónomo** tras cerrar C3 — contrato §8.3 |
+| C5 | Empaquetado reproducible | **AUTORIZADO en modo autónomo** tras cerrar C4 — contrato §8.4 (depósitos externos = SOLO Marco) |
 
 ## 3. C2 — alcance exacto
 
@@ -586,6 +588,187 @@ Revisión de cierre sobre los entregables de 3b:
   la calibración es diagnóstico que lo explica parcialmente (~31 % del
   déficit L2) sin sustituirlo.
 
-**C2 CERRADO.** `plan.md` §3.3 actualizado por el orquestador. Queda para
-Marco: commit (sugerido: un solo commit de todo C2). Próximo capítulo:
-C3 (pipeline de figuras) — NO arrancar sin contrato del orquestador.
+**C2 CERRADO.** `plan.md` §3.3 actualizado por el orquestador. Commit
+único de C2: `a7dcf29`. Próximo capítulo: C3 bajo el contrato autónomo §8
+(el orquestador queda offline hasta ~07-15 y audita a su vuelta, §9).
+
+---
+
+## 8. Contrato autónomo C3–C5 (vigente desde 2026-07-12)
+
+**Contexto del cambio de modo:** los créditos de Fable se agotaron al
+cerrar C2. No hay orquestador disponible hasta que vuelva el weekly de
+Marco (~2026-07-15). Sol continúa C3→C4→C5 **encadenando capítulos sin
+esperar revisión**, con la autodisciplina de este contrato. Marco sigue
+disponible como humano coordinador: decisiones de gusto, OKs de costo,
+commits y CUALQUIER acción externa pasan por él. A la vuelta, Fable
+audita contra §9 — el trabajo debe estar documentado para que esa
+auditoría sea posible sin reconstruir contexto.
+
+### 8.0 Invariantes (idénticos a C2, siguen siendo ley)
+
+1. Artefactos F0–F2 congelados: solo lectura. Error hallado ⇒ se reporta
+   en §7, no se corrige in situ.
+2. **PROHIBIDO invocar `scripts/interior_production.py`** (re-escribiría
+   `production.json`). Misma cautela con cualquier script legacy cuyo
+   out_dir sea un artefacto congelado: verificar out_dir ANTES de correr.
+3. `src/rsd/` solo con cambio mínimo + tests + entrada [REVIEW] en §7.
+4. Ni commit ni push sin OK explícito de Marco. Corridas >15 min de
+   pared: proponer en §7 y esperar OK de Marco.
+5. Suite rápida verde al cierre de cada capítulo (184 + los tests que
+   se agreguen). En sandbox el test MPI puede fallar por launcher
+   (bind PMI) — se re-verifica fuera de sandbox, no es regresión.
+6. No borrar/regenerar in-place refs o series; archivo nuevo con la
+   resolución en el nombre.
+7. Log §7 al cierre de cada capítulo Y en cada decisión no obvia,
+   mismo formato (hecho / decisiones con justificación / ambigüedades
+   numeradas / artefactos / suite / [REVIEW]).
+
+### 8.1 Qué cambia con la autonomía
+
+- **plan.md ahora SÍ lo actualiza Sol** al cerrar cada capítulo (era
+  exclusivo del orquestador): sección §3.3 del plan, mismo patrón que
+  C1/C2, marcando cada cierre con "(cierre por implementador,
+  pendiente de auditoría Fable)". El encabezado "Estado en una línea"
+  también. NO tocar §1–§2 ni reescribir historia de fases cerradas.
+- **Números en manuscrito/figuras: SOLO desde `numbers.json`** (por id,
+  respetando status). `citable` se cita liso; `citable-con-caveat`
+  arrastra su caveat al texto (footnote o frase); `no-citable` y
+  `degradado-a-prosa` JAMÁS aparecen como resultado cuantitativo del
+  paper (los degradados pueden mencionarse en prosa metodológica). Si
+  un número que el manuscrito necesita NO está en la tabla: agregarlo a
+  `paper_numbers.py` con procedencia real (nunca literal), re-emitir,
+  y registrar el alta en §7.
+- **Declaración de novedad (§5 de `related_work.md`):** puede COPIARSE
+  al manuscrito verbatim y puede DEBILITARSE (bajar un claim si la bib
+  de C4 encuentra un contraejemplo — regla preexistente de C1); NUNCA
+  fortalecerse ni ampliarse sin Fable. Todo cambio se registra en §7
+  con el hallazgo que lo motivó.
+- **`related_work.md` deja de ser intocable SOLO para:** (a) promover
+  tags de verificación [S]→[A]/[T] durante el pase de bib de C4
+  (actualizando el tag in situ + apéndice de log al final del archivo,
+  sin reescribir los veredictos de §1–§4); (b) corregir un dato
+  bibliográfico objetivamente erróneo (con nota). Los veredictos del
+  scoop check NO se editan: si la bib encuentra algo que los contradice,
+  va como [REVIEW] en §7 y se debilita la novedad (punto anterior).
+- **Autodisciplina de revisión:** al cerrar cada capítulo Sol escribe en
+  §7 su PROPIO pase por el checklist correspondiente (§8.2–8.4). Las
+  ambigüedades que en C2 resolvía Fable ahora se resuelven así: (i) si
+  hay regla o precedente en este archivo / plan.md §4 / notas de fase →
+  aplicarlo citándolo; (ii) si es gusto o costo → Marco; (iii) si es
+  metodológico sin precedente → tomar la opción CONSERVADORA (la que no
+  promueve números nuevos ni debilita caveats), documentarla como
+  [REVIEW] y seguir — no bloquearse esperando a Fable.
+
+### 8.2 C3 — Pipeline de figuras
+
+**Entregable:** `scripts/paper_figures.py` (idempotente, `--check` como
+`paper_numbers.py`) que regenera TODAS las figuras del manuscrito desde
+artefactos versionados → `paper/figures/*.pdf` (vector, para revtex) +
+`.png` (preview). Ningún número/curva hardcodeado: fuentes = los JSON
+canónicos + npz versionados en `docs/research/**/data/` (los npz de
+`results/` NO son fuente de figuras del paper: no viajan con el repo;
+si una figura exige algo que solo vive en `results/`, [REVIEW] en §7 y
+proponer a Marco promover ese dato a `docs/` como archivo versionado).
+
+**Set mínimo propuesto (ajustable con criterio, cambios documentados):**
+1. **Perfil interior** (la figura de H2): u(r) 3D vs oráculo en 2–3
+   instantes de fase fuerte + fit o1, par linear/mexhat (fuente:
+   `interior/data/ab_smoke_ref_*` + perfiles de humo si están
+   versionados; si solo hay `results/`, aplicar la regla de arriba).
+2. **Discriminador por modo:** a_hat/a_lin (l2_ratio primario con su
+   IQR/mediana secundarios) vs rung y vs l, línea del oráculo 1.0055
+   (fuente: `production.json::discriminator` + `o1_calibration.json`
+   como overlay diagnóstico con soporte declarado).
+3. **Calibración c(t) + dev antes/después** — adaptar las dos figuras
+   C2 existentes a estilo paper (fuente: `o1_calibration.json`).
+4. **QNM:** escalera Re/−Im vs Leaver (R=20 vs R=40, ventanas
+   tempranas vs tardías — visualiza los DOS sistemáticos; fuente:
+   `spectroscopy.json`).
+5. **Cavidad/dominio:** espectro de cola R=20 vs R=40 (doblete y
+   supresión del suelo ×25–50; fuente: waveforms versionadas de
+   `phase1/cavity/` + `phase2/exterior/data/`).
+6. Opcional si C4 lo pide: esquema de excisión/malla o slice del campo.
+
+**Estilo:** rcParams comunes (una función `paper_style()`), sin títulos
+(el caption va en LaTeX), etiquetas en INGLÉS (el paper es en inglés —
+ojo: las figuras C2 existentes están en español, re-etiquetar al
+adaptar), paleta segura para daltonismo, tamaños para columna simple
+PRD (~3.4 in) salvo figuras wide declaradas.
+
+**Checklist de auto-cierre C3 (va al §7):** cada figura regenera desde
+cero en un clon limpio hipotético (solo archivos versionados) · cada
+número visible en una figura coincide con su entrada de `numbers.json`
+(id citado en comentario del script) · `--check` verde · suite verde ·
+plan.md §3.3 actualizado · propuesta de commit a Marco.
+
+### 8.3 C4 — Manuscrito
+
+**Entregable:** `paper/main.tex` + `paper/refs.bib` compilando limpio
+con revtex4-2 (PRD dos columnas). Si revtex no está instalado, pedir OK
+a Marco para `mamba install`/tlmgr ANTES (regla de instalaciones).
+
+**Estructura** (de plan.md §3.3): intro (usa C1 + novedad §5) · setup
+(3+1 KS, excisión, **alcance Cowling declarado honestamente** — es un
+límite del estudio, no una omisión) · métodos (FEM/fast path, Killing,
+estimadores con calibraciones) · resultados interior (H2 por modo,
+l2_ratio primario + caveats de la tabla) · validación exterior (QNM
+con presupuesto honesto de los DOS sistemáticos) · discusión (contraste
+Bars/gravedad modificada; límites; la sistemática 3D residual 4.16 pts)
+· apéndices técnicos según haga falta.
+
+**Reglas duras C4:**
+- Todo número del texto sale de `numbers.json` (id en comentario LaTeX
+  `% numbers.json::<id>`); los retractados del programa (−Im 2.1 % de
+  cavidad, Mω 0.209, "acoplamiento ×3.3") NO se citan ni como historia
+  salvo en una nota metodológica si aporta.
+- Pase de bib: promover TODA ref [S] usada a [A]/[T] verificando
+  contra la fuente real (abstract mínimo); IDs de arXiv marcados
+  *(ID de memoria)* en `related_work.md` se verifican especialmente.
+  Ref que no verifica → se corrige o se cae; si tumba un claim de
+  novedad → debilitar §5 (regla §8.1) y documentar.
+- El cross-check TKP17 (oscilaciones-l interiores en nuestras series)
+  es OPCIONAL: si es barato con los npz versionados, hacerlo y citarlo;
+  si exige regenerar 3D, diferirlo con nota [REVIEW] — no bloquea C4.
+- Inglés técnico sobrio; nada de "first ever" fuera de lo que §5
+  respalde; el Cowling limit va en abstract o intro, no escondido.
+
+**Checklist de auto-cierre C4 (§7):** compila sin warnings críticos ·
+grep de números hardcodeados sospechosos documentado · toda cita del
+texto existe en refs.bib y viceversa · [S] restantes = 0 en refs usadas
+· novedad §5 consistente con el texto final · plan.md actualizado ·
+propuesta de commit.
+
+### 8.4 C5 — Empaquetado reproducible
+
+README de `paper/` (cómo regenerar números → figuras → PDF en orden),
+manifest de artefactos fuente con SHA-256, verificación de que
+`paper_numbers.py --check` + `paper_figures.py --check` + suite pasan
+en secuencia, propuesta de tag `v3.3.0-paper` + entrada de CHANGELOG.
+**Depósito externo (Zenodo/arXiv/lo que sea) y el tag mismo: SOLO
+Marco.** Checklist §7 al cierre.
+
+---
+
+## 9. Auditoría del orquestador al volver (~2026-07-15, sesión nueva)
+
+Para Fable, contra el árbol/historia desde `a7dcf29` + baseline del
+commit del contrato:
+
+- [ ] Leer §7 completo desde el cierre de C2; responder los [REVIEW]
+      acumulados uno a uno.
+- [ ] `git diff a7dcf29..HEAD -- docs/research/phase0 docs/research/phase1
+      docs/research/phase2 src/rsd` — debe ser vacío o justificado
+      línea a línea en §7.
+- [ ] `paper_numbers.py --check` + `paper_figures.py --check` + suite
+      completa, corridos por el auditor.
+- [ ] Spot-check de ≥5 números del manuscrito contra `numbers.json` y
+      de ≥3 figuras contra sus fuentes (ids en comentarios).
+- [ ] Diff de `related_work.md`: solo promociones de tag + apéndice de
+      log; §5 solo debilitado (si cambió, verificar el hallazgo que lo
+      motivó).
+- [ ] Altas nuevas en `paper_numbers.py`: procedencia real, sin
+      literales.
+- [ ] plan.md: cierres del implementador auditados → quitar la marca
+      "pendiente de auditoría" o reabrir el capítulo.
+- [ ] Actualizar memoria del programa con el estado real encontrado.

@@ -28,9 +28,11 @@ calibración o1 = diagnóstico parcial (~31 % del déficit L2 explicado;
 peak_ratio degradado a no-citable — el discriminador citable es
 l2_ratio + ratio_median/IQR; l>0 sin corrección por piso de verdad) +
 tabla canónica `phase3/numbers.{json,md}` (222 entradas, procedencia
-RFC 6901, 0 pendientes); suite 184. Siguiente: C3 (pipeline de
-figuras, requiere contrato del orquestador); opcionales de F2 no
-bloquean.
+RFC 6901, 0 pendientes); suite 184. **Desde el cierre de C2 rige el
+contrato AUTÓNOMO `phase3/HANDOFF.md` §8** (orquestador offline hasta
+~07-15): Sol encadena C3 (figuras) → C4 (manuscrito) → C5 (empaquetado)
+sin gates de revisión, con autodisciplina documentada y auditoría de
+Fable a su vuelta (§9). Opcionales de F2 no bloquean.
 
 ---
 
@@ -324,19 +326,19 @@ Capítulos, en orden:
      22 no-citable / 10 degradado-a-prosa / 0 pendiente. Spot-checks
      del orquestador con resolutor independiente: 7/7.
    - Suite tras C2: **184 rápidos en verde** (+12 tests C2).
-3. **C3 — Pipeline de figuras:** `scripts/paper_figures.py` regenera
-   todas las figuras del manuscrito desde `production.json`,
-   `spectroscopy.json` y los npz commiteados. Entregable:
-   `paper/figures/`.
-4. **C4 — Manuscrito:** `paper/main.tex` + `paper/refs.bib`. Estructura
-   prevista: intro (usa C1), setup (3+1 Kerr-Schild, excisión, alcance
-   Cowling declarado), métodos (FEM + fast path, energía de Killing,
-   estimadores interior/exterior con sus calibraciones), resultados
-   interior (H2 por modo), validación exterior (QNM l=2 con presupuesto
-   honesto), discusión y límites, apéndices técnicos.
-5. **C5 — Empaquetado reproducible:** README del paper, tag de versión,
-   configs; depósito externo (p. ej. Zenodo) = acción externa, la decide
-   Marco.
+3. **C3 — Pipeline de figuras (AUTORIZADO en modo autónomo, contrato
+   HANDOFF §8.2):** `scripts/paper_figures.py` (idempotente, `--check`)
+   regenera todas las figuras del manuscrito desde los JSON canónicos y
+   npz VERSIONADOS (nunca `results/`) → `paper/figures/` (PDF vector +
+   PNG). Números visibles = entradas de `numbers.json` por id. Set
+   mínimo y estilo en el contrato.
+4. **C4 — Manuscrito (autónomo tras C3, contrato §8.3):**
+   `paper/main.tex` + `paper/refs.bib`, revtex4-2/PRD. Todo número
+   desde `numbers.json` (id en comentario), retractados jamás, pase de
+   bib promueve [S]→[A/T], novedad solo debilitable, Cowling declarado.
+5. **C5 — Empaquetado reproducible (autónomo tras C4, contrato §8.4):**
+   README de regeneración, manifest SHA-256, checks en secuencia,
+   propuesta de tag; depósito externo y tag = SOLO Marco.
 
 ## 4. Hechos técnicos establecidos (no re-derivar)
 
