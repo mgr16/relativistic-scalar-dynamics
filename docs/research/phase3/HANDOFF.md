@@ -65,23 +65,32 @@ explica una parte cuantificable del déficit; corrigiéndolo, el dev y el
 déficit L2 deben bajar. Lo que no baje queda como sistemática 3D real
 (malla/extracción) y así se declara.
 
-**Insumos (verificados hoy, salvo donde se indica):**
+**Insumos (CORREGIDOS por el orquestador 2026-07-12 tras el inventario de
+Sol — ver log §7; todos verificados en disco/git):**
 
-- Refs densas versionadas (l=0, n=1600, 80 snaps/15M):
-  `docs/research/phase2/interior/data/ab_smoke_ref_linear_A0.1_n1600.npz`
-  y `ab_smoke_ref_mexhat_A0.1_n1600.npz`. Claves esperadas: `r`, `ts`,
-  `snapshots_u` (confirmá con `np.load(...).files` y anotalo en el log).
-- Refs densas de producción (n=800, locales, gitignored):
-  `results/phase2_production/data/prod_ref_{pot}_l{l}_A0.1_n800.npz` —
-  **listá ese directorio al empezar** y anotá qué modos hay (esperado:
-  linear l0/l1/l2, mexhat l0; el espejo `_fast` tiene menos).
-- Series 3D por corrida:
-  `results/phase2_production/run_*/series/interior_profiles.npz`
-  (radios del banco K=32 incluidos — los radios se toman DE AHÍ, no se
-  re-derivan). **Si el directorio no existe o está incompleto: NO
-  re-corras la matriz por tu cuenta** — son ~88 min pool-3
-  (`scripts/interior_production.py` es idempotente y `--skip-runs`
-  re-analiza sin re-correr); proponelo en el log y que Marco dé el OK.
+- Refs densas de la verdad, TODAS versionadas (claves `r`, `snapshot_ts`,
+  `snapshots_u`; 81 snapshots sobre [0, 15]M):
+  - l=0: `docs/research/phase2/interior/data/ab_smoke_ref_{linear,mexhat}_A0.1_n1600.npz`
+    (las mismas que producción reusa vía `SMOKE_DATA`);
+  - l=1: `docs/research/phase2/production/data/prod_ref_linear_l1_A0.1_n1600.npz`;
+  - l=2: `docs/research/phase2/production/data/prod_ref_linear_l2_A0.1_n2600.npz`;
+  - mexhat l>0 NO tiene ref por diseño (reducción 1D no exacta con
+    potencial no lineal) — regla de transferencia en el log §7.
+- Series 3D de la matriz (COMPLETA en disco):
+  `results/phase2_production/run_*/run_*/series/interior_profiles.npz`
+  (11 dirs; `run_linear_l0_lc0.040_ml` = A/B de lumping RECHAZADO,
+  excluido del análisis) + rung l=0 @ 0.040 de masa consistente =
+  `results/phase2_interior_ab/run_{linear,mexhat}/run_*/series/interior_profiles.npz`
+  (fallback de diseño del script, ~línea 580). Radios del banco: clave
+  `radii`, K=32 log [0.1, 0.5], verificados idénticos en las 13 series —
+  se leen de ahí, no se re-derivan.
+- Espejo `results/phase2_production_fast/`: NO es insumo canónico (rungs
+  lc 0.08/0.12 fuera de producción); sus `prod_ref_*_n800` sirven solo
+  como check de resolución de c(t) en l=0.
+- **PROHIBIDO invocar `scripts/interior_production.py` en cualquier
+  modo** (incluso `--skip-runs`): su `out_dir` de modo completo es
+  `docs/research/phase2/production/` y re-escribiría `production.json` y
+  `figures/` congelados. C2 lee los npz directamente (numpy puro).
 - Protocolo congelado: `production.json::protocol` (pulso A=0.1 r0=5
   w=1 ingoing_curved; primary o1 [0.1,0.5]; anchor o0 [0.1,0.5];
   truth (0.02,0.2) o1; mexhat λ=0.1 v=1 u∞=v).
@@ -89,9 +98,9 @@ déficit L2 deben bajar. Lo que no baje queda como sistemática 3D real
 **Pasos:**
 
 1. Script nuevo `scripts/o1_profile_calibration.py` (idempotente,
-   mismo estilo que los estudios existentes). Por cada ref densa X
-   disponible (mínimo citable: linear l0 y mexhat l0; extendé a l1/l2
-   lineal si las refs n800 están):
+   mismo estilo que los estudios existentes). Por cada ref densa X de la
+   lista de insumos (mínimo citable: linear l0 y mexhat l0; extendé a
+   linear l1 y l2, cuyas refs versionadas existen):
    a. `a_truth(t)` = `fit_log_profile_series(r, snaps, (0.02, 0.2),
       order=1)` — **la misma verdad que producción; NO inventes otra.**
    b. `a_win(t)` = fit o1 [0.1, 0.5] sobre el MISMO snapshot, en dos
@@ -104,9 +113,11 @@ déficit L2 deben bajar. Lo que no baje queda como sistemática 3D real
       `|a_truth| ≥ 0.3·max|a_truth|` (fase fuerte, misma convención
       `STRONG_FRACTION` que `interior_window_calibration.py`); fuera de
       ahí el cociente está mal condicionado — se excluye, no se rellena.
-   d. Estabilidad de c_X: (n1600 vs n800 donde existan ambas) y verdad
-      movida al `TRUTH_SCAN` de siempre ((0.015,0.15), (0.03,0.3)) ⇒
-      piso de la calibración.
+   d. Estabilidad de c_X: en l=0, n1600 versionada vs n800 del espejo
+      `_fast`; en l>0, `TRUTH_SCAN` (y si hace falta segunda resolución,
+      ref 1D nueva a archivo NUEVO — oráculo puro, minutos, regla §4.8);
+      más verdad movida al `TRUTH_SCAN` de siempre ((0.015,0.15),
+      (0.03,0.3)) ⇒ piso de la calibración.
 2. Aplicación a las series 3D: interpolá `c_X(t)` a los tiempos 3D
    (misma convención de interpolación que usa
    `interior_production.py::analyze_run` al comparar contra truth) y
@@ -241,3 +252,98 @@ revisión las conteste una a una.
 - Siguiente acción (Sol): §3a paso 1 — listar
   `results/phase2_production/{data,run_*}` y confirmar claves de los
   npz de refs; anotar hallazgos aquí antes de escribir código.
+
+### 2026-07-12 17:35 — Inventario inicial de insumos C2; bloqueo por caché ausente
+- Hecho: se listó `results/phase2_production/` antes de tocar código. Hay
+  11 directorios `run_*` y 11 archivos `series/interior_profiles.npz`,
+  todos con `radii` de longitud K=32; no existe el subdirectorio `data/`.
+- Hecho: los rungs l=0 @ 0.040 de masa consistente no están bajo
+  `results/phase2_production/`; sí existen las dos series del humo en
+  `results/phase2_interior_ab/run_{linear,mexhat}/...`, y
+  `scripts/interior_production.py` contiene un fallback explícito a esas
+  corridas. Bajo producción solo está el A/B rechazado
+  `run_linear_l0_lc0.040_ml`.
+- Hecho: las refs profundas versionadas linear/mexhat l=0 n=1600 existen.
+  Sus claves reales son `r`, `snapshot_ts`, `snapshots_u` (no `ts` como
+  dice §3a), con shapes `(1600,)`, `(81,)`, `(81,1600)`.
+- Hecho: las refs lineales versionadas adicionales son l=1 n=1600 y l=2
+  n=2600, con las mismas claves. El espejo
+  `results/phase2_production_fast/data/` contiene n=800 para linear l=0,
+  linear l=2 y mexhat l=0, pero no linear l=1; no se promovió ni se tomó
+  como sustituto de la caché canónica ausente.
+- Decisiones tomadas: (1) no escribir código ni regenerar/reanalizar datos,
+  en cumplimiento del stop obligatorio ante insumos ausentes; (2) no
+  asumir que el espejo `_fast` es intercambiable con
+  `results/phase2_production/data/`; (3) mantener todos los artefactos
+  congelados F0--F2 en solo lectura.
+- Ambigüedades / preguntas para el orquestador: (1) ¿Marco autoriza la
+  regeneración de la matriz/caché de producción, con presupuesto informado
+  de ~88 min de cómputo? No fue lanzada. (2) El script vigente escribe las
+  refs no-fast curadas bajo `docs/research/phase2/production/data/` y reusa
+  las l=0 del humo; no produciría por sí solo la ruta n=800 que §3a declara
+  canónica. ¿Debe aceptarse el espejo `_fast` existente o se requiere un
+  procedimiento específico para reconstruir/promover esa caché? (3) ¿Se
+  acepta para C2 el fallback versionado por el propio script a las corridas
+  l=0 @ 0.040 del humo? (4) ¿La mención de clave `ts` en §3a es un typo y
+  C2 debe leer la clave real `snapshot_ts`?
+- Artefactos producidos/modificados:
+  `docs/research/phase3/HANDOFF.md` (solo esta entrada de log).
+- Suite: no ejecutada; no hay código C2 escrito.
+- [REVIEW] Bloqueo previo a implementación: resolver preguntas 1--4 y dar
+  aprobación explícita antes de cualquier corrida/regeneración.
+
+### 2026-07-12 — Respuesta del orquestador (Fable): bloqueo RESUELTO, sin regeneración
+Verifiqué en disco, código y git cada hallazgo del inventario. El stop fue
+correcto y el diagnóstico fino del log también; la causa raíz era un
+**error del contrato (§3a, mío)**: declaré canónica una ruta de refs que el
+script nunca produce. La matriz 3D está COMPLETA en disco. §3a queda
+corregido en el cuerpo (edición del orquestador, esta fecha).
+
+**Respuestas 1–4:**
+1. **Regeneración de 88 min: DENEGADA — innecesaria y peligrosa.** Las 12
+   series de la matriz existen: 11 `run_*` bajo `results/phase2_production/`
+   + las 2 del humo (`results/phase2_interior_ab/run_{linear,mexhat}`) que
+   cubren el rung l=0 @ 0.040 por el fallback de diseño del propio script
+   (~línea 580); `run_linear_l0_lc0.040_ml` es el A/B de lumping RECHAZADO
+   (excluido del análisis). Verifiqué además el banco: `radii` K=32
+   log [0.1, 0.5] **idéntico en las 13 series** (np.allclose). Peligro
+   descubierto en la revisión: el `out_dir` del modo completo de
+   `interior_production.py` es `docs/research/phase2/production/` (líneas
+   546/696) ⇒ cualquier invocación, incluso `--skip-runs`, re-escribiría
+   `production.json` y `figures/` CONGELADOS. **Queda PROHIBIDO invocar
+   `interior_production.py` en cualquier modo durante C2**; tu script lee
+   los npz directamente.
+2. **Caché canónica de refs = la versionada en docs, no `results/`:**
+   l=0 → `docs/research/phase2/interior/data/ab_smoke_ref_{pot}_A0.1_n1600.npz`
+   (exactamente las que `oracle_reference()` reusa vía `SMOKE_DATA`, línea
+   224); l=1 → `docs/research/phase2/production/data/prod_ref_linear_l1_A0.1_n1600.npz`;
+   l=2 → `prod_ref_linear_l2_A0.1_n2600.npz` (ambas git-tracked; claves
+   `r`/`snapshot_ts`/`snapshots_u`, 81 snaps en [0,15]M — cobertura sobrada
+   de la fase fuerte). El espejo `_fast` NO se promueve: sus corridas
+   (lc 0.08/0.12) no son rungs de producción; sus `prod_ref_*_n800` valen
+   SOLO como check de resolución de c(t) en l=0. No existe ref mexhat l>0
+   **por diseño** (la reducción 1D no es exacta con potencial no lineal) —
+   ver decisión de transferencia abajo.
+3. **Fallback del humo para l=0 @ 0.040: ACEPTADO.** Es el mecanismo con el
+   que `production.json` se construyó; C2 debe usar esas mismas series
+   (misma procedencia que el capítulo congelado).
+4. **Sí, `ts` era typo mío: la clave real es `snapshot_ts`.** Corregido en
+   §3a.
+
+**Decisión nueva del orquestador (pares l>0, paso 2):** c_X(t) existe para
+linear l=0/1/2 y mexhat l=0. Para corregir los pares l>0 (sin ref mexhat):
+en el paso 1 reportá `c_linear_l0(t)` vs `c_mexhat_l0(t)`; si su diferencia
+en fase fuerte es chica (≲2–3 %), aplicá **c_linear_l a AMBOS miembros** del
+par en l=1,2, declarando la transferencia con esa diferencia l=0 como cota
+de su sistemática. Si difieren más, los pares l>0 quedan SIN corregir y se
+documenta el porqué. (Racional: el sesgo de ventana depende de la forma F–S
+del perfil, y los perfiles del par son proporcionales a ~0.9; la diferencia
+l=0 mide directamente la validez de esa transferencia.)
+
+**Arranque autorizado:** con esto podés escribir
+`scripts/o1_profile_calibration.py` (§3a paso 1, refs de la lista de
+arriba; mínimo citable linear+mexhat l=0, extendé a linear l=1/l=2 que SÍ
+están). Para estabilidad en resolución en l>0: TRUTH_SCAN; si querés una
+segunda n, generá una ref 1D nueva a archivo NUEVO (oráculo puro, minutos,
+regla §4.8 — no toca nada 3D). Sigue vigente: sin commits (Marco), corridas
+>15 min no deberían hacer falta — si aparece una, se propone aquí primero.
