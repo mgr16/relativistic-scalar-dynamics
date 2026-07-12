@@ -47,6 +47,7 @@ def evolve_kerr_ringdown(
     cfl: float = 0.25,
     sample_every: int = 4,
     geom_order: int = 1,
+    sponge_width: float = 5.0,
     comm=None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """Evoluciona el pulso y devuelve (ts, c_lm) con c_lm real extraído.
@@ -56,6 +57,11 @@ def evolve_kerr_ringdown(
 
     r_inner=None elige el punto medio de la ventana de outflow admisible
     (docs/math/excision_window.md): 1.0 para a=0, ≈1.25 para a=0.9.
+
+    sponge_width es el ancho de la esponja absorbente pegada al borde
+    exterior (r > R - sponge_width); dominios grandes (R ≥ 40) usan
+    esponja ancha para que el pozo barrera↔esponja quede largo y el modo
+    de cavidad llegue tarde (docs/research/phase1/cavity/note.md §4).
     """
     import dolfinx.fem as fem
     from mpi4py import MPI
@@ -91,7 +97,8 @@ def evolve_kerr_ringdown(
     bg = KerrSchildCoeffs(M=M, a=a)
     solver = FirstOrderKGSolver(
         mesh=mesh, domain_radius=R, degree=1, potential_type="zero",
-        cfl_factor=cfl, sponge={"enabled": True, "width": 5.0, "strength": 1.0},
+        cfl_factor=cfl,
+        sponge={"enabled": True, "width": sponge_width, "strength": 1.0},
     )
     solver.set_background(*bg.build(mesh), rebuild=False)
     solver.enable_sommerfeld(facet_tags, get_outer_tag(facet_tags, default=2), rebuild=False)
@@ -159,6 +166,63 @@ def fit_ringdown_modes(
         omega_re = 2.0 * np.pi * abs(f)
         if omega_re > min_omega and d > 0:
             out.append((float(omega_re), float(d)))
+    return out
+
+
+def fit_anchored_windows(
+    ts: np.ndarray,
+    signal: np.ndarray,
+    ref: complex,
+    window: float = 26.0,
+    offsets: Tuple[float, ...] = (0.0, 2.0, 4.0, 6.0, 8.0),
+    t_search: float = 12.0,
+    modes: int = 4,
+) -> Dict[str, float]:
+    """Prony por abanico de ventanas ancladas al pico del ring.
+
+    El protocolo de la escalera de convergencia y del capítulo de cavidad
+    (docs/research/phase1/{convergence,cavity}/note.md): en Kerr-Schild el
+    ring llega con retardo tipo tortuga, así que cada ventana
+    [t_pk + off, t_pk + off + window] se ancla al pico detectado a partir
+    de t_search (el tránsito directo del pulso por la esfera de extracción
+    queda antes y no debe capturarse). Se ajusta Prony (modos dominantes)
+    por ventana y se reporta media/desviación del abanico: la desviación
+    entre ventanas es la incertidumbre de fit citable. ``ref`` es la
+    frecuencia compleja de referencia (Leaver, convención Im < 0).
+
+    Devuelve t_peak, n_windows y — si alguna ventana ajustó — omega_re/
+    omega_im (media), *_std (scatter del abanico), err_re/err_im relativos
+    a ``ref`` y las listas por ventana omega_{re,im}_windows.
+    """
+    ts = np.asarray(ts, dtype=float)
+    signal = np.asarray(signal, dtype=float)
+    i0 = int(np.searchsorted(ts, t_search))
+    if i0 >= ts.size:
+        raise ValueError(f"t_search={t_search} beyond signal end {ts[-1]}")
+    t_pk = float(ts[int(np.argmax(np.abs(signal[i0:]))) + i0])
+    ws, gs = [], []
+    for off in offsets:
+        t_min = t_pk + off
+        t_max = min(t_pk + off + window, float(ts[-1]) - 1.0)
+        try:
+            fitted = fit_ringdown_modes(ts, signal, t_min, t_max, modes=modes)
+        except ValueError:
+            continue
+        if fitted:
+            ws.append(fitted[0][0])
+            gs.append(fitted[0][1])
+    out: Dict[str, float] = {"t_peak": t_pk, "n_windows": int(len(ws))}
+    if not ws:
+        return out
+    ws_a, gs_a = np.array(ws), np.array(gs)
+    out.update({
+        "omega_re": float(ws_a.mean()), "omega_re_std": float(ws_a.std()),
+        "omega_im": float(-gs_a.mean()), "omega_im_std": float(gs_a.std()),
+        "err_re": float(abs(ws_a.mean() - ref.real) / abs(ref.real)),
+        "err_im": float(abs(-gs_a.mean() - ref.imag) / abs(ref.imag)),
+        "omega_re_windows": [float(w) for w in ws],
+        "omega_im_windows": [float(-g) for g in gs],
+    })
     return out
 
 

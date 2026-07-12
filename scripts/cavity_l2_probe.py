@@ -45,31 +45,11 @@ def tail_lines(ts, sig, t_min):
 
 
 def fit_windows(ts, sig, ref, window=26.0, offsets=(0.0, 2.0, 4.0, 6.0, 8.0)):
-    """Prony por abanico de ventanas ancladas al pico (como la escalera)."""
-    from rsd.analysis.ringdown import fit_ringdown_modes
+    """Prony por abanico de ventanas ancladas al pico (como la escalera).
+    Implementación compartida: rsd.analysis.ringdown.fit_anchored_windows."""
+    from rsd.analysis.ringdown import fit_anchored_windows
 
-    i0 = np.searchsorted(ts, 12.0)
-    t_pk = float(ts[int(np.argmax(np.abs(sig[i0:]))) + i0])
-    ws, gs = [], []
-    for off in offsets:
-        t_min = t_pk + off
-        t_max = min(t_pk + off + window, float(ts[-1]) - 1.0)
-        try:
-            modes = fit_ringdown_modes(ts, sig, t_min, t_max, modes=4)
-        except ValueError:
-            continue
-        if modes:
-            ws.append(modes[0][0])
-            gs.append(modes[0][1])
-    ws, gs = np.array(ws), np.array(gs)
-    return {
-        "t_peak": t_pk,
-        "omega_re": float(ws.mean()), "omega_re_std": float(ws.std()),
-        "omega_im": float(-gs.mean()), "omega_im_std": float(gs.std()),
-        "err_re": float(abs(ws.mean() - ref.real) / abs(ref.real)),
-        "err_im": float(abs(-gs.mean() - ref.imag) / abs(ref.imag)),
-        "n_windows": int(len(ws)),
-    }
+    return fit_anchored_windows(ts, sig, ref, window=window, offsets=offsets)
 
 
 def main() -> int:
