@@ -17,12 +17,14 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install lightweight dependencies
-        # No instalar las dependencias pesadas (mpi4py/petsc4py/gmsh): el
-        # runner no tiene MPI ni PETSc y este job solo corre los tests "core".
+        # UFL es liviano y varios módulos NumPy/reference lo importan para
+        # compartir la definición simbólica del potencial. No instalar las
+        # dependencias pesadas (mpi4py/petsc4py/gmsh): este job solo corre
+        # los tests "core".
         run: |
           python -m pip install --upgrade pip
-          pip install numpy scipy PyYAML pytest ruff
-          pip install -e . --no-deps
+          python -m pip install numpy scipy PyYAML pytest ruff fenics-ufl
+          python -m pip install -e . --no-deps
       - name: Lint
         run: |
           ruff check --select E9,F63,F7,F82 src/rsd tests
