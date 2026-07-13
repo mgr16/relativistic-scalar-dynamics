@@ -3,6 +3,7 @@ from typing import Tuple
 import numpy as np
 import ufl
 from rsd.backends.fem import Constant, is_dolfinx
+from rsd.physics.excision import kerr_excision_window
 
 
 @dataclass(frozen=True)
@@ -168,34 +169,6 @@ class KerrSchildCoeffs(BackgroundCoeffs):
         alpha = 1.0 / np.sqrt(1.0 + factor)
         beta_r = factor / (1.0 + factor)
         return alpha, beta_r, alpha
-
-
-def kerr_excision_window(M: float, a: float) -> Tuple[float, float]:
-    """Ventana admisible (lo, hi) del radio de excisión esférico cartesiano.
-
-    Una esfera cartesiana ρ = R_exc barre radios de Boyer-Lindquist
-    r ∈ [√(R_exc²−a²), R_exc]; el "do-nothing" del borde interior exige
-    contenerla en la región atrapada r₋ < r < r₊, lo que da
-
-        √(r₋² + a²) < R_exc < r₊         (derivación: docs/math/excision_window.md)
-
-    Para |a| ≳ 0.9718 M la ventana se cierra (lo ≥ hi): ninguna esfera
-    cartesiana cabe en la región atrapada y se necesita una superficie
-    esferoidal r = const.
-
-    Returns:
-        (lo, hi): cotas de la ventana. Admisible solo si lo < hi.
-    """
-    M = float(M)
-    a = abs(float(a))
-    if a > M:
-        raise ValueError(f"spin |a|={a} exceeds M={M} (naked singularity)")
-    root = np.sqrt(M * M - a * a)
-    r_plus, r_minus = M + root, M - root
-    lo = float(np.sqrt(r_minus**2 + a**2))
-    if a == 0.0:
-        lo = 0.0
-    return lo, float(r_plus)
 
 
 def make_background(metric_cfg: dict) -> BackgroundCoeffs:

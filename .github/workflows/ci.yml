@@ -23,4 +23,4 @@ jobs:
         run: ruff check --select E9,F63,F7,F82 src/rsd tests
       - name: Pytest
         # Los tests `slow` quedan para el workflow HPC programado
-        run: pytest -q -m "not slow"
+        run: python -m pytest -q -m "not slow"

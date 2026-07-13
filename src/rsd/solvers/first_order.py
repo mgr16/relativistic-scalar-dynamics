@@ -777,8 +777,10 @@ class FirstOrderKGSolver:
             fem.petsc.assemble_vector(self.rhs_vec, self._rhs_form_compiled)
         self.rhs_vec.assemble()
         self._mass_solve(self.rhs_vec, self.sol_vec)
-        # Copiar solución a self.du
-        self.du.x.array[:] = self.sol_vec.getArray(readonly=True)
+        # sol_vec contiene sólo los dofs propios; la Function incluye además
+        # los fantasmas. VecCopy actualiza el bloque PETSc propio compatible y
+        # el scatter posterior rellena los fantasmas en paralelo.
+        self.sol_vec.copy(self.du.x.petsc_vec)
         self.du.x.scatter_forward()
     
     def ssp_rk3_step(self, dt: float) -> None:
@@ -870,9 +872,11 @@ class FirstOrderKGSolver:
             self.filter_mat.mult(self.filter_du, self.filter_rhs)
             self._mass_solve(self.filter_rhs, self.filter_du2)
             scale = self.filter_strength * dt / self._filter_lambda_max
-            self.u.x.array[:] -= scale * self.filter_du2.getArray(readonly=True)
+            self.u.x.petsc_vec.axpy(-scale, self.filter_du2)
         else:
-            self.u.x.array[:] -= self.filter_strength * dt * self.filter_du.getArray(readonly=True)
+            self.u.x.petsc_vec.axpy(
+                -self.filter_strength * dt, self.filter_du
+            )
     
     def energy(self) -> float:
         """
