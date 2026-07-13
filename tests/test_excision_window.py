@@ -7,12 +7,10 @@ región atrapada r₋ < r < r₊ para que el borde "do-nothing" sea consistente.
 import numpy as np
 import pytest
 
-pytest.importorskip("dolfinx", reason="excision-window module imports FEM metric backends")
-
 from rsd.config import validate_config
-from rsd.physics.metrics import kerr_excision_window
+from rsd.physics.excision import kerr_excision_window
 
-pytestmark = [pytest.mark.requires_numpy, pytest.mark.requires_dolfinx]
+pytestmark = pytest.mark.requires_numpy
 
 
 def test_window_values_match_table():

@@ -842,7 +842,10 @@ Revisión de cierre sobre los entregables de 3b:
   dos problemas de infraestructura/código ajenos al contenido del paper. El
   Core CI no instalaba `fenics-ufl`, aunque tests NumPy/reference importan las
   definiciones simbólicas compartidas. Se añadió esa dependencia liviana sin
-  incorporar DOLFINx/PETSc al job core.
+  incorporar DOLFINx/PETSc al job core. La segunda corrida aisló tres tests de
+  configuración que importaban el backend FEM sólo para calcular una ventana
+  geométrica; `kerr_excision_window` se extrajo a un módulo puro y se reexporta
+  desde `metrics.py` para conservar la API.
 - Hecho: el test MPI de 2 ranks expuso que `mass_matrix.createVecLeft()`
   contiene sólo grados de libertad propios, mientras `Function.x.array`
   contiene propios + fantasmas. La asignación de arrays intentaba copiar
@@ -853,15 +856,19 @@ Revisión de cierre sobre los entregables de 3b:
   parámetros físicos ni artefactos F0–F3. Se conserva el test MPI 1-vs-2 y se
   agrega un smoke MPI con filtro activo para cubrir el segundo sitio.
 - Artefactos modificados: `.github/workflows/{core,ci}.yml`,
-  `src/rsd/solvers/first_order.py`, `tests/{test_excision_window,
+  `src/rsd/{config.py,physics/{excision,metrics}.py,
+  solvers/first_order.py}`, `tests/{test_excision_window,
   test_mpi_diagnostics}.py` y esta entrada. El primer commit del PR preservó
-  el `PYTHONPATH` heredado y marcó correctamente los tests DOLFINx.
+  el `PYTHONPATH` heredado; la clasificación temporal del módulo de ventana
+  se sustituyó por la separación correcta entre geometría pura y backend FEM.
 - Suite: 3/3 tests dirigidos MPI verdes (incluye 1-vs-2 y filtro activo) y
   suite rápida completa **216/216 + 7 slow deseleccionados** en 108.03 s,
   fuera del sandbox por el launcher MPI. `paper_numbers.py --check`,
   `paper_tex_numbers.py --check`, `paper_figures.py --check`,
-  `paper_manifest.py --check` y `git diff --check` verdes. Los dos workflows
-  Linux del PR #18 son el registro remoto del entorno limpio.
+  `paper_manifest.py --check` y `git diff --check` verdes. Tras separar la
+  geometría pura, 19/19 tests de configuración/excisión pasan además en el
+  Python base sin DOLFINx. Los dos workflows Linux del PR #18 son el registro
+  remoto del entorno limpio.
 - [REVIEW] Fable debe auditar que `Vec.copy`/`Vec.axpy` sólo corrigen el
   layout owned/ghost y que el agregado de `fenics-ufl` mantiene liviano el
   Core CI. El diff sobre artefactos congelados F0–F2 permanece vacío.
