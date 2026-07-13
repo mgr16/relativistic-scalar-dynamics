@@ -188,3 +188,107 @@ def test_five_real_entries_match_their_json_sources():
         transform = numbers.TRANSFORMS[entry.get("transform", "identity")]
         assert entry["value"] == pytest.approx(transform(raw)), entry_id
 
+
+def test_required_protocol_and_fine_ladder_inventory_is_json_backed():
+    table = numbers.build_table(REPO)
+    by_id = {entry["id"]: entry for entry in table.entries}
+    required_ids = {
+        "production_pulse_A",
+        "production_pulse_r0",
+        "production_pulse_w",
+        "production_mexhat_lambda",
+        "production_mexhat_vacuum",
+        "production_primary_window_lo",
+        "production_primary_window_hi",
+        "production_primary_order",
+        "production_anchor_order",
+        "production_truth_window_lo",
+        "production_truth_window_hi",
+        "production_truth_order",
+        "production_t_end",
+        "production_strong_tmin",
+        "production_strong_tmax",
+        "production_strong_fraction",
+        "interior_fine_mesh_scale_l0",
+        "interior_fine_mesh_scale_l2",
+        "interior_fine_ladder_rms_linear_l0",
+        "interior_fine_ladder_rms_mexhat_l0",
+        "interior_fine_ladder_rms_linear_l2",
+        "interior_fine_ladder_rms_mexhat_l2",
+        "exterior_l",
+        "exterior_m",
+        "exterior_r_ext",
+        "exterior_pulse_A",
+        "exterior_pulse_r0",
+        "exterior_pulse_w",
+        "exterior_designed_window_length",
+        "exterior_designed_window_t_search",
+        "exterior_designed_window_mode_count",
+        "exterior_tail_tmin",
+        "exterior_tail_floor_tmin",
+        "exterior_late_window_length",
+        "exterior_late_window_min_offset",
+    }
+
+    assert required_ids <= set(by_id)
+    for entry_id in required_ids:
+        entry = by_id[entry_id]
+        assert entry["source"] != "note-only", entry_id
+        assert "::/" in entry["source"], entry_id
+        assert entry["status"] in {"citable", "citable-con-caveat"}, entry_id
+
+
+def test_new_protocol_entries_match_exact_rfc6901_sources_and_transforms():
+    table = numbers.build_table(REPO)
+    by_id = {entry["id"]: entry for entry in table.entries}
+    expected_sources = {
+        "production_pulse_A": (
+            "docs/research/phase2/production/production.json::/protocol/pulse/A",
+            0.1,
+        ),
+        "production_mexhat_lambda": (
+            "docs/research/phase2/production/production.json::/protocol/pots/"
+            "mexhat/potential_params/lambda_coupling",
+            0.1,
+        ),
+        "production_strong_tmax": (
+            "docs/research/phase3/o1_calibration.json::/protocol/"
+            "production_strong/t_max",
+            10.0,
+        ),
+        "interior_fine_mesh_scale_l2": (
+            "docs/research/phase2/production/production.json::/protocol/"
+            "matrix/5/lc",
+            0.028,
+        ),
+        "interior_fine_ladder_rms_mexhat_l2": (
+            "docs/research/phase2/production/production.json::/ladder/mexhat_l2/"
+            "diff_rms_over_scale/mexhat_l2_lc0.040 vs mexhat_l2_lc0.028",
+            21.38146249587637,
+        ),
+        "exterior_r_ext": (
+            "docs/research/phase2/exterior/spectroscopy.json::/protocol/r_ext",
+            6.0,
+        ),
+        "exterior_designed_window_mode_count": (
+            "docs/research/phase2/exterior/spectroscopy.json::/protocol/windows/"
+            "prony_modes",
+            4,
+        ),
+        "exterior_late_window_min_offset": (
+            "docs/research/phase2/exterior/spectroscopy.json::/protocol/"
+            "late_windows/pooled_min_offset",
+            10.0,
+        ),
+    }
+
+    for entry_id, (source, expected_value) in expected_sources.items():
+        entry = by_id[entry_id]
+        assert entry["source"] == source
+        assert entry["value"] == pytest.approx(expected_value)
+        path, pointer = source.split("::", 1)
+        document = json.loads((REPO / path).read_text(encoding="utf-8"))
+        transform = numbers.TRANSFORMS[entry.get("transform", "identity")]
+        assert entry["value"] == pytest.approx(
+            transform(numbers._resolve_pointer(document, pointer))
+        )

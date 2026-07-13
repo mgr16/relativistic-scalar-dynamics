@@ -3,13 +3,237 @@
   "generated_by": "scripts/paper_numbers.py",
   "source_syntax": "repo-relative-file::/RFC6901/JSON/Pointer",
   "status_counts": {
-    "citable": 34,
-    "citable-con-caveat": 156,
+    "citable": 62,
+    "citable-con-caveat": 163,
     "degradado-a-prosa": 10,
     "no-citable": 22,
     "pendiente-de-promoción": 0
   },
   "entries": [
+    {
+      "id": "production_pulse_A",
+      "value": 0.1,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/protocol/pulse/A",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_pulse_r0",
+      "value": 5.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/pulse/r0",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_pulse_w",
+      "value": 1.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/pulse/w",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_mexhat_lambda",
+      "value": 0.1,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/protocol/pots/mexhat/potential_params/lambda_coupling",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_mexhat_vacuum",
+      "value": 1.0,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/protocol/pots/mexhat/potential_params/vacuum_value",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_primary_window_lo",
+      "value": 0.1,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/primary/window/0",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_primary_window_hi",
+      "value": 0.5,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/primary/window/1",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_primary_order",
+      "value": 1,
+      "uncertainty": null,
+      "units": "orden",
+      "source": "docs/research/phase2/production/production.json::/protocol/primary/order",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_anchor_order",
+      "value": 0,
+      "uncertainty": null,
+      "units": "orden",
+      "source": "docs/research/phase2/production/production.json::/protocol/anchor/order",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_truth_window_lo",
+      "value": 0.02,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/truth_1d/window/0",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_truth_window_hi",
+      "value": 0.2,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/truth_1d/window/1",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_truth_order",
+      "value": 1,
+      "uncertainty": null,
+      "units": "orden",
+      "source": "docs/research/phase2/production/production.json::/protocol/truth_1d/order",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_t_end",
+      "value": 12.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/t_end",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_strong_tmin",
+      "value": 4.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/o1_calibration.json::/protocol/production_strong/t_min",
+      "status": "citable-con-caveat",
+      "caveat": "Protocolo de fase fuerte de producción documentado por la calibración o1 revisada.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_strong_tmax",
+      "value": 10.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/o1_calibration.json::/protocol/production_strong/t_max",
+      "status": "citable-con-caveat",
+      "caveat": "Protocolo de fase fuerte de producción documentado por la calibración o1 revisada.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_strong_fraction",
+      "value": 0.3,
+      "uncertainty": null,
+      "units": "fracción del máximo",
+      "source": "docs/research/phase3/o1_calibration.json::/protocol/production_strong/strong_fraction",
+      "status": "citable-con-caveat",
+      "caveat": "Protocolo de fase fuerte de producción documentado por la calibración o1 revisada.",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_fine_mesh_scale_l0",
+      "value": 0.028,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/2/lc",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_fine_mesh_scale_l2",
+      "value": 0.028,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/5/lc",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_fine_ladder_rms_linear_l0",
+      "value": 9.296203210751216,
+      "uncertainty": null,
+      "units": "% de escala",
+      "source": "docs/research/phase2/production/production.json::/ladder/linear_l0/diff_rms_over_scale/linear_l0_lc0.040 vs linear_l0_lc0.028",
+      "status": "citable-con-caveat",
+      "caveat": "Diferencia RMS normalizada entre los dos rungs finos; es un diagnóstico de malla, no una barra de error estadística.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "interior_fine_ladder_rms_mexhat_l0",
+      "value": 11.808104412081272,
+      "uncertainty": null,
+      "units": "% de escala",
+      "source": "docs/research/phase2/production/production.json::/ladder/mexhat_l0/diff_rms_over_scale/mexhat_l0_lc0.040 vs mexhat_l0_lc0.028",
+      "status": "citable-con-caveat",
+      "caveat": "Diferencia RMS normalizada entre los dos rungs finos; es un diagnóstico de malla, no una barra de error estadística.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "interior_fine_ladder_rms_linear_l2",
+      "value": 19.43616512434089,
+      "uncertainty": null,
+      "units": "% de escala",
+      "source": "docs/research/phase2/production/production.json::/ladder/linear_l2/diff_rms_over_scale/linear_l2_lc0.040 vs linear_l2_lc0.028",
+      "status": "citable-con-caveat",
+      "caveat": "Diferencia RMS normalizada entre los dos rungs finos; es un diagnóstico de malla, no una barra de error estadística.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
+    {
+      "id": "interior_fine_ladder_rms_mexhat_l2",
+      "value": 21.38146249587637,
+      "uncertainty": null,
+      "units": "% de escala",
+      "source": "docs/research/phase2/production/production.json::/ladder/mexhat_l2/diff_rms_over_scale/mexhat_l2_lc0.040 vs mexhat_l2_lc0.028",
+      "status": "citable-con-caveat",
+      "caveat": "Diferencia RMS normalizada entre los dos rungs finos; es un diagnóstico de malla, no una barra de error estadística.",
+      "paper_section": "interior",
+      "transform": "fraction-to-percent"
+    },
     {
       "id": "disc_l0_lc0.056_l2_ratio_frozen",
       "value": 0.9441888243850722,
@@ -2196,6 +2420,136 @@
       "caveat": "Residual frente al oráculo sobre soporte común.",
       "paper_section": "discusión",
       "transform": "fraction-to-percent"
+    },
+    {
+      "id": "exterior_l",
+      "value": 2,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/l",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_m",
+      "value": 0,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/m",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_r_ext",
+      "value": 6.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/r_ext",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_pulse_A",
+      "value": 0.001,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/pulse/A",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_pulse_r0",
+      "value": 8.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/pulse/r0",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_pulse_w",
+      "value": 2.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/pulse/w",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_designed_window_length",
+      "value": 26.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/windows/window",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_designed_window_t_search",
+      "value": 12.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/windows/t_search",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_designed_window_mode_count",
+      "value": 4,
+      "uncertainty": null,
+      "units": "modos",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/windows/prony_modes",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_tail_tmin",
+      "value": 40.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/tail/t_min",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_tail_floor_tmin",
+      "value": 55.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/tail/floor_t_min",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_late_window_length",
+      "value": 16.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/late_windows/window",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_late_window_min_offset",
+      "value": 10.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/late_windows/pooled_min_offset",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
     },
     {
       "id": "qnm_leaver_l2_re",

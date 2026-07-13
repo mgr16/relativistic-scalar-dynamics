@@ -369,6 +369,110 @@ def _has_pointer(table: NumberTable, path: str, pointer: str) -> bool:
     return True
 
 
+def _add_production_protocol(table: NumberTable) -> None:
+    """Expose the frozen interior protocol as citable JSON-backed scalars."""
+    scalar_specs = (
+        ("production_pulse_A", "/protocol/pulse/A", "1"),
+        ("production_pulse_r0", "/protocol/pulse/r0", "M"),
+        ("production_pulse_w", "/protocol/pulse/w", "M"),
+        (
+            "production_mexhat_lambda",
+            "/protocol/pots/mexhat/potential_params/lambda_coupling",
+            "1",
+        ),
+        (
+            "production_mexhat_vacuum",
+            "/protocol/pots/mexhat/potential_params/vacuum_value",
+            "1",
+        ),
+        ("production_primary_window_lo", "/protocol/primary/window/0", "M"),
+        ("production_primary_window_hi", "/protocol/primary/window/1", "M"),
+        ("production_primary_order", "/protocol/primary/order", "orden"),
+        ("production_anchor_order", "/protocol/anchor/order", "orden"),
+        ("production_truth_window_lo", "/protocol/truth_1d/window/0", "M"),
+        ("production_truth_window_hi", "/protocol/truth_1d/window/1", "M"),
+        ("production_truth_order", "/protocol/truth_1d/order", "orden"),
+        ("production_t_end", "/protocol/t_end", "M"),
+    )
+    for entry_id, pointer, units in scalar_specs:
+        table.scalar(
+            entry_id,
+            source=_source(PRODUCTION, pointer),
+            units=units,
+            status="citable",
+            paper_section="methods",
+        )
+
+    strong_specs = (
+        ("production_strong_tmin", "/protocol/production_strong/t_min", "M"),
+        ("production_strong_tmax", "/protocol/production_strong/t_max", "M"),
+        (
+            "production_strong_fraction",
+            "/protocol/production_strong/strong_fraction",
+            "fracción del máximo",
+        ),
+    )
+    for entry_id, pointer, units in strong_specs:
+        table.scalar(
+            entry_id,
+            source=_source(CALIBRATION, pointer),
+            units=units,
+            status="citable-con-caveat",
+            caveat=(
+                "Protocolo de fase fuerte de producción documentado por la "
+                "calibración o1 revisada."
+            ),
+            paper_section="methods",
+        )
+
+    # These two matrix records are the actual fine rungs for the l=0 and l=2
+    # production ladders.  Keep the array indices explicit so provenance also
+    # verifies the frozen matrix ordering.
+    for multipole, matrix_index in (("l0", 2), ("l2", 5)):
+        table.scalar(
+            f"interior_fine_mesh_scale_{multipole}",
+            source=_source(PRODUCTION, f"/protocol/matrix/{matrix_index}/lc"),
+            units="M",
+            status="citable",
+            paper_section="methods",
+        )
+
+    fine_pairs = (
+        (
+            "linear_l0",
+            "linear_l0_lc0.040 vs linear_l0_lc0.028",
+        ),
+        (
+            "mexhat_l0",
+            "mexhat_l0_lc0.040 vs mexhat_l0_lc0.028",
+        ),
+        (
+            "linear_l2",
+            "linear_l2_lc0.040 vs linear_l2_lc0.028",
+        ),
+        (
+            "mexhat_l2",
+            "mexhat_l2_lc0.040 vs mexhat_l2_lc0.028",
+        ),
+    )
+    for label, pair_key in fine_pairs:
+        table.scalar(
+            f"interior_fine_ladder_rms_{label}",
+            source=_source(
+                PRODUCTION,
+                f"/ladder/{label}/diff_rms_over_scale/{pair_key}",
+            ),
+            transform="fraction-to-percent",
+            units="% de escala",
+            status="citable-con-caveat",
+            caveat=(
+                "Diferencia RMS normalizada entre los dos rungs finos; es un "
+                "diagnóstico de malla, no una barra de error estadística."
+            ),
+            paper_section="interior",
+        )
+
+
 def _add_frozen_discriminator(table: NumberTable) -> None:
     pairs = (
         "l0_lc0.056", "l0_lc0.040", "l0_lc0.028",
@@ -743,6 +847,46 @@ def _add_calibration(table: NumberTable) -> None:
 
 
 def _add_exterior(table: NumberTable) -> None:
+    protocol_specs = (
+        ("exterior_l", "/protocol/l", "1"),
+        ("exterior_m", "/protocol/m", "1"),
+        ("exterior_r_ext", "/protocol/r_ext", "M"),
+        ("exterior_pulse_A", "/protocol/pulse/A", "1"),
+        ("exterior_pulse_r0", "/protocol/pulse/r0", "M"),
+        ("exterior_pulse_w", "/protocol/pulse/w", "M"),
+        (
+            "exterior_designed_window_length",
+            "/protocol/windows/window",
+            "M",
+        ),
+        ("exterior_designed_window_t_search", "/protocol/windows/t_search", "M"),
+        (
+            "exterior_designed_window_mode_count",
+            "/protocol/windows/prony_modes",
+            "modos",
+        ),
+        ("exterior_tail_tmin", "/protocol/tail/t_min", "M"),
+        ("exterior_tail_floor_tmin", "/protocol/tail/floor_t_min", "M"),
+        (
+            "exterior_late_window_length",
+            "/protocol/late_windows/window",
+            "M",
+        ),
+        (
+            "exterior_late_window_min_offset",
+            "/protocol/late_windows/pooled_min_offset",
+            "M",
+        ),
+    )
+    for entry_id, pointer, units in protocol_specs:
+        table.scalar(
+            entry_id,
+            source=_source(EXTERIOR, pointer),
+            units=units,
+            status="citable",
+            paper_section="methods",
+        )
+
     table.scalar(
         "qnm_leaver_l2_re",
         source=_source(EXTERIOR, "/leaver_l2/0"),
@@ -981,6 +1125,7 @@ def _add_note_only(table: NumberTable) -> None:
 
 def build_table(repo: Path = REPO) -> NumberTable:
     table = NumberTable(repo)
+    _add_production_protocol(table)
     _add_frozen_discriminator(table)
     _add_production_runs(table)
     _add_calibration(table)

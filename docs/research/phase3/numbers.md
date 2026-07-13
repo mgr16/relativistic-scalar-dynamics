@@ -13,6 +13,24 @@ Generado por `scripts/paper_numbers.py`. Cada valor JSON-backed y cada incertidu
 
 | id | valor | incertidumbre | unidades | estado | procedencia | caveat |
 |---|---:|---|---|---|---|---|
+| production_pulse_A | 0.1 | — | 1 | citable | docs/research/phase2/production/production.json::/protocol/pulse/A | — |
+| production_pulse_r0 | 5 | — | M | citable | docs/research/phase2/production/production.json::/protocol/pulse/r0 | — |
+| production_pulse_w | 1 | — | M | citable | docs/research/phase2/production/production.json::/protocol/pulse/w | — |
+| production_mexhat_lambda | 0.1 | — | 1 | citable | docs/research/phase2/production/production.json::/protocol/pots/mexhat/potential_params/lambda_coupling | — |
+| production_mexhat_vacuum | 1 | — | 1 | citable | docs/research/phase2/production/production.json::/protocol/pots/mexhat/potential_params/vacuum_value | — |
+| production_primary_window_lo | 0.1 | — | M | citable | docs/research/phase2/production/production.json::/protocol/primary/window/0 | — |
+| production_primary_window_hi | 0.5 | — | M | citable | docs/research/phase2/production/production.json::/protocol/primary/window/1 | — |
+| production_primary_order | 1 | — | orden | citable | docs/research/phase2/production/production.json::/protocol/primary/order | — |
+| production_anchor_order | 0 | — | orden | citable | docs/research/phase2/production/production.json::/protocol/anchor/order | — |
+| production_truth_window_lo | 0.02 | — | M | citable | docs/research/phase2/production/production.json::/protocol/truth_1d/window/0 | — |
+| production_truth_window_hi | 0.2 | — | M | citable | docs/research/phase2/production/production.json::/protocol/truth_1d/window/1 | — |
+| production_truth_order | 1 | — | orden | citable | docs/research/phase2/production/production.json::/protocol/truth_1d/order | — |
+| production_t_end | 12 | — | M | citable | docs/research/phase2/production/production.json::/protocol/t_end | — |
+| production_strong_tmin | 4 | — | M | citable-con-caveat | docs/research/phase3/o1_calibration.json::/protocol/production_strong/t_min | Protocolo de fase fuerte de producción documentado por la calibración o1 revisada. |
+| production_strong_tmax | 10 | — | M | citable-con-caveat | docs/research/phase3/o1_calibration.json::/protocol/production_strong/t_max | Protocolo de fase fuerte de producción documentado por la calibración o1 revisada. |
+| production_strong_fraction | 0.3 | — | fracción del máximo | citable-con-caveat | docs/research/phase3/o1_calibration.json::/protocol/production_strong/strong_fraction | Protocolo de fase fuerte de producción documentado por la calibración o1 revisada. |
+| interior_fine_mesh_scale_l0 | 0.028 | — | M | citable | docs/research/phase2/production/production.json::/protocol/matrix/2/lc | — |
+| interior_fine_mesh_scale_l2 | 0.028 | — | M | citable | docs/research/phase2/production/production.json::/protocol/matrix/5/lc | — |
 | linear_l0_lc0.056_sigma_a_median_primary | 0.159285 | — | a | citable-con-caveat | docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/sigma_a_median_primary | Error OLS indicativo; el residuo radial está correlacionado. |
 | linear_l0_lc0.056_cond_median_primary | 573.427 | — | 1 | citable | docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/cond_median_primary | — |
 | linear_l0_lc0.056_killing_residual_rel | 48.9024 | — | % | citable-con-caveat | docs/research/phase2/production/production.json::/runs/linear_l0_lc0.056/killing_residual_rel | Dominado por la cuadratura del flujo en la excisión facetada; no es métrica de calidad del campo. |
@@ -60,6 +78,19 @@ Generado por `scripts/paper_numbers.py`. Cada valor JSON-backed y cada incertidu
 | o1_mexhat_l0_truth_scan_floor | 2.43483 | — | % | citable-con-caveat | docs/research/phase3/o1_calibration.json::/calibrations/mexhat_l0/truth_scan_floor_max | Piso al mover la ventana de verdad profunda. |
 | o1_mexhat_l0_resolution_stability_max | 0.368039 | — | % | citable-con-caveat | docs/research/phase3/o1_calibration.json::/calibrations/mexhat_l0/resolution_stability/sampled_k32/max_relative | Check de resolución del cociente, no error de la evolución 3D. |
 | o1_mexhat_l0_sampling_k32_effect_max | 0.442416 | — | % | citable-con-caveat | docs/research/phase3/o1_calibration.json::/calibrations/mexhat_l0/sampling_effect/max_relative | Diferencia entre ventana densa y los radios K del banco 3D. |
+| exterior_l | 2 | — | 1 | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/l | — |
+| exterior_m | 0 | — | 1 | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/m | — |
+| exterior_r_ext | 6 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/r_ext | — |
+| exterior_pulse_A | 0.001 | — | 1 | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/pulse/A | — |
+| exterior_pulse_r0 | 8 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/pulse/r0 | — |
+| exterior_pulse_w | 2 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/pulse/w | — |
+| exterior_designed_window_length | 26 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/windows/window | — |
+| exterior_designed_window_t_search | 12 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/windows/t_search | — |
+| exterior_designed_window_mode_count | 4 | — | modos | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/windows/prony_modes | — |
+| exterior_tail_tmin | 40 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/tail/t_min | — |
+| exterior_tail_floor_tmin | 55 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/tail/floor_t_min | — |
+| exterior_late_window_length | 16 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/late_windows/window | — |
+| exterior_late_window_min_offset | 10 | — | M | citable | docs/research/phase2/exterior/spectroscopy.json::/protocol/late_windows/pooled_min_offset | — |
 | exterior_R20_lc0.7_wall | 1778.54 | — | s | citable | docs/research/phase2/exterior/spectroscopy.json::/runs/R20_lc0.7/wall_seconds | — |
 | exterior_R40_lc1match_wall | 1024.56 | — | s | citable | docs/research/phase2/exterior/spectroscopy.json::/runs/R40_lc1match/wall_seconds | — |
 | exterior_R40_lc0.7match_wall | 3176.98 | — | s | citable | docs/research/phase2/exterior/spectroscopy.json::/runs/R40_lc0.7match/wall_seconds | — |
@@ -76,6 +107,10 @@ Generado por `scripts/paper_numbers.py`. Cada valor JSON-backed y cada incertidu
 
 | id | valor | incertidumbre | unidades | estado | procedencia | caveat |
 |---|---:|---|---|---|---|---|
+| interior_fine_ladder_rms_linear_l0 | 9.2962 | — | % de escala | citable-con-caveat | docs/research/phase2/production/production.json::/ladder/linear_l0/diff_rms_over_scale/linear_l0_lc0.040 vs linear_l0_lc0.028 | Diferencia RMS normalizada entre los dos rungs finos; es un diagnóstico de malla, no una barra de error estadística. |
+| interior_fine_ladder_rms_mexhat_l0 | 11.8081 | — | % de escala | citable-con-caveat | docs/research/phase2/production/production.json::/ladder/mexhat_l0/diff_rms_over_scale/mexhat_l0_lc0.040 vs mexhat_l0_lc0.028 | Diferencia RMS normalizada entre los dos rungs finos; es un diagnóstico de malla, no una barra de error estadística. |
+| interior_fine_ladder_rms_linear_l2 | 19.4362 | — | % de escala | citable-con-caveat | docs/research/phase2/production/production.json::/ladder/linear_l2/diff_rms_over_scale/linear_l2_lc0.040 vs linear_l2_lc0.028 | Diferencia RMS normalizada entre los dos rungs finos; es un diagnóstico de malla, no una barra de error estadística. |
+| interior_fine_ladder_rms_mexhat_l2 | 21.3815 | — | % de escala | citable-con-caveat | docs/research/phase2/production/production.json::/ladder/mexhat_l2/diff_rms_over_scale/mexhat_l2_lc0.040 vs mexhat_l2_lc0.028 | Diferencia RMS normalizada entre los dos rungs finos; es un diagnóstico de malla, no una barra de error estadística. |
 | disc_l0_lc0.056_l2_ratio_frozen | 0.944189 | — | 1 | citable | docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/l2_ratio | — |
 | disc_l0_lc0.056_ratio_median_frozen | 0.879622 | IQR [0.688496, 1.2] | 1 | citable | docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/ratio_median | — |
 | disc_l0_lc0.056_peak_ratio_frozen | 0.985563 | — | 1 | no-citable | docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/peak_ratio | Compara máximos en tiempos distintos y hereda el sesgo diferencial de ventana; mecanismo revisado en HANDOFF §7. |
