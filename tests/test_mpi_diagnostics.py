@@ -16,10 +16,19 @@ REL_TOL = 2e-2
 ABS_TOL = 1e-8
 
 
+def _subprocess_env(repo_root: Path) -> dict[str, str]:
+    """Prepend the checkout without hiding paths supplied by the DOLFINx image."""
+    env = os.environ.copy()
+    paths = [str(repo_root / "src")]
+    if existing := env.get("PYTHONPATH"):
+        paths.append(existing)
+    env["PYTHONPATH"] = os.pathsep.join(paths)
+    return env
+
+
 def _run_case(nproc: int) -> dict:
     repo_root = Path(__file__).resolve().parent.parent
-    env = os.environ.copy()
-    env["PYTHONPATH"] = str(repo_root / "src")
+    env = _subprocess_env(repo_root)
     code = r"""
 import json
 from mpi4py import MPI
@@ -49,8 +58,21 @@ if comm.rank == 0:
     return json.loads(lines[-1])
 
 
+def test_subprocess_env_preserves_container_pythonpath(monkeypatch, tmp_path):
+    inherited = os.pathsep.join(("/dolfinx-env/site-packages", "/runner/support"))
+    monkeypatch.setenv("PYTHONPATH", inherited)
+
+    env = _subprocess_env(tmp_path)
+
+    assert env["PYTHONPATH"].split(os.pathsep) == [
+        str(tmp_path / "src"),
+        *inherited.split(os.pathsep),
+    ]
+
+
 @pytest.mark.skipif(shutil.which("mpiexec") is None, reason="mpiexec not available")
 @pytest.mark.mpi
+@pytest.mark.requires_dolfinx
 def test_mpi_global_diagnostics_consistent_between_1_and_2_ranks():
     pytest.importorskip("dolfinx")
     one = _run_case(1)
