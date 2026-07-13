@@ -873,6 +873,25 @@ Revisión de cierre sobre los entregables de 3b:
   layout owned/ghost y que el agregado de `fenics-ufl` mantiene liviano el
   Core CI. El diff sobre artefactos congelados F0–F2 permanece vacío.
 
+### 2026-07-13 — README sincronizado con F3 y CI post-merge
+- Hecho: el README raíz ahora enlaza el manuscrito F3, sus instrucciones de
+  reproducción y el manifest; el árbol declara `paper/` y capítulos F0–F3.
+  La sección de tests distingue la suite rápida con MPI, la variante serial y
+  los alcances reales de Core CI (NumPy/SciPy/UFL) y CI DOLFINx/MPI.
+- Decisiones tomadas: actualización documental mínima; se conserva la versión
+  3.2.0 y no se modifica ningún resultado, figura, PDF, fuente científica ni
+  artefacto congelado. `paper/README.md` corrige el conteo post-PR #18 de 214
+  a 216 tests rápidos.
+- Artefactos modificados: `README.md`, `paper/README.md`,
+  `paper/SOURCE_MANIFEST.sha256` y esta entrada. El manifest se regeneró por
+  la vía canónica y cambió sólo el hash de `paper/README.md`.
+- Suite: los checks de números (257), macros (97), figuras (5/10 archivos) y
+  manifest (32 artefactos) están verdes; 7/7 tests del manifest pasan y
+  `git diff --check` queda limpio.
+- [REVIEW] Fable debe confirmar que el enlace del README no implica release:
+  el tag `v3.3.0-paper`, la versión del paquete y cualquier depósito externo
+  siguen reservados a Marco.
+
 ---
 
 ## 8. Contrato autónomo C3–C5 (vigente desde 2026-07-12)

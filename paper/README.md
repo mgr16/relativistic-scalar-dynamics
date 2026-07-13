@@ -86,7 +86,7 @@ git diff --check
 ```
 
 El cierre C5 espera 257 entradas canónicas, 97 macros, 5 figuras en PDF+PNG,
-un PDF de 7 páginas, 32 artefactos en el manifest y 214 tests rápidos (más 7
+un PDF de 7 páginas, 32 artefactos en el manifest y 216 tests rápidos (más 7
 slow deseleccionados). El manifest lista la clausura de fuentes y outputs con
 rutas relativas y hashes SHA-256; no contiene timestamps ni rutas del host.
 

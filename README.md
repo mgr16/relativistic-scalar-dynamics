@@ -117,6 +117,16 @@ Headline results so far:
   stability bound, domain cavity modes, interior estimator calibration
   (`docs/research/phase1/`, `docs/research/phase2/`).
 
+### Reproducible F3 manuscript
+
+The F3 reproducibility package lives under [`paper/`](paper/): the
+[compiled manuscript](paper/main.pdf),
+[reproduction instructions](paper/README.md), generated number macros and
+figures, and the [SHA-256 source/output manifest](paper/SOURCE_MANIFEST.sha256).
+All paper numbers and figures regenerate from versioned repository artifacts;
+the build does not read local `results/` directories or rewrite frozen F0–F2
+data.
+
 ## Project Structure
 
 ```
@@ -137,10 +147,11 @@ rsd/
 │   ├── math/              # 3+1, excision window, Killing energy, dissipation
 │   ├── media/             # README assets (live demo GIF)
 │   ├── research/          # Research program: plan.md (canonical) + phase
-│   │                      #   chapters F0–F2 (notes, JSON, data, figures)
+│   │                      #   chapters F0–F3 (notes, JSON, data, figures)
 │   └── validation/        # Validation & reproducibility summary
 ├── scripts/               # Env setup, research production scripts (interior
-│                          #   matrix, exterior spectroscopy), demo recorder
+│                          #   matrix, spectroscopy, paper pipeline), demos
+├── paper/                 # RevTeX manuscript, figures, PDF and SHA-256 manifest
 ├── benchmarks/            # Solver benchmarks
 └── config_example.json    # Example configuration
 ```
@@ -186,8 +197,8 @@ Optional extras:
 
 ### Verify the installation
 ```bash
-pytest -q          # imports, config, lightweight postprocess tests
-rsd --test       # CLI smoke check
+python -m pytest -q -m "not slow"  # fast suite; MPI runs when available
+rsd --test                         # CLI smoke check
 ```
 
 ## Quick Start
@@ -358,11 +369,15 @@ results/run_YYYYmmdd_HHMMSS/
 ## Testing and CI
 
 ```bash
-# fast suite (no slow/MPI tests); macOS: prepend CC=/usr/bin/clang
-pytest -q -m "not slow and not mpi"
+# fast suite (includes the MPI regression when a launcher is available)
+# macOS: prepend CC=/usr/bin/clang if the FFCx JIT needs it
+python -m pytest -q -m "not slow"
+
+# serial-only fast suite
+python -m pytest -q -m "not slow and not mpi"
 
 # everything
-pytest -q
+python -m pytest -q
 ```
 
 Markers: `slow`, `mpi`, `integration`, `requires_dolfinx`, `requires_mesh`,
@@ -395,8 +410,9 @@ The test suite validates physics at increasing depth (deepest are `slow`):
    the BCs makes it fail, forcing a recalibration of spectroscopy
    windows and floors.
 
-- **Core CI** — lightweight tests without DOLFINx (pure NumPy/SciPy paths)
-- **CI** — full suite inside the `dolfinx/dolfinx:stable` container
+- **Core CI** — lightweight NumPy/SciPy/UFL paths without DOLFINx/PETSc/MPI
+- **CI** — fast suite inside `dolfinx/dolfinx:stable`, including MPI
+  owned/ghost-vector regressions
 - **HPC CI** — scheduled weekly run including `slow` tests
 
 ## Extending RSD
