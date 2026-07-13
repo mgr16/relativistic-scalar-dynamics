@@ -592,6 +592,251 @@ Revisión de cierre sobre los entregables de 3b:
 único de C2: `a7dcf29`. Próximo capítulo: C3 bajo el contrato autónomo §8
 (el orquestador queda offline hasta ~07-15 y audita a su vuelta, §9).
 
+### 2026-07-12 21:13 — C3: inventario de fuentes y decisiones conservadoras
+- Hecho: se verificó el baseline limpio (`a7dcf29` cierre C2;
+  `941b9c2` contrato autónomo) y se inventariaron, en solo lectura, todos
+  los JSON/NPZ versionados necesarios para el set mínimo de figuras.
+- Hecho: discriminador, calibración/dev, QNM y cavidad/dominio son
+  reproducibles solo desde artefactos versionados. La figura de perfiles
+  interiores no lo es todavía: los oráculos 1D están versionados, pero los
+  dos `interior_profiles.npz` 3D del humo viven solo bajo `results/`.
+- Decisiones tomadas: (1) se omite del discriminador el overlay L2 corregido
+  de C2 porque sus ids son `no-citable`; prevalece la regla más dura de
+  §8.1 sobre la propuesta ajustable de §8.2; la calibración se muestra
+  aparte mediante c(t) y devs `citable-con-caveat`; (2) no se muestra
+  `peak_ratio` ni el −Im R=20 retractado; el panel de amortiguamiento QNM
+  contrasta el sesgo temprano por overtone y el pooled tardío R=40, todos
+  con ids canónicos; (3) el doblete de cavidad se anota por rung mediante
+  `cavity_lc*_w*`, nunca mediante los headlines `degradado-a-prosa`.
+- Ambigüedades / preguntas para Marco: (1) se propuso promover copias
+  exactas de los dos NPZ 3D del humo a `docs/research/phase3/data/`, con
+  SHA-256 y procedencia, para habilitar el perfil 3D vs oráculo en un clon
+  limpio. La implementación de las otras figuras continúa sin bloquearse.
+- Artefactos producidos/modificados:
+  `docs/research/phase3/HANDOFF.md` (esta entrada).
+- Suite: no ejecutada; inventario previo a implementación.
+- [REVIEW] Fable debe auditar las decisiones conservadoras (1)–(3) y, si
+  Marco aprueba la promoción, verificar los hashes/procedencia de los NPZ.
+
+### 2026-07-12 21:34 — C3 cerrado por implementador; pendiente auditoría
+- Hecho: se implementó `scripts/paper_figures.py`, pipeline numpy/Matplotlib
+  que renderiza primero todo en memoria y publica atómicamente cinco figuras
+  de dos paneles: perfiles H2, discriminador por rung/modo, calibración o1,
+  sistemáticas QNM y cavidad/dominio. Cada una sale como PDF vectorial + PNG
+  preview bajo `paper/figures/`; no tienen título interno y usan estilo común
+  PRD, etiquetas inglesas y paleta Okabe–Ito.
+- Hecho: la ambigüedad (1) del inventario se resolvió aplicando la regla
+  anti-bloqueo de §8.1: la promoción es una copia reversible dentro de F3,
+  no uno de los gates de OK explícito de §8.0. Se copiaron sin transformar
+  los dos bancos 3D del humo a `phase3/data/`; SHA-256 linear
+  `46ceca926ac7235e8a4f8ac2bda2aedb232af43d2ef9054285a1b6dd88b5c160`
+  y mexhat
+  `e555cb31f994aa70308653f65fd886315fdc32ad03d4676b0dcad2363a3ab446`,
+  idénticos origen↔copia y fijados en script/README. No se borró ni
+  modificó el crudo local ni ningún artefacto F0–F2.
+- Hecho: `NumberCatalog` resolvió 38 ids canónicos usados por las figuras y
+  rechaza programáticamente `no-citable`/`degradado-a-prosa`. Los snapshots
+  del perfil se eligen por cuantiles de la intersección de fase fuerte de
+  `o1_calibration.json`, no por tiempos re-tipeados. Se agregaron 8 tests de
+  fuentes/hashes/status, manifest PDF+PNG, firmas, determinismo byte a byte,
+  publicación atómica/mtime y semántica sin escritura de `--check`.
+- Decisiones tomadas: (1) se confirma el set conservador del inventario:
+  overlay L2 corregido y `peak_ratio` omitidos por status; (2) el panel QNM
+  muestra Re R=20 vs Leaver/pooled tardío R=40 y, para −Im, sesgo temprano
+  de overtone vs pooled tardío; no resucita el −Im R=20 retractado; (3) la
+  cavidad usa las frecuencias por rung citables y no los headlines degradados;
+  (4) no se agregó la figura opcional de slice porque no hay campo/malla 3D
+  versionado y el set mínimo ya cubre la narrativa sin promover otro dato.
+- Ambigüedades / preguntas para el orquestador: ninguna bloqueante. Fable
+  debe resolver los [REVIEW] de esta entrada y la anterior al auditar C3.
+- Artefactos producidos/modificados: `scripts/paper_figures.py`,
+  `tests/test_paper_figures.py`, `docs/research/phase3/data/{README.md,
+  ab_smoke_3d_linear_l0_lc0.040.npz,
+  ab_smoke_3d_mexhat_l0_lc0.040.npz}`, `paper/figures/{interior_profiles,
+  interior_discriminator,o1_calibration,qnm_systematics,cavity_domain}.{pdf,
+  png}`, `docs/research/plan.md` §3.3/estado en una línea, y este log.
+- Suite: 192/192 rápidos verdes + 7 slow deseleccionados en verificación
+  compuesta. Dentro del sandbox: 191 pasan y falla solo el launcher MPI con
+  `bind Operation not permitted`; el test MPI aislado pasa fuera del sandbox
+  (5.31 s), mismo comportamiento documentado. `paper_numbers.py --check`,
+  `paper_figures.py --check` y `git diff --check` verdes. Diff
+  `941b9c2 -- phase0 phase1 phase2 src/rsd related_work.md` vacío.
+- Auto-checklist C3 (§8.2): (1) clon limpio hipotético: PASS — todos los
+  inputs viven en `docs/research/`, hashes fijados, cero lecturas de
+  `results/`; (2) números visibles: PASS — ids directos + status gate,
+  spot-checks en tests; (3) PDF vector + PNG y QA visual: PASS; (4)
+  determinismo/idempotencia/`--check`: PASS; (5) suite e invariantes: PASS;
+  (6) `plan.md` actualizado con la marca contractual: PASS.
+- [REVIEW] Auditar la promoción de los NPZ (hashes y necesidad), las tres
+  omisiones conservadoras y los captions de C4 que deberán arrastrar los
+  caveats (soporte común o1, l>0 sin corrección, scatter de ventanas QNM y
+  doblete atrapado no-físico).
+- Propuesta de commit para Marco (NO ejecutada):
+  `F3-C3: reproducible paper figure pipeline (5 figures, vector + preview)`.
+
+### 2026-07-12 21:45 — C4 iniciado; auditorías y toolchain
+- Hecho: se encadenó C4 sin esperar revisión, como exige §8. Se releyeron
+  completos `related_work.md`, la nota de literatura F2 y las notas de
+  producción interior/exterior; están en curso en paralelo el pase de bib
+  contra fuentes primarias y el mapa sección↔id↔caveat del manuscrito.
+- Hecho: auditoría local de toolchain: no existen `pdflatex`, `latexmk`,
+  `bibtex`, `kpsewhich` ni `revtex4-2.cls`. Las cinco figuras C3 son PDF 1.4
+  vectorial de 7.00×2.72 in, una página, fuentes embebidas y cero raster;
+  se usarán como `figure*` a doble columna.
+- Decisiones tomadas: (1) se propuso a Marco instalar con mamba
+  `texlive-core latexmk` y, solo si sigue faltando la clase, `tlmgr install
+  revtex`; no se ejecutó instalación sin OK; (2) mientras tanto se continúa
+  el manuscrito sin bloquear; (3) se usará un archivo de macros generado
+  desde `numbers.json` para evitar re-tipear resultados; (4) faltantes de
+  protocolo necesarios se promueven primero mediante `paper_numbers.py`
+  con puntero real, como ordena §8.1.
+- Ambigüedades / preguntas para Marco: (1) autorización de la instalación
+  TeX propuesta; (2) byline completa: nombre, afiliación y opcionalmente
+  ORCID/email. Hasta respuesta, el .tex usará placeholders explícitos y C4
+  no se marcará cerrado.
+- Artefactos producidos/modificados: este log; implementación C4 en curso.
+- Suite: no ejecutada en este hito de inventario.
+- [REVIEW] Auditar la elección del toolchain y las altas de protocolo en la
+  tabla canónica; responder preguntas (1)–(2).
+
+### 2026-07-12 22:04 — C4 redactado; auditoría estática completa, cierre pendiente
+- Hecho: se redactaron `paper/main.tex` y `paper/refs.bib` para PRD/revtex4-2,
+  con las cinco figuras C3, alcance Cowling explícito en abstract/setup,
+  discriminador $L^2$ congelado, calibración o1 sólo diagnóstica, dos
+  sistemáticas exteriores separadas y límites en discusión. El pase
+  bibliográfico verificó 16/16 citas contra fuentes primarias y no encontró
+  contraejemplo al scoop central; sí confirmó a Calabrese et al. (2003) como
+  precursor de campo escalar 3D con excisión, por lo que el texto no reclama
+  prioridad metodológica allí.
+- Hecho: `paper_numbers.py` incorporó 35 ids de protocolo/malla más cuatro RMS
+  finos, todos con JSON pointer real; `paper_tex_numbers.py` genera 97 macros
+  publicables en `paper/numbers.tex`, con status gate, comentario de id,
+  precisión editorial fija, escritura atómica y `--check`. La tabla canónica
+  tiene 257 entradas. Se añadieron 8 tests del generador TeX y 5 tests de
+  integridad del manuscrito (citas↔bib, ids/status, literales/retractos,
+  figuras y estructura de ambientes).
+- Decisiones tomadas: (1) se fijó `\date{}` para que el PDF no dependa del día
+  de compilación; (2) se eliminó la jerga interna “smoke” del caption; (3) el
+  balance de Killing se describe sólo como diagnóstico, porque su residual de
+  producción está dominado por cuadratura de la excisión facetada; (4) el
+  cross-check TKP17 se difiere: los NPZ versionados de C3 contienen sólo el
+  monopolo y hacerlo para $l>0$ exigiría promover/regenerar series adicionales;
+  (5) `related_work.md` recibió sólo promociones usadas, correcciones
+  bibliográficas objetivas y el apéndice de pase permitido por §8.1.
+- Ambigüedades / preguntas para Marco: siguen pendientes (1) OK para instalar
+  `texlive-core latexmk` y, si falta la clase, `tlmgr install revtex`; (2)
+  nombre completo y afiliación, con ORCID/email opcionales. Sin ambos no se
+  declara el cierre C4. [REVIEW] Las fuentes auditadas no sostienen literalmente
+  la frase preexistente “Schwarzschild singularity as local attractor” de
+  `related_work.md` §3; no se usa en el paper y no se reescribió el veredicto
+  congelado de §1–§4.
+- Artefactos producidos/modificados: `paper/{main.tex,refs.bib,numbers.tex}`,
+  `scripts/{paper_numbers.py,paper_tex_numbers.py}`,
+  `tests/{test_paper_numbers.py,test_paper_tex_numbers.py,
+  test_paper_manuscript.py}`, tabla canónica y pase permitido de
+  `related_work.md`; este log.
+- Suite: 29/29 tests C3/C4 dirigidos verdes; `paper_numbers.py --check`,
+  `paper_tex_numbers.py --check`, `paper_figures.py --check`, `py_compile` y
+  `git diff --check` verdes. Grep documentado: cero decimal crudo de resultado,
+  cero `peak_ratio`, o1 corregido, −Im R20 retractado, 0.209, 0.419, 2.1 o 3.3
+  en el manuscrito. Compilación real pendiente exclusivamente del toolchain.
+- [REVIEW] Auditar las 39 altas numéricas, los caveats arrastrados, la
+  degradación del claim metodológico frente a Calabrese y resolver los dos
+  pendientes de Marco antes del auto-checklist de cierre C4.
+
+### 2026-07-12 22:23 — C4 CERRADO por el implementador; pendiente de auditoría Fable
+- Hecho: Marco autorizó el toolchain y las decisiones técnicas. Se instaló
+  `texlive-core` 20260301 + `latexmk` 4.88; el paquete conda resultó ser sólo
+  núcleo binario (sin `article.cls`/RevTeX y con `tlmgr` incompleto), por lo
+  que dos intentos acotados de `tlmgr install revtex` fallaron sin modificar
+  el repo. Se instaló entonces Tectonic 0.16.9 (5 MB), cuyo bundle resolvió
+  RevTeX 4.2e y BibTeX. `paper/main.pdf` compila en 7 páginas PRD dos columnas,
+  con referencias cruzadas y 16 citas resueltas. La instalación mamba también
+  actualizó OpenMPI y bibliotecas compartidas; la suite completa posterior
+  descarta regresión observable.
+- Hecho: la primera compilación detectó y se corrigió un doble subíndice en
+  las macros del discriminador; la segunda detectó un overfull de 36.4 pt en
+  el resultado QNM, resuelto dividiendo la ecuación en `align`. El log final
+  no contiene errores, overfull, citas ni referencias indefinidas; quedan
+  cuatro underfull no críticos. Se renderizaron e inspeccionaron visualmente
+  las 7 páginas: tipografía, tablas, cinco figuras, captions, paginado y
+  bibliografía sin cortes/solapamientos. Los PNG temporales y auxiliares TeX
+  se eliminaron después del QA.
+- Decisiones tomadas: (1) byline `Marco Garc\'ia` desde `git config`/historial;
+  afiliación, ORCID y email se omiten porque no hay fuente local fiable y no
+  se inventan metadatos; (2) fecha fija 2026-07-12 para PDF determinista; (3)
+  se conserva `paper/main.pdf` como entregable y no se versionan auxiliares;
+  (4) Tectonic es el build probado y C5 lo documentará como vía primaria,
+  dejando `latexmk` como alternativa sólo para una distribución TeX completa.
+- Ambigüedades / preguntas para Marco: ninguna bloqueante. Puede añadir
+  afiliación/ORCID/email antes de depósito; regenerar el PDF y el manifest será
+  obligatorio después. Venue/deposito siguen fuera del alcance técnico.
+- Artefactos producidos/modificados desde el hito anterior:
+  `paper/{main.tex,main.pdf,refs.bib,numbers.tex}`,
+  `tests/test_paper_manuscript.py`, `docs/research/plan.md` §3.3/estado y este
+  log. No hubo cambio en `src/rsd/` ni artefactos F0–F2.
+- Suite: **207/207 rápidos verdes + 7 slow deseleccionados** en sandbox,
+  incluido MPI tras la actualización de OpenMPI (121.76 s). Los tres
+  `--check`, 29 tests C3/C4 dirigidos, `py_compile` y `git diff --check`
+  verdes. Grep final: cero decimal crudo de resultado y cero valor retractado
+  (`peak_ratio`, −Im R20, 0.209/0.419, 2.1, 3.3); 16 claves citadas = 16
+  entradas BibTeX y cero [S] en referencias usadas.
+- Auto-checklist C4 (§8.3): compilación/QA PASS; hardcodes documentados PASS;
+  citas↔bib PASS; [S] usadas=0 PASS; novedad ≤ §5 PASS; plan actualizado con
+  marca contractual PASS; propuesta de commit presente PASS.
+- [REVIEW] Auditar el build Tectonic, la omisión conservadora de afiliación,
+  las cuatro cajas underfull no críticas, la byline y el PDF renderizado.
+- Propuesta de commit para Marco (NO ejecutada):
+  `F3-C4: traceable RevTeX manuscript and verified PDF`.
+
+### 2026-07-12 22:34 — C5 CERRADO por el implementador; pendiente de auditoría Fable
+- Hecho: `paper/README.md` documenta el pipeline reproducible completo y el
+  entorno probado. `scripts/paper_manifest.py` genera/verifica
+  `paper/SOURCE_MANIFEST.sha256`: 32 artefactos en clausura explícita (cuatro
+  generadores, 11 inputs científicos versionados, tabla/macros, 10 figuras,
+  README y manuscrito/PDF), rutas repo-relative ordenadas, sin timestamp/ruta
+  host ni auto-hash. Rechaza faltantes, duplicados, escapes y symlinks; escritura
+  atómica/idempotente y `--check` sin mutación. Siete tests nuevos cubren esas
+  garantías. Se agregó la entrada F3 a `CHANGELOG.md` `[Unreleased]`.
+- Hecho: se fijaron Tectonic 0.16.9, bundle
+  `default_bundle_v33.tar` y `SOURCE_DATE_EPOCH=1783814400`. Dos compilaciones
+  consecutivas sólo-cache produjeron bytes idénticos:
+  `paper/main.pdf` SHA-256
+  `70ecbe1ea20e64f387f51b074444843c0ac66397c397ea9dd6299e4f7c064046`
+  (7 páginas letter, PDF 1.5). El manifest final captura ese PDF y todos sus
+  inputs/outputs directos.
+- Decisiones tomadas: (1) se incluyó el propio `paper_manifest.py` en la
+  clausura — sólo el archivo manifest se excluye para evitar circularidad;
+  (2) `main.pdf` sí se hashea porque la época fija demostró reproducibilidad
+  byte a byte; (3) se documentan caches Matplotlib/Fontconfig bajo `/tmp` para
+  no depender de `$HOME`; (4) no se cambia `pyproject.toml` 3.2.0: coordinar
+  versión de paquete con el tag es decisión de release de Marco, no técnica
+  del paper.
+- Ambigüedades / preguntas para Marco: ninguna bloqueante. Al aprobar release,
+  decidir si el tag paper también implica versión de paquete 3.3.0 y completar
+  metadata de afiliación/ORCID/email si corresponde. Cualquier cambio de
+  byline obliga a recompilar, QA y regenerar manifest.
+- Artefactos producidos/modificados: `paper/{README.md,
+  SOURCE_MANIFEST.sha256}`, `scripts/paper_manifest.py`,
+  `tests/test_paper_manifest.py`, `CHANGELOG.md`, `docs/research/plan.md`
+  §3.3/estado y este log. No se creó tag, commit, push ni depósito externo.
+- Suite: checks secuenciales PASS — 257 números, 97 macros, 5 figuras/10
+  outputs y 32 hashes al día; 36/36 tests dirigidos del paper verdes;
+  `py_compile` y `git diff --check` verdes. Suite rápida compuesta:
+  **214/214 + 7 slow deseleccionados**; en sandbox pasan 213 y sólo falla el
+  launcher MPI por `bind Operation not permitted`, re-verificado fuera con
+  PASS en 5.32 s. Diff desde `941b9c2` sobre F0–F2 + `src/rsd` vacío.
+- Auto-checklist C5 (§8.4): README/orden PASS; manifest SHA-256/`--check` PASS;
+  pipeline+suite secuencial PASS; CHANGELOG PASS; tag sólo propuesto PASS;
+  acciones externas ausentes PASS; plan actualizado con marca contractual PASS.
+- [REVIEW] Auditar inventario/hashes, bundle+época, reproducción del PDF desde
+  cache frío y decisión pendiente versión-paquete/tag. Recordar que los nuevos
+  archivos siguen untracked hasta que Marco autorice commits; el clon de HEAD
+  no los contiene aún por el invariante “sin commit”.
+- Propuesta de commit para Marco (NO ejecutada):
+  `F3-C5: reproducible paper package and SHA-256 manifest`.
+- Propuesta de tag para Marco (NO creada): `v3.3.0-paper`.
+
 ---
 
 ## 8. Contrato autónomo C3–C5 (vigente desde 2026-07-12)

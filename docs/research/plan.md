@@ -30,9 +30,16 @@ l2_ratio + ratio_median/IQR; l>0 sin corrección por piso de verdad) +
 tabla canónica `phase3/numbers.{json,md}` (222 entradas, procedencia
 RFC 6901, 0 pendientes); suite 184. **Desde el cierre de C2 rige el
 contrato AUTÓNOMO `phase3/HANDOFF.md` §8** (orquestador offline hasta
-~07-15): Sol encadena C3 (figuras) → C4 (manuscrito) → C5 (empaquetado)
-sin gates de revisión, con autodisciplina documentada y auditoría de
-Fable a su vuelta (§9). Opcionales de F2 no bloquean.
+~07-15): **C3 pipeline de figuras CERRADO por el implementador, pendiente
+de auditoría Fable** (5 figuras / 10 PDF+PNG reproducibles, solo fuentes
+versionadas, suite rápida 192); **C4 MANUSCRITO CERRADO por el
+implementador, pendiente de auditoría Fable** (revtex4-2/PRD, 7 páginas,
+16 referencias verificadas, 5 figuras, 97 macros trazables, suite rápida
+207); **C5 EMPAQUETADO CERRADO por el implementador, pendiente de auditoría
+Fable** (README, manifest SHA-256 de 32 artefactos, PDF byte-reproducible,
+suite compuesta 214/214). La implementación F3 C1–C5 queda completa sin tag,
+commit ni depósito externo; Fable audita a su vuelta (§9). Opcionales de F2
+no bloquean.
 
 ---
 
@@ -326,19 +333,43 @@ Capítulos, en orden:
      22 no-citable / 10 degradado-a-prosa / 0 pendiente. Spot-checks
      del orquestador con resolutor independiente: 7/7.
    - Suite tras C2: **184 rápidos en verde** (+12 tests C2).
-3. **C3 — Pipeline de figuras (AUTORIZADO en modo autónomo, contrato
-   HANDOFF §8.2):** `scripts/paper_figures.py` (idempotente, `--check`)
-   regenera todas las figuras del manuscrito desde los JSON canónicos y
-   npz VERSIONADOS (nunca `results/`) → `paper/figures/` (PDF vector +
-   PNG). Números visibles = entradas de `numbers.json` por id. Set
-   mínimo y estilo en el contrato.
-4. **C4 — Manuscrito (autónomo tras C3, contrato §8.3):**
-   `paper/main.tex` + `paper/refs.bib`, revtex4-2/PRD. Todo número
-   desde `numbers.json` (id en comentario), retractados jamás, pase de
-   bib promueve [S]→[A/T], novedad solo debilitable, Cowling declarado.
-5. **C5 — Empaquetado reproducible (autónomo tras C4, contrato §8.4):**
-   README de regeneración, manifest SHA-256, checks en secuencia,
-   propuesta de tag; depósito externo y tag = SOLO Marco.
+3. **C3 — Pipeline de figuras CERRADO 2026-07-12 (cierre por
+   implementador, pendiente de auditoría Fable):**
+   `scripts/paper_figures.py` (idempotente, `--check`) regenera 5 figuras
+   de dos paneles desde JSON/NPZ versionados → 10 artefactos en
+   `paper/figures/` (PDF vector + PNG). La fuente 3D faltante del perfil
+   H2 se promovió como copia exacta a `phase3/data/` con hashes validados;
+   el script no lee `results/`. Los números anotados se resuelven por id de
+   `numbers.json` y el catálogo rechaza status no citables; se omitió el
+   overlay L2 corregido y todo `peak_ratio`. Ocho tests C3 cubren fuentes,
+   status, determinismo byte a byte, atomicidad y `--check`; suite rápida
+   total: 192 verdes (MPI re-verificado fuera del sandbox).
+4. **C4 — Manuscrito CERRADO 2026-07-12 (cierre por implementador,
+   pendiente de auditoría Fable; contrato §8.3):**
+   `paper/main.tex` + `paper/refs.bib` + `paper/numbers.tex` +
+   `paper/main.pdf`, revtex4-2/PRD dos columnas. Manuscrito de 7 páginas
+   con 5 figuras, 16/16 referencias verificadas/citadas, Cowling explícito
+   en abstract/setup, novedad consistente con §5 y caveats conservadores.
+   `paper_tex_numbers.py` genera 97 macros desde la tabla ampliada a 257
+   entradas (39 altas JSON-backed de protocolo/malla/RMS); cero decimal de
+   resultado re-tipeado y cero valor retractado/no-citable. Compila con
+   Tectonic 0.16.9 + RevTeX 4.2e sin errores, overfull, referencias o citas
+   indefinidas; QA visual de las 7 páginas aprobado. Trece tests C4 nuevos;
+   suite rápida total tras la actualización de toolchain: 207 verdes + 7
+   slow deseleccionados.
+5. **C5 — Empaquetado reproducible CERRADO 2026-07-12 (cierre por
+   implementador, pendiente de auditoría Fable; contrato §8.4):**
+   `paper/README.md` documenta números → macros → figuras → PDF → manifest →
+   tests. `scripts/paper_manifest.py --check` verifica 32 artefactos con
+   SHA-256, rutas relativas, inventario explícito, rechazo de escapes/symlinks
+   y escritura atómica/idempotente; 7 tests nuevos. El build probado fija
+   Tectonic 0.16.9, bundle v33 y `SOURCE_DATE_EPOCH=1783814400`: dos builds
+   consecutivos dieron el mismo PDF SHA-256
+   `70ecbe1ea20e64f387f51b074444843c0ac66397c397ea9dd6299e4f7c064046`.
+   Los checks secuenciales y la suite compuesta 214/214 están verdes; entrada
+   `[Unreleased]` agregada a CHANGELOG. Tag propuesto `v3.3.0-paper`, no
+   creado; depósito externo, tag y decisión de subir `pyproject.toml` desde
+   3.2.0 siguen reservados a Marco.
 
 ## 4. Hechos técnicos establecidos (no re-derivar)
 

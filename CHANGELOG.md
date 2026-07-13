@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [Unreleased]
 
 ### Added
+- **F3 reproducible paper pipeline**: canonical JSON-backed manuscript
+  numbers (257 entries, publication status gate, 97 generated LaTeX macros),
+  five deterministic two-panel figures in vector PDF plus PNG preview, and a
+  seven-page RevTeX/PRD manuscript with 16 verified references. The paper
+  build uses a pinned Tectonic bundle and `SOURCE_DATE_EPOCH`; a SHA-256
+  source/output manifest and `--check` paths cover numbers, figures, PDF, and
+  packaging. Reproduction instructions live in `paper/README.md`. No release
+  tag or external deposit is created by the pipeline.
 - **F2 exterior spectroscopy production closes** (`docs/research/phase2/
   exterior/note.md` + `spectroscopy.json`; script
   `scripts/exterior_spectroscopy.py`, idempotent, subprocess workers,
