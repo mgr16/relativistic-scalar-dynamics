@@ -25,7 +25,8 @@ métodos. Cada referencia lleva su nivel de verificación:
 ## 1. Competencia directa: campos en el interior, asintóticas hacia r=0
 
 - **[T] Fournodavlos & Sbierski**, *Generic blow-up results for the wave
-  equation in the interior of a Schwarzschild black hole*, ARMA 2019,
+  equation in the interior of a Schwarzschild black hole*, ARMA 235,
+  927–971 (2020),
   arXiv:1804.01941 — el teorema que H2 pone a prueba (ψ = A·log r + B +
   O(r·log r), genericidad). Verificado a texto completo en F2
   ([`../phase2/literature.md`](../phase2/literature.md)).
@@ -37,9 +38,9 @@ métodos. Cada referencia lleva su nivel de verificación:
   perfiles logarítmicos, ni r→0, ni comparación con F–S (el paper es
   anterior a F–S). **TODO para C4:** comprobar en nuestras series si sus
   oscilaciones-l aparecen (validación cruzada barata y citable).
-- **[S] Línea interior autogravitante clásica** (contexto, no
+- **[A] Línea interior autogravitante clásica** (contexto, no
   competencia — otro sistema: colapso con carga/self-gravity):
-  Burko & Ori, *Black hole singularities: a numerical approach*
+  Brady & Smith, *Black hole singularities: a numerical approach*
   (gr-qc/9506067); Burko, *Homogeneous spacelike singularities inside
   spherical black holes* (gr-qc/9711012); *Late-time evolution of
   nonlinear gravitational collapse* (gr-qc/9703067); *Numerical evolution
@@ -73,16 +74,16 @@ ocupamos sigue abierto.
   en el exterior; nosotros medimos su borrado en el interior. Cita
   obligada en la intro.
 - **[A] Marsden, Aurrekoetxea, Clough & Ferreira**, *Symmetry restoration
-  and vacuum decay from accretion around black holes*, arXiv:2403.17595
-  (2024) — acreción clásica ⇒ cascarones de restauración de simetría
+  and vacuum decay from accretion around black holes*, PRD 111, L041501
+  (2025), arXiv:2403.17595 — acreción clásica ⇒ cascarones de restauración de simetría
   alrededor del BH ⇒ cataliza el decaimiento del vacío (burbuja que
   expande a ~c). Todo exterior (el abstract no menciona interior ni
   singularidad). Refuerza que la región interior es el hueco.
-- **[T/S] H1 (respaldo, anclas ya fijadas en F2):** Burda–Gregory–Moss
+- **[T] H1 (respaldo, anclas ya fijadas en F2):** Burda–Gregory–Moss
   (arXiv:1501.04937 PRL, 1503.07331 JHEP) y el contrapunto 2023 *BHs
   don't source fast Higgs vacuum decay* (JHEP 03(2023)039) — pinneados en
-  [`../phase2/literature.md`](../phase2/literature.md). Nuevos [S] del
-  pase de hoy: *On thermal false vacuum decay around black holes*
+  [`../phase2/literature.md`](../phase2/literature.md).
+- **[S] H1 (contexto nuevo, no usado en C4):** *On thermal false vacuum decay around black holes*
   (arXiv:2210.08028); Canaletti & Moss, *Seeding the decay of the false
   vacuum*, PRD 110, 105015 (2024; arXiv:2408.12229); *The Signals of
   Doomsday I* (arXiv:2501.15848, 2025). Suficiente para el párrafo de
@@ -96,8 +97,8 @@ ocupamos sigue abierto.
     útil como contraste explícito de la discusión ("en GR mínima el
     interior BORRA el Higgs; para que el Higgs gobierne el interior hace
     falta salir de GR"). Versión carta: Phys. Lett. B 2026 [S].
-  - **[S]** *Black hole singularity avoidance by the Higgs scalar field*
-    (EPJC, arXiv:1901.05295): sector Higgs-fermión viola condición de
+  - **[A]** *Black hole singularity avoidance by the Higgs scalar field*
+    (EPJC 78, 1028 (2018), arXiv:1901.05295): sector Higgs-fermión viola condición de
     energía dominante ⇒ evitación; también fuera de nuestro régimen.
   - **[A, NO citar salvo necesidad]** Musielak, Fry & Kanan
     (arXiv:2604.01246, 2026, **physics.gen-ph**): Klein-Gordon
@@ -113,11 +114,12 @@ singularidad es monótono, dominado por el término cinético. Nuestro
 resultado es la sombra test-field de esa historia dentro del horizonte
 de Schwarzschild, con F–S como puente lineal riguroso.
 
-- **[S] Rodnianski & Speck**, *Stable Big Bang formation in near-FLRW
+- **[A] Rodnianski & Speck**, *Stable Big Bang formation in near-FLRW
   solutions to the Einstein-scalar field and Einstein-stiff fluid
   systems*, Selecta Math. 2018 (arXiv:1407.6298).
-- **[S] Fournodavlos, Rodnianski & Speck**, estabilidad de Kasner-scalar
-  en todo el régimen subcrítico (arXiv:2012.05888 *(ID de memoria)*).
+- **[A] Fournodavlos, Rodnianski & Speck**, estabilidad de Kasner-scalar
+  en todo el régimen subcrítico (JAMS 36, 827–916 (2023),
+  arXiv:2012.05888; ID verificado).
 - **[S]** *Formation of quiescent big bang singularities*
   (arXiv:2309.11370) y *Complete asymptotics in the formation of
   quiescent big bang singularities* (arXiv:2602.02373, **feb 2026** —
@@ -128,9 +130,9 @@ de Schwarzschild, con F–S como puente lineal riguroso.
   Bang singularities* (JHDE 2019, doi 10.1142/S0219891619500140; Alho–
   Fournodavlos–Franzen *(atribución de memoria)*) — asintóticas de ondas
   hacia singularidades tipo Kasner: el pariente cosmológico de F–S.
-- **[S]** *Stable space-like singularity formation for axi-symmetric and
+- **[A]** *Stable space-like singularity formation for axi-symmetric and
   polarized near-Schwarzschild black hole interiors* (arXiv:2004.00692)
-  y An & Gajic *(atribución de memoria)*, *Curvature blow-up rates in
+  y An & Gajic (atribución verificada), *Curvature blow-up rates in
   spherically symmetric gravitational collapse to a Schwarzschild black
   hole* (arXiv:2004.11831) — la singularidad de Schwarzschild como
   atractor local: apuntala la relevancia del fondo fijo.
@@ -138,10 +140,10 @@ de Schwarzschild, con F–S como puente lineal riguroso.
 ## 4. Métodos
 
 - **FEM en relatividad numérica es raro** (nuestro claim metodológico es
-  defendible como "poco común", NO como "primero"): [S] Sopuerta &
-  Laguna, FEM toy model para EMRIs (gr-qc/0507112); serie *Binary black
-  hole simulation with an adaptive finite element method* I–III
-  (arXiv:1805.10640, 1805.10642); review *Finite elements in numerical
+  defendible como "poco común", NO como "primero"): [A] Sopuerta &
+  Laguna, FEM para perturbaciones de Schwarzschild (gr-qc/0512028); serie
+  *Binary black hole simulation with an adaptive finite element method*
+  I–III (arXiv:1805.10640, 1805.10642); review *Finite elements in numerical
   relativity* — un snippet de búsqueda afirma explícitamente que "no hay
   código FEM usado para merger de BBH". Nadie apareció usando
   FEniCS/DOLFINx para evolución con excisión sobre fondo BH; formular
@@ -150,9 +152,9 @@ de Schwarzschild, con F–S como puente lineal riguroso.
   método en C4 antes de usarla de ejemplo.
 - **Espectroscopía QNM — el debate de overtones y tiempo de inicio** (a
   donde se enchufa nuestro sesgo de ventana temprana +14–16 % por n=1 no
-  separable, y el retracto del −Im de cavidad): [S] Giesler, Isi, Scheel
+  separable, y el retracto del −Im de cavidad): [A] Giesler, Isi, Scheel
   & Teukolsky, *Black hole ringdown: the importance of overtones*
-  (arXiv:1903.08284 *(ID de memoria)*); *Agnostic black hole
+  (PRX 9, 041060 (2019), arXiv:1903.08284; ID verificado); [A] *Agnostic black hole
   spectroscopy* (arXiv:2302.03050); *Quasinormal mode content of binary
   black hole ringdowns* (arXiv:2510.13954); *High-overtone ringdown
   fits: start time, no-hair tests, and correlations* (arXiv:2512.08098);
@@ -161,9 +163,8 @@ de Schwarzschild, con F–S como puente lineal riguroso.
   presupuesto de −Im como un caso limpio y controlado de ese debate
   (campo de prueba: sin no-linealidad de fondo, overtone conocido).
 - **Artefactos de dominio finito / esponjas**: práctica estándar
-  documentada ([S] Buchman & Sarbach, *Improved outer boundary
-  conditions* (gr-qc/0703129); esponjas en códigos espectrales, p. ej.
-  arXiv:1206.3015). No encontré una caracterización publicada del **modo
+  documentada ([A] Buchman & Sarbach, *Improved outer boundary
+  conditions* (gr-qc/0703129)). No encontré una caracterización publicada del **modo
   de cavidad barrera↔esponja con confirmación experimental por
   manipulación del pozo + graduación apareada** — nuestro capítulo de
   cavidad/dominio es citable como contribución metodológica menor.
@@ -217,3 +218,23 @@ espaciotiempo curvo cerca de singularidades (efectos cuánticos quedan
 explícitamente fuera del alcance declarado), literatura de Cowling en
 estrellas de neutrones (el término viene de ahí; buscar la cita canónica
 en C4 si el referee la pide).
+
+## 8. Log del pase bibliográfico C4
+
+### 2026-07-12 — Promociones y correcciones contra fuentes primarias
+
+- Promovidas a [A] las referencias que C4 usa para quiescencia, FEM,
+  overtones y frontera exterior, tras verificar abstract y metadatos en
+  arXiv/página editorial.
+- Corregidos datos objetivos: F–S es ARMA 235 (2020); gr-qc/9506067 es de
+  Brady–Smith; Marsden et al. se publicó en PRD 111 (2025); Fabbri es EPJC
+  78 (2018); los autores/ID de FRS 2012.05888 quedaron verificados.
+- Corregido el alcance metodológico: Calabrese et al. (gr-qc/0302072) es
+  precursor de campo escalar 3D con excisión. La novedad del manuscrito no
+  reclama ni la evolución escalar 3D ni la excisión; se limita a la
+  combinación FEM/DOLFINx y al observable interior calibrado.
+- Eliminado arXiv:1206.3015 como supuesto respaldo de esponjas: no sostiene
+  esa afirmación. El resultado de cavidad se formula como observación de
+  este estudio, no como claim bibliográfico de ausencia universal.
+- Scoop check central sin contraejemplo: no apareció una medición numérica
+  publicada de $a(t,\omega)$ ni un par lineal–Higgs con dato idéntico.
