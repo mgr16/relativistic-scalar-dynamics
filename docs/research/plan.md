@@ -38,8 +38,13 @@ implementador, pendiente de auditoría Fable** (revtex4-2/PRD, 7 páginas,
 207); **C5 EMPAQUETADO CERRADO por el implementador, pendiente de auditoría
 Fable** (README, manifest SHA-256 de 32 artefactos, PDF byte-reproducible,
 suite compuesta 214/214). La implementación F3 C1–C5 queda completa sin tag,
-commit ni depósito externo; Fable audita a su vuelta (§9). Opcionales de F2
-no bloquean.
+commit ni depósito externo. **AUDITORÍA Fable 2026-07-16 (HANDOFF §10):
+C3 PASS · C5 PASS · PR#18 PASS · C4 PASS-CON-HALLAZGOS → reabierto como
+RONDA R (C4b: completar manuscrito → robustez → depósito), contrato
+autónomo HANDOFF §11, auditoría de ronda §12.** Los hallazgos que
+bloquean arXiv son de completitud, no de validez: setup numérico ausente
+del texto, ζ de Cowling sin citar, mecanismo cinético aseverado sin
+mostrarse, sensibilidad de punto único. Opcionales de F2 no bloquean.
 
 ---
 
@@ -334,7 +339,7 @@ Capítulos, en orden:
      del orquestador con resolutor independiente: 7/7.
    - Suite tras C2: **184 rápidos en verde** (+12 tests C2).
 3. **C3 — Pipeline de figuras CERRADO 2026-07-12 (cierre por
-   implementador, pendiente de auditoría Fable):**
+   implementador; AUDITADO Fable 2026-07-16: PASS):**
    `scripts/paper_figures.py` (idempotente, `--check`) regenera 5 figuras
    de dos paneles desde JSON/NPZ versionados → 10 artefactos en
    `paper/figures/` (PDF vector + PNG). La fuente 3D faltante del perfil
@@ -344,8 +349,9 @@ Capítulos, en orden:
    overlay L2 corregido y todo `peak_ratio`. Ocho tests C3 cubren fuentes,
    status, determinismo byte a byte, atomicidad y `--check`; suite rápida
    total: 192 verdes (MPI re-verificado fuera del sandbox).
-4. **C4 — Manuscrito CERRADO 2026-07-12 (cierre por implementador,
-   pendiente de auditoría Fable; contrato §8.3):**
+4. **C4 — Manuscrito CERRADO 2026-07-12 (cierre por implementador;
+   AUDITADO Fable 2026-07-16: PASS-CON-HALLAZGOS → reabierto como
+   RONDA R, ver punto 6):**
    `paper/main.tex` + `paper/refs.bib` + `paper/numbers.tex` +
    `paper/main.pdf`, revtex4-2/PRD dos columnas. Manuscrito de 7 páginas
    con 5 figuras, 16/16 referencias verificadas/citadas, Cowling explícito
@@ -358,7 +364,7 @@ Capítulos, en orden:
    suite rápida total tras la actualización de toolchain: 207 verdes + 7
    slow deseleccionados.
 5. **C5 — Empaquetado reproducible CERRADO 2026-07-12 (cierre por
-   implementador, pendiente de auditoría Fable; contrato §8.4):**
+   implementador; AUDITADO Fable 2026-07-16: PASS):**
    `paper/README.md` documenta números → macros → figuras → PDF → manifest →
    tests. `scripts/paper_manifest.py --check` verifica 32 artefactos con
    SHA-256, rutas relativas, inventario explícito, rechazo de escapes/symlinks
@@ -370,6 +376,19 @@ Capítulos, en orden:
    `[Unreleased]` agregada a CHANGELOG. Tag propuesto `v3.3.0-paper`, no
    creado; depósito externo, tag y decisión de subir `pyproject.toml` desde
    3.2.0 siguen reservados a Marco.
+6. **RONDA R — revisión C4b (ABIERTA 2026-07-16; contrato autónomo
+   [`phase3/HANDOFF.md`](phase3/HANDOFF.md) §11; hallazgos de auditoría
+   §10; auditoría de ronda §12):** Sol encadena R0 (saneo) → R1
+   (manuscrito autocontenido: tabla de protocolo numérico JSON-backed,
+   mecanismo cinético medido en 1D con artefacto nuevo versionado, ζ de
+   Cowling citado, párrafo de detectabilidad, pase de jerga, apéndice de
+   dato inicial, convergencia en prosa, data availability) → R2
+   (robustez: barrido de sensibilidad 1D λ×A, +8 refs verificadas,
+   HPC CI diagnosticado/pineado, lockfile del entorno; opcionales:
+   TKP17, b_l, nivel lc=0.020 solo con OK de Marco) → R3 (preparación de
+   depósito: re-scoop-check, drill de clon limpio, checklist de release
+   — tag/Zenodo/arXiv = SOLO Marco). Gate de arXiv = cierre de R1; gate
+   de PRD = cierre de R2. Fable audita la ronda completa a su vuelta.
 
 ## 4. Hechos técnicos establecidos (no re-derivar)
 
