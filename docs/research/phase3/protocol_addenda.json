@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_by": "scripts/paper_protocol_addenda.py",
+  "interior": {
+    "domain_radius": 15.0,
+    "excision_radius": 0.1,
+    "outer_mesh_scale": 1.2,
+    "degree": 1,
+    "cfl": 0.3,
+    "extraction_count": 32,
+    "extraction_r_min": 0.1,
+    "extraction_r_max": 0.5
+  },
+  "exterior": {
+    "small_domain_radius": 20.0,
+    "large_domain_radius": 40.0,
+    "small_sponge_width": 5.0,
+    "small_sponge_onset": 15.0,
+    "large_sponge_width": 10.0,
+    "large_sponge_onset": 30.0,
+    "end_time": 70.0,
+    "mesh_levels": [
+      1.4,
+      1.0,
+      0.7
+    ]
+  },
+  "derived": {
+    "disc_l0_ladder_span_pts": 2.1358305557105717,
+    "disc_l0_ladder_sources": [
+      "docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/l2_ratio",
+      "docs/research/phase2/production/production.json::/discriminator/l0_lc0.040/l2_ratio",
+      "docs/research/phase2/production/production.json::/discriminator/l0_lc0.028/l2_ratio"
+    ],
+    "production_budget_low_percent": 10,
+    "production_budget_high_percent": 15,
+    "production_budget_inputs_percent": {
+      "fine_pair_rms_max": 11.808104412081272,
+      "fine_absolute_deviation_max": 13.138830056436227
+    },
+    "production_budget_method": "nearest-five envelope of the maximum fine paired-rung RMS difference and maximum fine absolute 3D-to-1D median deviation",
+    "physical_window_convergence": {
+      "window_end": 30.0,
+      "p1_coarse": 1.8883136111088141,
+      "p1_fine": 1.3879107912068713,
+      "p2_fine": 1.3321359575554652
+    }
+  },
+  "provenance": {
+    "interior": "scripts/interior_production.py::base_cfg",
+    "exterior": "scripts/exterior_spectroscopy.py::matrix",
+    "derived": {
+      "disc_l0_ladder_span_pts": [
+        "docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/l2_ratio",
+        "docs/research/phase2/production/production.json::/discriminator/l0_lc0.040/l2_ratio",
+        "docs/research/phase2/production/production.json::/discriminator/l0_lc0.028/l2_ratio"
+      ],
+      "production_budget": [
+        "docs/research/phase2/production/production.json::/ladder/{linear_l0,mexhat_l0}/diff_rms_over_scale/{fine-pair}",
+        "docs/research/phase2/production/production.json::/runs/{linear,mexhat}_l0_lc0.028/dev_vs_1d_primary/median"
+      ],
+      "physical_window_convergence": [
+        "docs/research/phase1/convergence/waveform_lc*.npz",
+        "docs/research/phase1/convergence_p2/waveform_lc*.npz",
+        "scripts/convergence_study.py::self_convergence_order"
+      ]
+    }
+  }
+}

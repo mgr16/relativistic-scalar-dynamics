@@ -923,6 +923,278 @@ Revisión de cierre sobre los entregables de 3b:
   `plan.md` (marcas de auditoría + ronda R). Sin commits (Marco).
 - Suite: 216/216 + 7 slow deseleccionados, verificada por el auditor.
 
+### 2026-07-16 — R0 ARRANQUE Y CIERRE: línea base + saneo de excisión
+- Hecho: el árbol arrancó limpio sobre `main` (`7709b2a`). Antes de editar se
+  verificaron los cuatro generadores en modo `--check`: 257 números, 97 macros,
+  5 figuras/10 archivos y manifest de 32 artefactos, todos al día. La suite de
+  línea base pasó 214 tests no-MPI dentro del sandbox; los dos tests MPI fallaron
+  únicamente porque Hydra no pudo abrir el puerto PMI (`Operation not permitted`)
+  y pasaron 2/2 al revalidarlos fuera del sandbox, tal como prevé §8.0.5.
+- Hecho: se restauró en el docstring de `kerr_excision_window` la nota de cierre
+  de la ventana para `|a| ≳ 0.9718 M`, la necesidad de una superficie esferoidal
+  y el puntero a `docs/math/excision_window.md`; no cambió código ejecutable.
+- Decisiones tomadas: cambio mínimo docs-only en `src/rsd/`, sin test nuevo,
+  según §11.1-R0.2. El fallo inicial del launcher se clasificó como restricción
+  del sandbox por su stderr explícito y por la revalidación MPI verde, no como
+  regresión del árbol.
+- Ambigüedades numeradas: ninguna.
+- Artefactos modificados: `src/rsd/physics/excision.py` y esta entrada.
+- Suite de cierre: **216/216 + 7 slow deseleccionados** en 106.97 s fuera del
+  sandbox; los dos tests MPI están incluidos. `git diff --check` se verifica al
+  cierre junto con el alcance exacto del diff.
+- [REVIEW] Cambio `src/rsd/` docs-only: confirmar que la restauración del
+  docstring reproduce el caveat geométrico de §10.1.7 sin alterar semántica.
+
+### 2026-07-16 — R1 CERRADO por el implementador: manuscrito autocontenido (gate arXiv)
+- Hecho (R1.1): se agregó el apéndice ``Numerical protocol`` con dos tablas
+  `booktabs` que reconstruyen las campañas interior y exterior. Las constantes
+  que no vivían en JSON se emiten con
+  `scripts/paper_protocol_addenda.py`, importando sin ejecutar los módulos de
+  producción; `protocol_addenda.json` conserva además la procedencia compuesta
+  de la extensión de la escalera y del presupuesto conservador 10--15 %. Cada
+  celda numérica del TeX es una macro trazada a `numbers.json`. Se omitió la
+  columna opcional de celdas/DOFs: construir mallas no aporta una magnitud
+  estable entre versiones de Gmsh y las escalas de malla, la graduación y el
+  orden ya bastan para reconstruir el protocolo; no se lanzó construcción 3D.
+- Hecho (R1.2): `scripts/oracle_energy_split.py` ejecutó una sola referencia 1D
+  de producción mexhat (`n=1600`, `t_end=15M`) y versionó el perfil completo en
+  `energy_split_profiles.npz` más el resumen `energy_split.json`. La definición
+  dinámica de F0 se recuperó literalmente (RMS de `|alpha V'|` respecto de los
+  otros términos del RHS); se guardó también la separación de densidades
+  solicitada. En la fase fuerte, la mediana instantánea es
+  `r*=0.6248M` (IQR 0.4138--0.8080M) y el exponente 2.7945 (IQR
+  2.4406--3.2870); el paper los consume solo mediante macros. El agregado RMS
+  sobre la misma fase da `r*=0.5758M`, y el exponente reproduce el ~2.8 de F0.
+  La figura opcional se omitió: la amplitud cruza cero y hace que el cruce
+  instantáneo sea deliberadamente ancho; el JSON/NPZ muestra esa estructura sin
+  convertirla en una curva visual engañosamente limpia.
+- [REVIEW] Regla de descubrimiento R1.2 activada: la mediana instantánea
+  `0.6248M` difiere 31.8 % del `0.474M` de F0. No se retocó el estimador. F0
+  usó RMS temporal tardío en `t/M in [27,40]`, mientras R1 exige mediana de
+  cruces instantáneos en la fase de producción `t/M in [4,10]`; por subventana
+  el cruce se desplaza con el pulso y el cruce por cero. El cross-check RMS en
+  la fase fuerte difiere 21.5 %, dentro del umbral, y el exponente sí reproduce
+  el valor de F0. El manuscrito arrastra el IQR y usa el resultado como
+  diagnóstico de régimen, no como frontera universal.
+- Hecho (R1.3--R1.4): Physical setup cuantifica Cowling con los ids existentes
+  (`zeta=1.24e-3` dentro del horizonte y `1.6e-4` en el radio profundo para
+  `A=0.1`) y separa explícitamente el monitor 3D global dominado por el
+  exterior. Discussion enuncia la alternativa suprimida, concluye solo para el
+  punto medido `D_l=0.867--0.923` con presupuesto 10--15 %, y deja explícitos
+  potencial, `(lambda,v)` y amplitud únicos hasta el barrido R2.1.
+- Hecho (R1.5): se reescribió el abstract en las siete frases contractuales y
+  se eliminó del texto visible la jerga `truth`, `rung` y `smoke`; queda una
+  única definición visible de ``frozen``. Los ids y nombres de macros históricos
+  conservan sus nombres, como exige el contrato. Un test separa comentarios
+  LaTeX del texto publicable y hace cumplir la regla.
+- Hecho (R1.6): el apéndice de dato inicial fija perturbación, derivada,
+  momento `ingoing_curved`, factores Kerr--Schild, ansatz 1D y armónicos reales.
+  Mapa para auditoría: campo/momento =
+  `src/rsd/physics/initial_conditions.py::GaussianBump._profile` y
+  `::_momentum_profile`; factores radiales =
+  `src/rsd/physics/metrics.py::KerrSchildCoeffs.radial_factors_np`; ansatz =
+  `src/rsd/reference/spherical1d.py::SphericalOracle1D.set_initial_gaussian`;
+  convención angular = `src/rsd/analysis/extraction.py::real_ylm`, fijada de
+  extremo a extremo por `tests/test_initial_data_ylm.py`.
+- Hecho (R1.7--R1.9): Methods declara la auto-convergencia aproximadamente de
+  segundo orden y su reducción en el triplete fino solo en prosa, sin promover
+  los números degradados; el nuevo id derivado `disc_l0_ladder_span_pts`
+  conserva los tres punteros de entrada y da 2.14 puntos porcentuales. Se añadió
+  Data availability con el placeholder literal `[REPOSITORY-URL-AT-DEPOSIT]`;
+  se corrigieron etiqueta/caption de perfiles, nota del IQR y convención
+  `K_ij=-L_n gamma_ij/2`. Afiliación, ORCID, email y acknowledgments se omiten
+  porque Marco no los proporcionó y no se inventa metadata.
+- [REVIEW] Antes del depósito, Marco debe proveer o confirmar afiliación,
+  ORCID/email y acknowledgments; cualquier cambio obliga a recompilar, repetir
+  QA y regenerar el manifest.
+- Hecho (R1.10): orden canónico cumplido — 297 números, 135 macros, 5 figuras
+  (10 archivos), Tectonic 0.16.9/bundle v33/época fija, QA visual de las 9
+  páginas y manifest SHA-256 de 37 artefactos. No hay errores ni overfull; las
+  cuatro cajas underfull finales son tipográficas no bloqueantes y no
+  empeoraron el baseline. Los greps contractuales y sus tests dan cero decimal
+  crudo de resultado, cero valor retractado y cero jerga visible fuera de la
+  definición permitida. Diff `7709b2a -- phase0 phase1 phase2` vacío y
+  `git diff --check` verde.
+- Artefactos nuevos/modificados de R1: `scripts/{paper_protocol_addenda,
+  oracle_energy_split}.py`, `docs/research/phase3/{protocol_addenda,
+  energy_split}.json`, `docs/research/phase3/data/energy_split_profiles.npz`,
+  tabla/macros/figuras/manuscrito/PDF/manifest, sus generadores y tests, este
+  log y `plan.md`. No se invocaron los mains congelados ni hubo corrida 3D.
+- Suite de cierre: **226/226 + 7 slow deseleccionados** fuera del sandbox en
+  108.29 s, incluyendo MPI; 46/46 tests dirigidos del paper verdes. Los cinco
+  generadores/checks y el manifest están al día; PDF inspeccionado página por
+  página sin recortes, solapamientos ni desbordes.
+- Auto-checklist R1 (§11.2): R1.1 PASS; R1.2 PASS-CON-REVIEW documentado; R1.3
+  PASS; R1.4 PASS; R1.5 PASS; R1.6 PASS; R1.7 PASS; R1.8 PASS-CON-METADATA DE
+  MARCO; R1.9 PASS; R1.10 PASS. Gate técnico de arXiv aprobado por el
+  implementador, pendiente de auditoría Fable y de metadata humana.
+- Propuesta de commit para Marco (NO ejecutada):
+  `F3-R1: self-contained manuscript (C4b)`.
+
+### 2026-07-16 — R2 CERRADO por el implementador: robustez física + deuda de ingeniería
+
+- Hecho (R2.1): `scripts/oracle_sensitivity_scan.py` ejecutó la grilla completa
+  $\lambda\in\{0.03,0.1,0.3,1\}\times A\in\{0.01,0.03,0.1\}$, con $v=1$,
+  $l=0$, `n=1600` y `t_end=15M`. Importa literalmente el fit, la máscara
+  fuerte y el discriminador L2 de producción; el miembro lineal usa el
+  escalado exacto en amplitud de la referencia lineal y la celda
+  $(0.1,0.1)$ reutiliza el artefacto R1, por lo que hubo 11 evoluciones 1D
+  nuevas, no 12 redundantes. Tiempo total 1577.1 s. El JSON/NPZ versiona las
+  12 celdas, perfiles, soporte, propagación OLS indicativa, hashes y una celda
+  de auditoría que el test reconstruye con `raw_discriminator` importado.
+- [REVIEW] Regla de descubrimiento R2.1 activada y publicada sin suavizar:
+  $D\in[0.711679,1.312818]$, `max|D-1|=0.312818`; las seis celdas con
+  $\lambda=0.3$ o $1$ superan el umbral 0.15. Para toda amplitud, $\lambda=0.3$
+  queda debajo de uno y $\lambda=1$ arriba; en la grilla la dependencia en
+  acoplamiento domina la de amplitud. Discussion dice ahora que el resultado
+  cercano a uno identifica un régimen finito, no robustez uniforme, y separa
+  esta frontera 1D del presupuesto de error 3D.
+- Hecho (R2.2): se verificaron y citaron Brady--Smith, Angelopoulos--Aretakis--
+  Gajic, Alexakis--Fournodavlos, An--Gajic, Oude Groeniger--Petersen--
+  Ringström, Franco-Grisales--Ringström, Buchman--Sarbach, Shu--Osher y las
+  citas oficiales PETSc/petsc4py (manual + Dalcin et al.). arXiv:1612.01566
+  resultó ser **Angelopoulos**, no Alexakis como recordaba el contrato; se
+  corrigió la atribución. Las 26 entradas de `refs.bib` están citadas y el test
+  citas↔bib cierra exactamente; cero [S] usada.
+- Hecho (R2.3): se releyó TKP17 antes de analizar. Su predicción es el perfil
+  espacial tardío $P_l(r/M-1)$ con nodos radiales, no oscilaciones temporales
+  en dos o tres radios durante $4\leq t/M\leq10$. El banco de ajuste no cubre
+  ni el tiempo tardío ni todo el interior. Se aplicó el tope de una sesión y se
+  abortó antes de promover cuatro NPZ incapaces de responder la pregunta; el
+  paper y `related_work.md` documentan el criterio exacto.
+- Hecho (R2.4): la única evolución 3D lenta preautorizada reprodujo en 412.9 s
+  el fallo Price: $p=-1.983424$, $R^2=0.09547$. Ninguna ventana desplazada
+  tiene $R^2>0.357$; el RMS alcanza $6.27\times10^{-6}$ en 75--85M y vuelve a
+  subir a $1.63\times10^{-5}$ en 95--100M, mientras una cola $t^{-5}$ predice
+  una caída 6.3 veces mayor. El ajuste de líneas del capítulo de cavidad
+  tampoco resuelve un modo coherente. Diagnóstico: piso no-potencia de
+  junk/dominio por encima de la señal tardía; separar malla, extracción y
+  esponja exigiría nuevas ablaciones 3D no autorizadas. El test se conserva
+  con tolerancias intactas como `xfail(strict=False)` y puntero a
+  `docs/validation/price_tail_diagnostic.md`; JSON, NPZ, generador y dos tests
+  fijan la evidencia. `hpc.yml` usa `dolfinx/dolfinx:v0.10.0` y `Dockerfile`
+  fija `fenics-dolfinx=0.10`.
+- Hecho (R2.5): se versionaron el lock explícito `osx-arm64` y el export
+  portable sin builds, ambos sin rutas personales. Versiones leídas
+  programáticamente: Python 3.10.19, DOLFINx 0.10.0, PETSc/petsc4py 3.24.4 y
+  Gmsh 4.15.0; las dos tablas README y tres tests de regresión coinciden.
+- Decisiones opcionales: R2.6 se omitió porque el intercepto $b_l$ cambia bajo
+  una reescala del argumento del log y, además, mezcla el offset de vacío del
+  miembro no lineal; su cociente no es un observable comparable limpio. R2.7
+  se omitió como ordena el contrato: no hubo OK explícito de Marco para la
+  corrida 3D `lc=0.020`. Ninguna omisión activa [REVIEW].
+- Cierre R2.8: 307 números, 145 macros, 5 figuras/10 archivos, 26 referencias,
+  PDF PRD de 9 páginas y manifest de 48 artefactos. Ocho `--check` verdes
+  (addenda, energía, sensibilidad, Price, números, TeX, figuras, manifest),
+  cero grep de jerga/retractados, `git diff --check` verde y diff
+  `7709b2a -- phase0 phase1 phase2` vacío. QA visual de las nueve páginas:
+  sin recortes, solapamientos ni overfull; underfull tipográficos no críticos.
+  Suite completa fuera del sandbox: **235/235 + 7 slow deseleccionados** en
+  110.64 s, incluidos MPI. `src/rsd/` difiere sólo por el docstring de R0.
+- Auto-checklist R2 (§11.3): R2.1 PASS-CON-REVIEW publicado; R2.2 PASS; R2.3
+  PASS por criterio de incompatibilidad; R2.4 PASS-CON-REVIEW documentado;
+  R2.5 PASS; R2.6 omitido con justificación; R2.7 omitido sin OK; R2.8 PASS.
+  Gate técnico de PRD aprobado por el implementador, pendiente de Fable.
+- Propuesta de commit para Marco (NO ejecutada):
+  `F3-R2: physics robustness and engineering debt`.
+
+### 2026-07-16 — R3 PREPARACIÓN CERRADA por el implementador: depósito listo para Marco
+
+- Re-scoop-check: se ejecutaron en arXiv las cinco queries de §11.4 y dos
+  ampliaciones (`Schwarzschild interior "log r" scalar numerical` y
+  `black hole interior test scalar singularity numerical 2026`). Los hits
+  relevantes fueron obras ya catalogadas: F--S analítico, Brady--Smith
+  autogravitante, Bars en gravedad conforme, el BH con pelo/backreaction de
+  2603.08067 y blow-up semilineal analítico. No apareció desde 2026-07-12 una
+  medición numérica de $A(t,\omega)$ para campo de prueba ni un par
+  lineal--Higgs idéntico; no hay contraejemplo y §5 queda intacta. Queries,
+  fecha, hits y veredicto están en `related_work.md` §8.
+- Drill de clon limpio: como el contrato prohíbe commit, se hizo
+  `git clone --no-local . /tmp/rsd-paper-qa` y se superpuso de forma explícita
+  el worktree R con `rsync`, excluyendo `.git`, `results/`, caches y bytecode.
+  No existió `results/` en el clon. Siguiendo `paper/README.md`, números
+  (307), macros (145) y figuras (5/10) regeneraron **sin cambios**. Tectonic
+  dentro del sandbox paniqueó al inicializar `SystemConfiguration` aun con
+  `--only-cached`; repetido fuera del sandbox con bundle v33 y época fija
+  compiló sin errores. El PDF del clon y el original son byte-idénticos:
+  SHA-256 `b16203bdea046921e4d0a91c86047c45e1ee28712dc054a0a596e9795ad39417`.
+  Los ocho checks, `git diff --check` y manifest **48/48** pasaron. Suite en el
+  clon: **235/235 + 7 slow deseleccionados** en 109.86 s, MPI incluido; el
+  manifest siguió cerrado después de la suite.
+- Release preparado sin acción externa: `CHANGELOG.md` identifica 3.3.0 como
+  target borrador y actualiza la ronda; `paper/ACKNOWLEDGMENTS_VARIANTS.md`
+  ofrece dos textos, con y sin disclosure de asistencia de IA, sin inventar
+  nombres/fondos; `release_checklist.md` enumera metadata → fecha → build/QA →
+  tag → Zenodo → DOI/URL → rebuild/manifest → arXiv → PRD. No hubo commit,
+  tag, push, DOI, depósito ni envío.
+- Pendientes de Marco, uno a uno: (1) afiliación; (2) decisión y valores de
+  ORCID/email; (3) acknowledgments elegido y nombres/recursos/funding reales;
+  (4) fecha y política de bump de `pyproject.toml`; (5) URL y licencia del
+  archivo; (6) commit/push/tag `v3.3.0-paper`; (7) DOI Zenodo; (8) cross-list
+  arXiv; (9) depósitos arXiv y PRD. Véase el checklist para el orden exacto.
+- Auto-cierre R3 (§11.4): re-scoop PASS; drill PASS; preparación de release
+  PASS; acciones externas correctamente no ejecutadas. Ronda R completa por
+  el implementador y lista para auditoría §12.
+
+### 2026-07-16 — AUDITORÍA §12 DE LA RONDA R (orquestador, Fable): R0/R1/R2/R3-prep PASS
+- Hecho: protocolo §12 completo contra baseline `7709b2a`. Corrido por el
+  auditor: suite **235/235** (MPI incluido, en sandbox), los **8 `--check`**
+  verdes (307 números / 145 macros / 5 figuras / 48 hashes / addenda /
+  energía / sensibilidad / Price), diff de congelados F0–F2 **vacío**,
+  `src/rsd/` = solo el docstring de R0 (verificado: reproduce el caveat
+  geométrico sin tocar semántica).
+- Spot-checks independientes del auditor, todos EXACTOS: (a) addenda
+  **12/12** contra las constantes crudas de los scripts (R=15, r_exc=0.1,
+  lc_out=1.2, K=32 [0.1,0.5], CFL 0.3, degree 1; exterior 20/40, esponjas
+  5@15/10@30, t_end=70, niveles 1.4/1.0/0.7); (b) energy split re-derivado
+  con código propio: matrices de densidad idénticas (γ^rr incluido),
+  r*=0.6248 y exponente mediano 2.7945 reproducidos al 4.º decimal; (c)
+  celda de auditoría del barrido (λ=0.3, A=0.03) recomputada con resolutor
+  propio: **D=0.721145, soporte n=9 — exacto**; (d) presupuesto 10–15 %:
+  procedencia limpia (envolvente "nearest-five" declarada con inputs
+  pinneados 11.81/13.14 — no hay literal lavado); (e) figuras cambiadas
+  re-inspeccionadas (φ₀₀, mid-resolution, "uncorrected"): solo etiquetas,
+  datos idénticos; (f) refs sensibles contra arXiv: 1612.01566 =
+  **Angelopoulos**–Aretakis–Gajic (la corrección de Sol al ID de memoria
+  del contrato es CORRECTA), 2004.00692 = Alexakis–Fournodavlos ✓,
+  2602.02373 = Franco-Grisales–Ringström ✓, y el hit del re-scoop
+  2603.08067 = BH con pelo y backreacción (Chew–Lim–Yeom) — NO compite con
+  la medición test-field; §5 intacta ✓.
+- Los [REVIEW] de la ronda, respondidos: (1) docstring R0: APROBADO; (2)
+  regla de descubrimiento R1.2 (r* mediana instantánea 0.6248 vs 0.474 de
+  F0): APROBADO el manejo — la diferencia es de definición temporal
+  (fase fuerte vs era tardía RMS), el cross-check RMS queda dentro del
+  umbral, el exponente reproduce F0, y el caveat viaja en el id; (3) regla
+  de descubrimiento R2.1 (frontera de régimen D∈[0.712, 1.313], 6 celdas
+  sobre umbral): APROBADO — publicado sin suavizar, redacción del paper
+  correcta ("finite coupling regime, not uniform robustness"; el borde 1D
+  transitorio no entra al presupuesto 3D); (4) R2.3 TKP17 abortado por
+  incompatibilidad de observable (nodos espaciales tardíos vs banco
+  t≤10M): APROBADO — criterio transcrito ANTES de analizar, cero npz
+  promovidos en vano, deferral del paper ahora respaldado; (5) R2.4
+  xfail(strict=False) del Price tail con diagnóstico empírico (412.9 s,
+  p=−1.98, R²=0.095, piso no-potencia) + nota en docs/validation:
+  APROBADO; (6) metadatos humanos siguen pendientes (gate de R3).
+- Manuscrito re-leído COMPLETO por el auditor (9 páginas + PDF): los
+  hallazgos C-1/C-2/C-3/C-4a de §10 quedan RESUELTOS (tablas de protocolo
+  II/III completas, ζ cuantificado con alcance, mecanismo medido con IQR y
+  conexión ventana↔régimen, detectabilidad con alternativa D≪1 + barrido);
+  apéndice de dato inicial verificado ALGEBRAICAMENTE (la equivalencia
+  Π 3D↔1D con 1−β=α² en KS-Schwarzschild es correcta); jerga eliminada con
+  gate mecánico en tests.
+- Residuales MENORES (no bloquean; van con el pase de metadatos de R3):
+  (a) `refs.bib` sin llaves de protección — la bibliografía renderiza
+  "schwarzschild/einstein/higgs" en minúscula en ~6 entradas; (b) `\date`
+  fija 2026-07-12 hasta el bump de depósito (intencional); (c) 17.4 MB de
+  npz nuevos versionados — aceptado conscientemente (contrato R1.2/R2.1,
+  regenerables pero citables y Zenodo-friendly).
+- **Veredicto: R0 PASS · R1 PASS (gate técnico de arXiv aprobado) · R2
+  PASS (gate técnico de PRD aprobado) · R3-prep PASS.** Lo único abierto
+  es la puerta humana de R3 (metadatos → recompilar → tag → Zenodo →
+  arXiv, `release_checklist.md`). plan.md y memoria actualizados por el
+  auditor. Commit+push de la ronda autorizados por Marco en vivo
+  (2026-07-16) — los ejecuta el auditor a continuación.
+
 ---
 
 ## 8. Contrato autónomo C3–C5 (vigente desde 2026-07-12)

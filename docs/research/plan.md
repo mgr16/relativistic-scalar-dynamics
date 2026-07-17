@@ -1,6 +1,6 @@
 # Plan de investigación — Relativistic Scalar Dynamics (RSD)
 
-**Estado a 2026-07-12.** Este archivo es la **copia canónica y versionada** del
+**Estado a 2026-07-16.** Este archivo es la **copia canónica y versionada** del
 plan del programa (antes vivía solo en la memoria local de Claude Code).
 Cualquier persona, herramienta o modelo que continúe el trabajo debe **leer
 este archivo primero** y **actualizar la sección correspondiente al cerrar cada
@@ -41,7 +41,11 @@ suite compuesta 214/214). La implementación F3 C1–C5 queda completa sin tag,
 commit ni depósito externo. **AUDITORÍA Fable 2026-07-16 (HANDOFF §10):
 C3 PASS · C5 PASS · PR#18 PASS · C4 PASS-CON-HALLAZGOS → reabierto como
 RONDA R (C4b: completar manuscrito → robustez → depósito), contrato
-autónomo HANDOFF §11, auditoría de ronda §12.** Los hallazgos que
+autónomo HANDOFF §11, auditoría de ronda §12. **RONDA R CERRADA Y AUDITADA
+2026-07-16 (Fable, §12): R0/R1/R2/R3-prep PASS — gates técnicos de arXiv y
+PRD aprobados por el auditor; lo único pendiente es la puerta humana de R3
+(metadatos de Marco → tag `v3.3.0-paper` → Zenodo/arXiv, checklist en
+`phase3/release_checklist.md`).** Los hallazgos que
 bloquean arXiv son de completitud, no de validez: setup numérico ausente
 del texto, ζ de Cowling sin citar, mecanismo cinético aseverado sin
 mostrarse, sensibilidad de punto único. Opcionales de F2 no bloquean.
@@ -376,7 +380,8 @@ Capítulos, en orden:
    `[Unreleased]` agregada a CHANGELOG. Tag propuesto `v3.3.0-paper`, no
    creado; depósito externo, tag y decisión de subir `pyproject.toml` desde
    3.2.0 siguen reservados a Marco.
-6. **RONDA R — revisión C4b (ABIERTA 2026-07-16; contrato autónomo
+6. **RONDA R — revisión C4b (CERRADA Y AUDITADA 2026-07-16 — Fable,
+   §12: R0 PASS · R1 PASS · R2 PASS · R3-prep PASS; contrato autónomo
    [`phase3/HANDOFF.md`](phase3/HANDOFF.md) §11; hallazgos de auditoría
    §10; auditoría de ronda §12):** Sol encadena R0 (saneo) → R1
    (manuscrito autocontenido: tabla de protocolo numérico JSON-backed,
@@ -389,6 +394,24 @@ Capítulos, en orden:
    depósito: re-scoop-check, drill de clon limpio, checklist de release
    — tag/Zenodo/arXiv = SOLO Marco). Gate de arXiv = cierre de R1; gate
    de PRD = cierre de R2. Fable audita la ronda completa a su vuelta.
+   **Estado del implementador:** R0 CERRADO (baseline + docstring de
+   excisión); R1 CERRADO (manuscrito autocontenido); R2 CERRADO (barrido 1D
+   con frontera de régimen publicada, bibliografía, Price/HPC y entorno
+   reproducible); R3-PREP CERRADA (re-scoop limpio, clon limpio reproducible,
+   checklist y variantes de metadata). Cierre compuesto: 307 números, 145
+   macros, 9 páginas, 26 referencias, 48 artefactos y suite 235/235 + 7 slow
+   deseleccionados. **Auditoría Fable §12 (2026-07-16): PASS en las cuatro
+   sub-fases** — suite 235/235 y 8 `--check` re-corridos por el auditor;
+   congelados intactos; addenda 12/12 contra constantes; energy split y
+   celda del barrido re-derivados EXACTOS con resolutor propio; 4 refs
+   sensibles verificadas contra arXiv (1612.01566 = Angelopoulos, corrección
+   de Sol al ID de memoria del contrato, confirmada); re-scoop limpio
+   (2603.08067 = hairy BH con backreaction, no compite). Residuales menores
+   al pase de metadatos de R3: llaves de protección en `refs.bib`
+   (Schwarzschild/Einstein/Higgs en minúscula en la bibliografía renderizada)
+   y `\date` fija hasta el depósito. Commit+push autorizados por Marco
+   (2026-07-16); tag y depósito siguen pendientes de Marco (checklist
+   `phase3/release_checklist.md`).
 
 ## 4. Hechos técnicos establecidos (no re-derivar)
 

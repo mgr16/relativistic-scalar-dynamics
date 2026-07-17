@@ -160,6 +160,26 @@ rsd/
 
 DOLFINx is required and is installed via conda.
 
+The audited macOS arm64 environment is versioned in two forms:
+
+- `envs/rsd-dolfinx-lock-osx-arm64.txt` is an exact conda package lock;
+- `envs/rsd-dolfinx.yml` is the portable no-build export.
+
+```bash
+conda create -n rsd-dolfinx --file envs/rsd-dolfinx-lock-osx-arm64.txt
+# or, for a solver-selected environment on another platform:
+mamba env create -f envs/rsd-dolfinx.yml
+```
+
+Core versions in the audited environment are:
+
+| Component | Version |
+|---|---:|
+| Python | 3.10.19 |
+| DOLFINx | 0.10.0 |
+| PETSc / petsc4py | 3.24.4 / 3.24.4 |
+| Gmsh | 4.15.0 |
+
 ### Option A — automated script
 ```bash
 ./scripts/setup_conda_env.sh --yes
@@ -411,7 +431,8 @@ The test suite validates physics at increasing depth (deepest are `slow`):
    windows and floors.
 
 - **Core CI** — lightweight NumPy/SciPy/UFL paths without DOLFINx/PETSc/MPI
-- **CI** — fast suite inside `dolfinx/dolfinx:stable`, including MPI
+- **HPC CI** — full suite inside the version-pinned
+  `dolfinx/dolfinx:v0.10.0` image, including MPI
   owned/ghost-vector regressions
 - **HPC CI** — scheduled weekly run including `slow` tests
 

@@ -2,8 +2,8 @@
 """Build the deterministic SHA-256 closure of the reproducible paper.
 
 The manifest uses the conventional ``<sha256>  <repo-relative-path>`` form.
-Its inventory is deliberately explicit: generators, the eleven versioned
-scientific inputs, and every publication output.  It contains neither build
+Its inventory is deliberately explicit: generators, versioned scientific and
+environment inputs, and every publication output.  It contains neither build
 auxiliaries nor itself, and therefore has no timestamp or circular hash.
 
 Writes are atomic and idempotent.  ``--check`` only compares the expected
@@ -23,8 +23,9 @@ from typing import Iterable
 REPO = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT = PurePosixPath("paper/SOURCE_MANIFEST.sha256")
 
-# Inputs consumed by paper_numbers.py plus the six NPZ inputs consumed by
-# paper_figures.py.  numbers.json is an output, not an independent input.
+# Canonical scientific inputs consumed by the table/figure generators, plus
+# the versioned mechanism, sensitivity, and validation profiles.
+# numbers.json is an output, not an independent input.
 VERSIONED_INPUTS: tuple[str, ...] = (
     "docs/research/phase0/pilot_oracle_summary.json",
     "docs/research/phase1/cavity/summary.json",
@@ -36,14 +37,33 @@ VERSIONED_INPUTS: tuple[str, ...] = (
     "docs/research/phase2/production/production.json",
     "docs/research/phase3/data/ab_smoke_3d_linear_l0_lc0.040.npz",
     "docs/research/phase3/data/ab_smoke_3d_mexhat_l0_lc0.040.npz",
+    "docs/research/phase3/data/energy_split_profiles.npz",
+    "docs/research/phase3/data/price_tail_diagnostic.npz",
+    "docs/research/phase3/data/sensitivity_scan_profiles.npz",
+    "docs/research/phase3/energy_split.json",
     "docs/research/phase3/o1_calibration.json",
+    "docs/research/phase3/price_tail_diagnostic.json",
+    "docs/research/phase3/protocol_addenda.json",
+    "docs/research/phase3/sensitivity_scan.json",
 )
 
 GENERATORS: tuple[str, ...] = (
     "scripts/paper_figures.py",
     "scripts/paper_manifest.py",
     "scripts/paper_numbers.py",
+    "scripts/paper_protocol_addenda.py",
     "scripts/paper_tex_numbers.py",
+    "scripts/oracle_energy_split.py",
+    "scripts/oracle_sensitivity_scan.py",
+    "scripts/price_tail_diagnostic.py",
+)
+
+REPRODUCIBILITY: tuple[str, ...] = (
+    ".github/workflows/hpc.yml",
+    "Dockerfile",
+    "docs/validation/price_tail_diagnostic.md",
+    "envs/rsd-dolfinx-lock-osx-arm64.txt",
+    "envs/rsd-dolfinx.yml",
 )
 
 GENERATED_TABLES: tuple[str, ...] = (
@@ -72,7 +92,14 @@ MANUSCRIPT: tuple[str, ...] = (
 )
 
 ARTIFACT_PATHS: tuple[str, ...] = tuple(
-    sorted(GENERATORS + VERSIONED_INPUTS + GENERATED_TABLES + FIGURES + MANUSCRIPT)
+    sorted(
+        GENERATORS
+        + VERSIONED_INPUTS
+        + REPRODUCIBILITY
+        + GENERATED_TABLES
+        + FIGURES
+        + MANUSCRIPT
+    )
 )
 
 

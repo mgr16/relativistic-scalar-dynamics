@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_by": "scripts/oracle_energy_split.py",
+  "protocol": {
+    "model": "mexican_hat",
+    "l": 0,
+    "n_points": 1600,
+    "r_min": 0.01,
+    "r_max": 60.0,
+    "grid": "log",
+    "ko_eps": 0.02,
+    "t_end": 15.0,
+    "pulse": {
+      "A": 0.1,
+      "r0": 5.0,
+      "w": 1.0,
+      "direction": "ingoing_curved"
+    },
+    "potential": {
+      "potential_type": "mexican_hat",
+      "potential_params": {
+        "lambda_coupling": 0.1,
+        "vacuum_value": 1.0
+      },
+      "v0": 1.0
+    },
+    "strong_phase": [
+      4.0,
+      10.0
+    ],
+    "ratio_threshold": 0.01,
+    "exponent_window": [
+      0.05,
+      0.5
+    ]
+  },
+  "definitions": {
+    "kinetic_energy_density": "0.5*Pi^2 + 0.5*gamma^rr*(partial_r u)^2",
+    "energy_ratio": "abs(V(u))/kinetic_energy_density",
+    "rhs_ratio": "abs(alpha*V'(u)) / (abs(flux_div)+abs(transport)+abs(extrinsic)+abs(angular))",
+    "rstar": "largest sampled radius in the contiguous component from r_min where rhs_ratio < ratio_threshold; manuscript value is the median over strong-phase snapshots",
+    "ratio_exponent": "OLS slope of log(rhs_ratio) versus log(r), evaluated per strong-phase snapshot and summarized by the median"
+  },
+  "summary": {
+    "strong_snapshot_count": 32,
+    "rstar_median": 0.6248137978993387,
+    "rstar_iqr": [
+      0.4138273106475578,
+      0.8079578344537661
+    ],
+    "ratio_exponent_median": 2.7945473504497587,
+    "ratio_exponent_iqr": [
+      2.440594534505494,
+      3.2869495921112435
+    ],
+    "temporal_rms_crosscheck": {
+      "rstar": 0.5758400468267958,
+      "ratio_exponent": 2.5693399665837626
+    }
+  },
+  "data": {
+    "path": "docs/research/phase3/data/energy_split_profiles.npz",
+    "sha256": "7eebc5c600d288bb1f275d4aa19b428f4d9a228cc883ba26f42db713a261b11c"
+  }
+}

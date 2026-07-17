@@ -10,6 +10,10 @@ def kerr_excision_window(M: float, a: float) -> Tuple[float, float]:
     A Cartesian sphere with radius ``R_exc`` spans Boyer--Lindquist radii
     ``[sqrt(R_exc**2 - a**2), R_exc]``. Keeping it inside the trapped region
     therefore requires ``sqrt(r_minus**2 + a**2) < R_exc < r_plus``.
+
+    Para ``|a| ≳ 0.9718 M`` la ventana se cierra (``lo >= hi``): ninguna
+    esfera cartesiana cabe en la región atrapada y se necesita una superficie
+    esferoidal ``r = const``. Derivación: ``docs/math/excision_window.md``.
     """
     M = float(M)
     a = abs(float(a))

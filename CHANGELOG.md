@@ -5,15 +5,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+Release target: **3.3.0** (draft only; no tag or external deposit has been
+created).
+
 ### Added
 - **F3 reproducible paper pipeline**: canonical JSON-backed manuscript
-  numbers (257 entries, publication status gate, 97 generated LaTeX macros),
+  numbers (307 entries, publication status gate, 145 generated LaTeX macros),
   five deterministic two-panel figures in vector PDF plus PNG preview, and a
-  seven-page RevTeX/PRD manuscript with 16 verified references. The paper
+  nine-page RevTeX/PRD manuscript with 26 verified references. The paper
   build uses a pinned Tectonic bundle and `SOURCE_DATE_EPOCH`; a SHA-256
   source/output manifest and `--check` paths cover numbers, figures, PDF, and
   packaging. Reproduction instructions live in `paper/README.md`. No release
   tag or external deposit is created by the pipeline.
+- **Round-R referee hardening for the 3.3.0 draft**: self-contained numerical
+  and initial-data protocols, a versioned kinetic/potential mechanism check,
+  and a 12-cell identical-data oracle sensitivity scan. The scan publishes a
+  regime boundary rather than smoothing it: its discriminator spans
+  0.712--1.313 and exceeds the predeclared review threshold at the two largest
+  couplings. Reproducibility now includes an exact macOS arm64 conda lock, a
+  portable environment export, version-pinned DOLFINx CI/container inputs,
+  and a 48-artifact closure manifest. The chronically red 3D Price-tail check
+  is retained with unchanged tolerances as a documented non-power-law-floor
+  `xfail`, backed by a new versioned diagnostic series and note.
 - **F2 exterior spectroscopy production closes** (`docs/research/phase2/
   exterior/note.md` + `spectroscopy.json`; script
   `scripts/exterior_spectroscopy.py`, idempotent, subprocess workers,

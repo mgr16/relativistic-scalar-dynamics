@@ -29,42 +29,33 @@
 \date{July 12, 2026}
 
 \begin{abstract}
-We measure the near-singularity logarithmic profile of test scalar fields
-inside a Schwarzschild black hole in three spatial dimensions.  The metric is
-held fixed, matching the test-field scope of the rigorous
-Fournodavlos--Sbierski asymptotics, while the scalar retains a nonlinear
-symmetry-breaking potential.  Identical initial data are evolved with a
-finite-element excision scheme and compared mode by mode with a free scalar.
+We ask whether a nonlinear vacuum potential leaves an imprint on scalar-field
+profiles near the Schwarzschild singularity while the spacetime metric is
+held fixed.  We extract the Fournodavlos--Sbierski logarithmic coefficient
+from paired, identical-data finite-element evolutions with excision and
+compare a Mexican-hat scalar mode by mode with a free scalar.
 % numbers.json::disc_l0_lc0.028_l2_ratio_frozen
 % numbers.json::disc_l1_lc0.040_l2_ratio_frozen
 % numbers.json::disc_l2_lc0.028_l2_ratio_frozen
-% numbers.json::disc_oracle_1d_l0_l2_ratio
-The primary Mexican-hat-to-linear $L^2$ ratios are
-$\DiscLZero$, $\DiscLOne$, and $\DiscLTwo$ for the finest available
-$l=0,1,2$ runs, respectively, compared with $\DiscOracle$ in the spherical
-oracle.  Thus the vacuum structure changes the logarithmic coefficient only
-within the quantified numerical error budget rather than changing its
-near-singularity scaling.
-% numbers.json::o1_truth_floor_linear_l1
-% numbers.json::o1_truth_floor_linear_l2
-The $l>0$ values remain frozen and uncorrected because their truth-window
-floors, $\TruthFloorLOne\%$ and $\TruthFloorLTwo\%$, exceed the correction
-being tested.
+% numbers.json::production_budget_low_percent
+% numbers.json::production_budget_high_percent
+The production Mexican-hat-to-linear $L^2$ ratios are $\DiscLZero$,
+$\DiscLOne$, and $\DiscLTwo$ for $l=0,1,2$, with a conservative
+$\ProductionBudgetLow$--$\ProductionBudgetHigh\%$ numerical budget.  Their
+order-unity values exclude a parametrically suppressed nonlinear coefficient
+at the measured point.
 % numbers.json::o1_deficit_fraction_explained
 % numbers.json::o1_remaining_l2_deficit
 A profile-dependent window calibration explains $\OOneDeficitExplained\%$
 of the monopole $L^2$ deficit on common support and leaves
 $\OOneDeficitResidual$ percentage points as a three-dimensional
-mesh/extraction systematic; it is diagnostic and does not replace the frozen
-ratios.
+mesh/extraction systematic.
 % numbers.json::qnm_R40_late_pooled_re
 % numbers.json::qnm_R40_late_pooled_minus_im
-Exterior validation gives
-$M\omega=\RFortyLateRe\pm\RFortyLateReUnc
+Exterior validation gives $M\omega=\RFortyLateRe\pm\RFortyLateReUnc
 -i(\RFortyLateMinusIm\pm\RFortyLateMinusImUnc)$ from late, large-domain
-windows, with scatter dominated by the fitting protocol.  The calculation
-therefore supplies a controlled numerical test of kinetic domination in the
-black-hole interior, explicitly within the Cowling limit.
+windows.  The result is restricted to the quantified Cowling, or test-field,
+regime and does not include metric backreaction.
 \end{abstract}
 
 \maketitle
@@ -85,17 +76,25 @@ and that logarithmic blow-up is generic in precise energy topologies
 singular hypersurface rather than a single global amplitude.  Its spherical
 harmonic components are the observables $a_l(t)$ studied below.
 
-The theorem is linear, but the approach to a spacelike singularity is often
-associated with velocity or kinetic domination.  In self-gravitating
-Einstein--scalar systems, monotone, quiescent singular behavior is stable in
-broad near-FLRW and subcritical Kasner regimes
-\cite{RodnianskiSpeck2018,FournodavlosRodnianskiSpeck2023}.  This motivates a
+The theorem is linear, while event-horizon data are themselves controlled by
+precise Price-law asymptotics \cite{AngelopoulosAretakisGajic2018}.  The
+approach to a spacelike singularity is often associated with velocity or
+kinetic domination.  In self-gravitating Einstein--scalar systems, monotone,
+quiescent singular behavior is stable in broad near-FLRW and subcritical
+Kasner regimes, with increasingly general formation and complete-asymptotic
+results \cite{RodnianskiSpeck2018,FournodavlosRodnianskiSpeck2023,
+OudeGroenigerEtAl2023,FrancoGrisalesRingstrom2026}.  Perturbed
+near-Schwarzschild interiors likewise retain a spacelike singular regime,
+although backreaction changes its detailed geometry
+\cite{AlexakisFournodavlos2020,AnGajic2020}.  This motivates a
 test-field question with a direct numerical answer: does a nonlinear vacuum
 potential retain an observable imprint in $A(t,\Omega)$, or is that structure
 washed out as the kinetic terms dominate?
 
 Previous numerical studies provide complementary pieces but not this
-measurement.  Thuestad, Khanna, and Price evolved scalar fields through the
+measurement.  Self-gravitating spherical calculations established an early
+numerical lineage for deep black-hole interiors \cite{BradySmith1995}.
+Thuestad, Khanna, and Price evolved test scalar fields through the
 interiors of Schwarzschild and Kerr black holes and found interior
 $l$-dependent oscillations, without extracting the $r\to0$ logarithmic
 coefficient \cite{ThuestadKhannaPrice2017}.  Symmetry-breaking scalars have
@@ -169,10 +168,19 @@ The angular decomposition is performed numerically in three dimensions; no
 spherical symmetry is imposed on the evolution.
 
 The metric is not evolved.  This Cowling or test-field limit is a physical
-restriction of the study, not an omitted convergence check.  It is also the
-precise background setting of Eq.~\eqref{eq:fs-expansion}.  Our result tests
-the effect of $V(\phi)$ on the scalar asymptotics; it does not address
-backreaction, mass inflation, or singularity resolution.
+restriction of the study, not an omitted convergence check.  In the
+one-dimensional pilot at the largest production amplitude,
+% numbers.json::production_pulse_A
+% numbers.json::cowling_phase0_zeta_max_inside_horizon
+% numbers.json::cowling_phase0_zeta_at_rmin
+$\PulseAmplitude$, the dimensionless backreaction monitor
+$\zeta=8\pi\rho/\sqrt{K_{\mu\nu\rho\sigma}K^{\mu\nu\rho\sigma}}$ stays below
+$\CowlingInsideMaximum$ inside the horizon and falls to
+$\CowlingDeepValue$ at the deepest sampled radius.  The global three-
+dimensional monitor is instead of order unity to ten because the weak-
+curvature exterior dominates its denominator; it is not an interior Cowling
+measure.  The fixed-background scope matches Eq.~\eqref{eq:fs-expansion} but
+does not address backreaction, mass inflation, or singularity resolution.
 
 \section{Numerical method and observables}
 \label{sec:numerics}
@@ -193,13 +201,28 @@ The evolved system is
       +\beta^i\partial_i\Pi+\alpha K\Pi-\alpha V'(\phi).
   \label{eq:first-order}
 \end{align}
+We use the sign convention
+$K_{ij}=-\tfrac12\mathcal{L}_{n}\gamma_{ij}$, for which the momentum equation
+contains the displayed $+\alpha K\Pi$ term.
 We discretize both variables with continuous piecewise-linear elements on a
 graded tetrahedral Gmsh mesh \cite{GeuzaineRemacle2009} and assemble the weak
-form in DOLFINx \cite{BarattaEtAl2023}.  Time integration uses SSP-RK3.
+form in DOLFINx \cite{BarattaEtAl2023}.  PETSc and its Python bindings supply
+the distributed linear algebra \cite{PETScManual2026,DalcinEtAl2011}.
+Time integration uses SSP-RK3 \cite{ShuOsher1988}.
 The black-hole interior is excised inside the horizon, where no incoming
 characteristic requires inner boundary data.  At the outer boundary we use a
 characteristic radiative condition; exterior spectroscopy additionally uses
-a smooth damping layer.
+a smooth damping layer.  Because absorbing-boundary performance is
+curvature- and multipole-dependent \cite{BuchmanSarbach2007}, we quantify the
+finite-domain response by a matched-domain experiment rather than assuming it
+negligible.
+
+In the causally clean transit-and-ringdown interval, waveform
+self-convergence is approximately second order on the coarse triplet and
+remains convergent, with reduced observed order, on the fine triplet.  The
+residual reduction is consistent with non-nested Gmsh remeshing noise and is
+unchanged by replacing faceted with curved cells; the later cavity-dominated
+signal is excluded from convergence claims.
 
 We record the Killing-energy change together with the inner and outer fluxes
 as an implementation diagnostic.  Its production residual is dominated by
@@ -242,13 +265,32 @@ three-dimensional mesh errors.
 Statistics use the anchored strong phase
 $t/M\in[\StrongTimeLow,\StrongTimeHigh]$ and require the anchor magnitude to
 exceed $\StrongFraction$ of its maximum in that interval.  This upper time
-cut removes late finite-domain contamination.  For one-dimensional truth we
-use the same asymptotic order on a deeper interval,
+cut removes late finite-domain contamination.  We define the deep-window
+one-dimensional reference by applying the same asymptotic order on
 % numbers.json::production_truth_window_lo
 % numbers.json::production_truth_window_hi
 % numbers.json::production_truth_order
 $r/M\in[\TruthWindowLow,\TruthWindowHigh]$ at order
 $\TruthWindowOrder$.
+
+The kinetic mechanism is checked independently in the production-protocol
+Mexican-hat oracle using the dynamical ratio $R_V=|\alpha V'(\phi)|$ divided
+by the sum of the absolute non-potential terms in $\partial_t\Pi$.
+% numbers.json::mechanism_ratio_threshold
+% numbers.json::mechanism_rstar_mexhat
+% numbers.json::mechanism_rstar_iqr_low
+% numbers.json::mechanism_rstar_iqr_high
+% numbers.json::mechanism_ratio_exponent
+% numbers.json::mechanism_ratio_exponent_iqr_low
+% numbers.json::mechanism_ratio_exponent_iqr_high
+Across strong-phase snapshots, the contiguous region with
+$R_V<\MechanismRatioThreshold$ reaches a median
+$r_*=\MechanismRstar M$ [IQR
+$\MechanismRstarIQRLow M,\MechanismRstarIQRHigh M$], while the deep radial
+scaling is $R_V\propto r^{\MechanismExponent}$ [IQR
+$\MechanismExponentIQRLow,\MechanismExponentIQRHigh$].  Thus the deep-window
+reference lies entirely within the kinetically dominated region, while the
+primary interval samples both its interior and the time-dependent crossover.
 
 \subsection{Paired discriminator and calibration}
 
@@ -266,15 +308,16 @@ because the maxima occur at different times and inherit a differential
 window bias.
 
 For $l=0$, a diagnostic calibration is obtained by applying the production
-fit and the deeper truth fit to the same dense oracle snapshot,
+fit and the deep-window reference fit to the same dense oracle snapshot,
 \begin{equation}
-  c_X(t)=\frac{a_{X,\mathrm{prod}}(t)}{a_{X,\mathrm{truth}}(t)}.
+  c_X(t)=\frac{a_{X,\mathrm{prod}}(t)}{a_{X,\mathrm{ref}}(t)}.
   \label{eq:calibration}
 \end{equation}
 The ratio is defined only in the oracle strong phase and is never filled
 across its zero-crossing gap or beyond its support.  Corrections are applied
 to both members of a pair before recomputing a diagnostic discriminator.
-They do not replace the frozen production values.
+They do not replace the production values (frozen before the calibration
+analysis).
 
 \section{Interior results}
 \label{sec:interior}
@@ -290,20 +333,22 @@ potentials across representative parts of the common strong phase.
   \includegraphics[width=\textwidth]{figures/interior_profiles.pdf}
   \caption{Near-singularity monopole profiles for identical initial data in
   the linear and Mexican-hat models.  Solid curves show the dense spherical
-  oracle, open circles the versioned low-resolution $3+1$D profile bank, and dashed
-  curves the primary order-one fits.  Colors select reproducible
-  representatives of the common strong phase.  This is a qualitative
-  low-resolution profile comparison; quantitative deviations and the
+  oracle, open circles the versioned mid-resolution production level
+  ($\ell_c=\InteriorMeshScaleMiddle M$), and dashed curves the primary
+  order-one fits.  Here $\phi_{00}=c_{00}/\sqrt{4\pi}$ is the $Y_{00}$
+  component in the spherical normalization.  Colors select reproducible
+  representatives of the common strong phase.  This is a qualitative profile comparison; quantitative
+  deviations and the
   $L^2$ discriminator are reported separately.}
   \label{fig:profiles}
 \end{figure*}
 
 % numbers.json::linear_l0_lc0.028_dev_primary_median
 % numbers.json::mexhat_l0_lc0.028_dev_primary_median
-At the finest production rung, the median three-dimensional-to-oracle
+At the finest production resolution level, the median three-dimensional-to-oracle
 deviation is $\FrozenDevLinearFine\%$ for the linear field and
 $\FrozenDevMexhatFine\%$ for the Mexican-hat field.  These comparisons
-include temporal interpolation and extraction floors; they are not pure mesh
+include temporal interpolation and extraction systematics; they are not pure mesh
 uncertainties.
 
 \subsection{Identical-data discriminator}
@@ -315,9 +360,12 @@ vacuum-structure erasure: the potential changes amplitudes within the
 numerical budget but does not introduce a distinct near-singularity scaling.
 
 \begin{table}
-  \caption{Frozen $L^2$ discriminator at the finest available rung.  The
-  $l>0$ values are not calibration-corrected; their truth-window floors are
-  stated in the text.}
+  \caption{Production $L^2$ discriminator at the finest available resolution
+  level.  The $l>0$ values are not calibration-corrected; their
+  reference-window floors are
+  stated in the text.  Table note: the broad IQR reflects the
+  ill-conditioning of the pointwise ratio near a zero crossing;
+  $\mathcal{D}_l$ is the primary statistic.}
   \label{tab:disc}
   \begin{ruledtabular}
   \begin{tabular}{c@{\quad}cc}
@@ -342,27 +390,42 @@ numerical budget but does not introduce a distinct near-singularity scaling.
 \begin{figure*}
   \includegraphics[width=\textwidth]{figures/interior_discriminator.pdf}
   \caption{Identical-data Mexican-hat-to-linear discriminator.  Squares show
-  the frozen $L^2$ ratio, the primary statistic; circles and bars show the
+  the production $L^2$ ratio, the primary statistic; circles and bars show the
   secondary median and IQR.  The dashed line is the spherical-oracle $L^2$
-  ratio.  The $l>0$ values are frozen and uncorrected because their
-  truth-window floors exceed the correction being tested.  Peak ratios and
+  ratio.  The $l>0$ values are uncorrected because their reference-window
+  floors exceed the correction being tested.  Peak ratios and
   corrected common-support $L^2$ diagnostics are deliberately omitted.}
   \label{fig:disc}
 \end{figure*}
 
 % numbers.json::o1_truth_floor_linear_l1
 % numbers.json::o1_truth_floor_linear_l2
-For $l=1$ and $l=2$, the truth-window floors are $\TruthFloorLOne\%$ and
+For $l=1$ and $l=2$, the reference-window floors are $\TruthFloorLOne\%$ and
 $\TruthFloorLTwo\%$, respectively.  They are comparable to or larger than
 the effect one would attempt to correct, so promoting either an intrinsic or
 transferred $l>0$ correction would add unjustified precision.
 % numbers.json::interior_fine_ladder_rms_linear_l0
 % numbers.json::interior_fine_ladder_rms_mexhat_l0
-The fine-rung RMS differences for the individual monopole series are
+The fine-resolution RMS differences for the individual monopole series are
 $\FineLadderRmsLinearLZero\%$ and $\FineLadderRmsMexhatLZero\%$ for the
 linear and nonlinear runs.  Their paired discriminator is visibly more
 stable than either absolute comparison because the members share the mesh,
 estimator, and initial data.
+% numbers.json::disc_l0_ladder_span_pts
+Across all three monopole resolution levels, the primary paired discriminator
+varies by only $\DiscLadderSpan$ percentage points.
+
+If the vacuum structure survived dynamically, the nonlinear member would be
+expected to remain anchored near its vacuum and to yield
+$\mathcal{D}_l\ll1$, parametrically separated from an order-unity response.
+% numbers.json::production_budget_low_percent
+% numbers.json::production_budget_high_percent
+The observed range $\mathcal{D}_l=\DiscLOne$--$\DiscLZero$, together with the conservative
+$\ProductionBudgetLow$--$\ProductionBudgetHigh\%$ budget, excludes that
+suppression at the measured point.  This statement initially covers one
+potential shape, one $(\lambda,v)$ pair, and one perturbation amplitude; the
+one-dimensional sensitivity scan in Sec.~\ref{sec:discussion} tests the
+nearby parameter range.
 
 \subsection{Profile-dependent window systematic}
 
@@ -380,7 +443,7 @@ dependence and the strict-support deviation budget.
   the linear and Mexican-hat oracles, defined only on strong-phase support
   and left unfilled elsewhere.  Right: median 3D--1D deviation before and
   after the diagnostic calibration on strict common support.  Residual
-  curves do not replace the frozen production deviations; the coarsest rung
+  curves do not replace the production deviations; the coarsest resolution level
   is shown diagnostically and is not used for a convergence claim.}
   \label{fig:o1}
 \end{figure*}
@@ -468,17 +531,17 @@ damping rate.
 % numbers.json::qnm_R20_lc0.7_re
 % numbers.json::qnm_R20_lc0.7_re_error_signed
 % numbers.json::qnm_R20_fine_re_order
-At the fine small-domain rung,
+At the fine small-domain resolution level,
 $\mathrm{Re}(M\omega)=\RTwentyFineRe$ with signed error
 $\RTwentyFineReError\%$ relative to Leaver.  The fine-pair order is
 $p=\RTwentyFineOrder$; a three-point Richardson extrapolation is not used
-because the coarse rung lies outside a monotone asymptotic regime.
+because the coarse resolution level lies outside a monotone asymptotic regime.
 
 % numbers.json::qnm_R40_late_pooled_re
 % numbers.json::qnm_R40_late_pooled_re_error_signed
 % numbers.json::qnm_R40_late_pooled_minus_im
 % numbers.json::qnm_R40_late_pooled_minus_im_error_signed
-Pooling declared late windows from two matched large-domain rungs gives
+Pooling declared late windows from two matched large-domain resolution levels gives
 \begin{align}
   \mathrm{Re}(M\omega)
     &=\RFortyLateRe\pm\RFortyLateReUnc, \\
@@ -488,7 +551,7 @@ Pooling declared late windows from two matched large-domain rungs gives
 \end{align}
 The signed errors are $\RFortyLateReError\%$ and
 $\RFortyLateMinusImError\%$.  These uncertainties are scatter across late
-windows and two rungs and are dominated by the fitting protocol.
+windows and two resolution levels and are dominated by the fitting protocol.
 % numbers.json::qnm_R40_lc1match_early_overtone_bias
 % numbers.json::qnm_R40_lc0.7match_early_overtone_bias
 Early large-domain windows instead overestimate the damping by
@@ -540,7 +603,7 @@ The central result is not equality of the two potentials to arbitrary
 precision.  It is the persistence of the same logarithmic asymptotic
 coefficient at order unity for identical data, in all measured multipoles,
 with a separately measured error budget.  Absolute three-dimensional-to-one-
-dimensional deviations are larger than the rung-to-rung spread of the paired
+dimensional deviations are larger than the resolution-level spread of the paired
 discriminator because correlated mesh and estimator errors cancel to first
 order in the pair.
 
@@ -552,6 +615,33 @@ support and leaves $\OOneDeficitResidual$ percentage points.  The residual
 is therefore carried as a genuine three-dimensional mesh/extraction
 systematic.  We do not use the corrected diagnostic as a replacement result,
 and we do not transfer it to $l>0$.
+
+% numbers.json::sens_grid_cell_count
+% numbers.json::sens_lambda_min
+% numbers.json::sens_lambda_max
+% numbers.json::sens_amplitude_min
+% numbers.json::sens_amplitude_max
+To test the restriction to one production point, we performed a
+$\SensitivityGridCount$-cell, $l=0$, $v=1$ oracle scan over
+$\lambda\in[\SensitivityLambdaLow,\SensitivityLambdaHigh]$ and
+$A\in[\SensitivityAmplitudeLow,\SensitivityAmplitudeHigh]$, with the same
+strong-phase discriminator as in production.
+% numbers.json::sens_disc_min
+% numbers.json::sens_disc_max
+% numbers.json::sens_disc_max_abs_dev
+% numbers.json::sens_disc_review_threshold
+It gives
+$\mathcal{D}_{0}^{\mathrm{oracle}}=\SensitivityDiscLow$--$\SensitivityDiscHigh$
+and a maximum distance from unity of $\SensitivityMaxDeviation$, above the
+predeclared review threshold $\SensitivityReviewThreshold$.
+% numbers.json::sens_lambda_boundary
+At every sampled amplitude, the $\lambda=\SensitivityLambdaBoundary$ cells
+lie below unity whereas the $\lambda=\SensitivityLambdaHigh$ cells lie above
+it.  The near-unity result at the production coupling therefore identifies a
+finite coupling regime, not uniform robustness across the full scan; within
+the tested grid the coupling dependence dominates the amplitude dependence.
+This one-dimensional transient boundary neither changes the production
+three-dimensional value nor enters its mesh/extraction uncertainty budget.
 
 This behavior is complementary to exterior symmetry-restoration studies
 \cite{TraykovaBradenPeiris2018,MarsdenEtAl2025}.  Near the horizon, redshift
@@ -568,12 +658,15 @@ GR background.
 The main limitations are accordingly clear.  Backreaction is absent; the
 calculation does not decide the geometry of a self-gravitating singularity.
 The radial fit covers a finite interval rather than the mathematical limit.
-The $l>0$ truth-window floors prevent a citable profile correction.  The
+The $l>0$ reference-window floors prevent a citable profile correction.  The
 interior strong phase ends before the late quasi-stationary regime, and the
-exterior damping uncertainty remains protocol dominated.  Finally, the
-$l$-dependent oscillation cross-check suggested by
-Ref.~\cite{ThuestadKhannaPrice2017} would require promoting additional
-versioned $l>0$ profile series and is deferred.
+exterior damping uncertainty remains protocol dominated.  In particular,
+Ref.~\cite{ThuestadKhannaPrice2017} predicts late-time spatial nodes
+proportional to $P_l(r/M-1)$ across the interior, rather than short-time
+temporal oscillations at a few extraction radii.  Our versioned production
+bank ends at $\ProductionEndTime M$ and samples only the finite fitting
+interval; it therefore cannot test that asymptotic spatial statement.  A
+genuine cross-check requires later-time full-interior profiles and is deferred.
 
 \section{Conclusions}
 \label{sec:conclusions}
@@ -584,7 +677,7 @@ a free scalar with a symmetry-breaking scalar using identical data.
 % numbers.json::disc_l0_lc0.028_l2_ratio_frozen
 % numbers.json::disc_l1_lc0.040_l2_ratio_frozen
 % numbers.json::disc_l2_lc0.028_l2_ratio_frozen
-The frozen primary ratios $\DiscLZero$, $\DiscLOne$, and $\DiscLTwo$ show
+The production primary ratios $\DiscLZero$, $\DiscLOne$, and $\DiscLTwo$ show
 that the nonlinear vacuum structure does not generate a parametrically
 different near-singularity profile in $l=0,1,2$.  A conservative calibration
 isolates part of the monopole window bias without promoting a correction
@@ -594,6 +687,204 @@ the unresolved-overtone bias and a finite-domain cavity floor.  Together,
 these results support kinetic-domination erasure of vacuum structure in the
 test-field Schwarzschild interior while making the Cowling limit and all
 resolved systematics explicit.
+
+\section{Data availability}
+
+Versioned artifacts and scripts regenerate every numerical entry, figure, and
+the manuscript PDF.  A SHA-256 source manifest closes the release inventory.
+At deposit, the archival address will replace the token below.
+
+\noindent\makebox[\columnwidth][c]{[REPOSITORY-URL-AT-DEPOSIT]}
+
+\appendix
+
+\section{Initial data}
+\label{app:initial-data}
+
+This appendix fixes the initial-data convention sufficiently to reproduce it
+independently.  Define the radial perturbation and its derivative by
+\begin{equation}
+  g(r)=A\exp\!\left[-\frac{(r-r_0)^2}{w^2}\right],
+  \qquad
+  g'(r)=-\frac{2(r-r_0)}{w^2}g(r).
+  \label{eq:initial-gaussian}
+\end{equation}
+The three-dimensional scalar is
+\begin{equation}
+  \phi(0,r,\Omega)=v_0+g(r)F_{lm}(\Omega),
+  \qquad
+  F_{lm}=\begin{cases}
+    1, & l=0,\\
+    Y_{lm}^{\mathrm{real}}, & l>0,
+  \end{cases}
+  \label{eq:initial-field}
+\end{equation}
+where the real harmonics are orthonormal and use the same implementation as
+the multipolar extractor.  For the curved ingoing prescription let
+$\bar r=\max(r,w/10)$ and
+$c_{\rm in}=\beta^r+\alpha\sqrt{\gamma^{rr}}$.  The exact three-dimensional
+momentum profile is
+\begin{equation}
+  \Pi(0,r,\Omega)=
+  \left[
+    \sqrt{\gamma^{rr}(\bar r)}\,g'(r)
+    +\frac{c_{\rm in}(\bar r)}{\alpha(\bar r)}
+     \frac{g(r)}{\bar r}
+  \right]F_{lm}(\Omega).
+  \label{eq:initial-momentum-3d}
+\end{equation}
+For Schwarzschild--Kerr--Schild,
+$\sqrt{\gamma^{rr}}=\alpha=(1+2M/r)^{-1/2}$,
+$\beta^r=2M/(r+2M)$, and $c_{\rm in}=1$.  The one-dimensional oracle uses
+the algebraically equivalent ansatz
+\begin{equation}
+  \Pi_{\mathrm{1D}}(0,r)=
+  \frac{[1-\beta^r(r)]g'(r)+g(r)/r}{\alpha(r)}.
+  \label{eq:initial-momentum-1d}
+\end{equation}
+% numbers.json::production_pulse_A
+% numbers.json::production_pulse_r0
+% numbers.json::production_pulse_w
+The production values are $A=\PulseAmplitude$, $r_0=\PulseRadius M$, and
+$w=\PulseWidth M$.  The $l=0$ perturbation deliberately omits a factor
+$Y_{00}$, so extraction gives $c_{00}=\sqrt{4\pi}\,u$; for $l>0$,
+$c_{l0}=u_l$.
+% numbers.json::production_normalization_convention
+The convention is pinned end to end by the versioned regression
+tests/test\_initial\_data\_ylm.py.
+
+\section{Numerical protocol}
+\label{app:numerical-protocol}
+
+Table~\ref{tab:interior-protocol} gives the complete interior campaign.
+Every displayed numerical cell is generated from the canonical number
+catalog.
+
+\begin{table*}
+  \caption{Interior production protocol.}
+  \label{tab:interior-protocol}
+  \begin{tabular}{lll}
+    \toprule
+    Quantity & Discretization or selection & Value \\
+    \midrule
+    % numbers.json::interior_excision_radius
+    % numbers.json::interior_domain_radius
+    Radial domain & excised ball
+      & $r/M\in[\InteriorExcisionRadius,\InteriorDomainRadius]$ \\
+    % numbers.json::interior_element_degree
+    % numbers.json::interior_cfl
+    Evolution & continuous $P_{\InteriorElementDegree}$, SSP--RK3
+      & CFL $=\InteriorCFL$ \\
+    % numbers.json::interior_outer_mesh_scale
+    % numbers.json::interior_mesh_scale_coarse
+    % numbers.json::interior_mesh_scale_middle
+    % numbers.json::interior_fine_mesh_scale_l0
+    Mesh grading & outer $\ell_c=\InteriorOuterMeshScale M$
+      & $\ell_{c,\rm in}/M\in
+      \{\InteriorMeshScaleCoarse,\InteriorMeshScaleMiddle,
+      \FineMeshScaleLZero\}$ \\
+    % numbers.json::interior_mode_l0
+    % numbers.json::interior_mode_l1
+    % numbers.json::interior_mode_l2
+    % numbers.json::interior_lmax_l0
+    % numbers.json::interior_lmax_l2
+    Angular banks & $l=\InteriorModeLZero,\InteriorModeLOne,\InteriorModeLTwo$
+      & $l_{\max}=\InteriorLmaxLZero$ normally;
+        $\InteriorLmaxLTwo$ for $l=\InteriorModeLTwo$ \\
+    % numbers.json::production_t_end
+    Duration & all production pairs & $t_{\rm end}=\ProductionEndTime M$ \\
+    % numbers.json::interior_extraction_count
+    % numbers.json::interior_extraction_r_min
+    % numbers.json::interior_extraction_r_max
+    Profile bank & logarithmic spacing, $K=\InteriorExtractionCount$
+      & $r/M\in[\InteriorExtractionRadiusLow,
+      \InteriorExtractionRadiusHigh]$ \\
+    % numbers.json::production_pulse_A
+    % numbers.json::production_pulse_r0
+    % numbers.json::production_pulse_w
+    Initial pulse & curved ingoing Gaussian
+      & $(A,r_0/M,w/M)=(\PulseAmplitude,\PulseRadius,\PulseWidth)$ \\
+    % numbers.json::production_primary_window_lo
+    % numbers.json::production_primary_window_hi
+    % numbers.json::production_strong_tmin
+    % numbers.json::production_strong_tmax
+    Observable & primary radial fit and capped strong phase
+      & $r/M\in[\PrimaryWindowLow,\PrimaryWindowHigh]$,
+        $t/M\in[\StrongTimeLow,\StrongTimeHigh]$ \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+The exterior validation protocol is listed in
+Table~\ref{tab:exterior-protocol}.  The small and large domains share the
+same inner grading through
+\begin{align}
+  \ell_c(r)
+  &=\ell_{c,\rm in}
+    +(\ell_{c,\rm out}-\ell_{c,\rm in})\frac{r}{R}, \\
+  \ell_{c,\rm out}
+  &=\ell_{c,\rm in}
+    +(\ell_c-\ell_{c,\rm in})\frac{R}{\ExteriorDomainSmall M},
+  \label{eq:matched-grading}
+\end{align}
+% numbers.json::exterior_r40_matching_rule
+with $\ell_{c,\rm in}=\ell_c/\ExteriorLcInnerRatio$.
+
+\begin{table*}
+  \caption{Exterior spectroscopy protocol.}
+  \label{tab:exterior-protocol}
+  \begin{tabular}{lll}
+    \toprule
+    Quantity & Small domain & Matched large domain \\
+    \midrule
+    % numbers.json::exterior_domain_small
+    % numbers.json::exterior_domain_large
+    Outer radius & $R=\ExteriorDomainSmall M$
+      & $R=\ExteriorDomainLarge M$ \\
+    % numbers.json::exterior_sponge_small_onset
+    % numbers.json::exterior_sponge_small_width
+    % numbers.json::exterior_sponge_large_onset
+    % numbers.json::exterior_sponge_large_width
+    Damping layer & onset $\ExteriorSpongeSmallOnset M$, width
+      $\ExteriorSpongeSmallWidth M$
+      & onset $\ExteriorSpongeLargeOnset M$, width
+        $\ExteriorSpongeLargeWidth M$ \\
+    % numbers.json::exterior_mesh_scale_coarse
+    % numbers.json::exterior_mesh_scale_middle
+    % numbers.json::exterior_mesh_scale_fine
+    Mesh levels & $\ell_c/M\in\{\ExteriorMeshScaleCoarse,
+      \ExteriorMeshScaleMiddle,\ExteriorMeshScaleFine\}$
+      & matched levels from Eq.~\eqref{eq:matched-grading} \\
+    % numbers.json::exterior_l
+    % numbers.json::exterior_m
+    % numbers.json::exterior_r_ext
+    Mode and extraction & $(l,m)=(\ExteriorMultipoleL,\ExteriorMultipoleM)$
+      & $r_{\rm ext}=\ExteriorRadius M$ \\
+    % numbers.json::exterior_end_time
+    Duration & $t_{\rm end}=\ExteriorEndTime M$
+      & $t_{\rm end}=\ExteriorEndTime M$ \\
+    % numbers.json::exterior_pulse_A
+    % numbers.json::exterior_pulse_r0
+    % numbers.json::exterior_pulse_w
+    Initial pulse & $(A,r_0/M,w/M)=(\ExteriorPulseAmplitude,
+      \ExteriorPulseRadius,\ExteriorPulseWidth)$
+      & identical \\
+    % numbers.json::exterior_designed_window_length
+    % numbers.json::exterior_designed_window_t_search
+    % numbers.json::exterior_designed_window_mode_count
+    Anchored fit & length $\ExteriorWindowLength M$, search after
+      $\ExteriorSearchTime M$
+      & Prony modes $=\ExteriorModeCount$ \\
+    % numbers.json::exterior_late_window_length
+    % numbers.json::exterior_late_window_min_offset
+    Late damping fit & unavailable above the cavity background
+      & length $\ExteriorLateWindowLength M$, pooled offset
+        $\geq\ExteriorLateMinOffset M$ \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\clearpage
 
 \bibliography{refs}
 

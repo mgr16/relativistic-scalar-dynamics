@@ -48,6 +48,114 @@
 % numbers.json::interior_fine_ladder_rms_mexhat_l2
 \newcommand{\FineLadderRmsMexhatLTwo}{21.4}
 
+% --- R1 interior protocol ---
+% numbers.json::interior_domain_radius
+\newcommand{\InteriorDomainRadius}{15.0}
+% numbers.json::interior_excision_radius
+\newcommand{\InteriorExcisionRadius}{0.1}
+% numbers.json::interior_outer_mesh_scale
+\newcommand{\InteriorOuterMeshScale}{1.2}
+% numbers.json::interior_element_degree
+\newcommand{\InteriorElementDegree}{1}
+% numbers.json::interior_cfl
+\newcommand{\InteriorCFL}{0.3}
+% numbers.json::interior_extraction_count
+\newcommand{\InteriorExtractionCount}{32}
+% numbers.json::interior_extraction_r_min
+\newcommand{\InteriorExtractionRadiusLow}{0.1}
+% numbers.json::interior_extraction_r_max
+\newcommand{\InteriorExtractionRadiusHigh}{0.5}
+% numbers.json::interior_mesh_scale_coarse
+\newcommand{\InteriorMeshScaleCoarse}{0.056}
+% numbers.json::interior_mesh_scale_middle
+\newcommand{\InteriorMeshScaleMiddle}{0.040}
+% numbers.json::interior_mode_l0
+\newcommand{\InteriorModeLZero}{0}
+% numbers.json::interior_mode_l1
+\newcommand{\InteriorModeLOne}{1}
+% numbers.json::interior_mode_l2
+\newcommand{\InteriorModeLTwo}{2}
+% numbers.json::interior_lmax_l0
+\newcommand{\InteriorLmaxLZero}{2}
+% numbers.json::interior_lmax_l2
+\newcommand{\InteriorLmaxLTwo}{4}
+
+% --- R1 exterior protocol ---
+% numbers.json::exterior_domain_small
+\newcommand{\ExteriorDomainSmall}{20}
+% numbers.json::exterior_domain_large
+\newcommand{\ExteriorDomainLarge}{40}
+% numbers.json::exterior_sponge_small_width
+\newcommand{\ExteriorSpongeSmallWidth}{5}
+% numbers.json::exterior_sponge_small_onset
+\newcommand{\ExteriorSpongeSmallOnset}{15}
+% numbers.json::exterior_sponge_large_width
+\newcommand{\ExteriorSpongeLargeWidth}{10}
+% numbers.json::exterior_sponge_large_onset
+\newcommand{\ExteriorSpongeLargeOnset}{30}
+% numbers.json::exterior_end_time
+\newcommand{\ExteriorEndTime}{70}
+% numbers.json::exterior_mesh_scale_coarse
+\newcommand{\ExteriorMeshScaleCoarse}{1.4}
+% numbers.json::exterior_mesh_scale_middle
+\newcommand{\ExteriorMeshScaleMiddle}{1.0}
+% numbers.json::exterior_mesh_scale_fine
+\newcommand{\ExteriorMeshScaleFine}{0.7}
+% numbers.json::exterior_lc_inner_ratio
+\newcommand{\ExteriorLcInnerRatio}{3.75}
+
+% --- R1 mechanism ---
+% numbers.json::mechanism_rstar_mexhat
+\newcommand{\MechanismRstar}{0.625}
+% numbers.json::mechanism_rstar_iqr_low
+\newcommand{\MechanismRstarIQRLow}{0.414}
+% numbers.json::mechanism_rstar_iqr_high
+\newcommand{\MechanismRstarIQRHigh}{0.808}
+% numbers.json::mechanism_ratio_exponent
+\newcommand{\MechanismExponent}{2.79}
+% numbers.json::mechanism_ratio_exponent_iqr_low
+\newcommand{\MechanismExponentIQRLow}{2.44}
+% numbers.json::mechanism_ratio_exponent_iqr_high
+\newcommand{\MechanismExponentIQRHigh}{3.29}
+% numbers.json::mechanism_ratio_threshold
+\newcommand{\MechanismRatioThreshold}{0.01}
+
+% --- R1 interior result ---
+% numbers.json::disc_l0_ladder_span_pts
+\newcommand{\DiscLadderSpan}{2.1}
+% numbers.json::production_budget_low_percent
+\newcommand{\ProductionBudgetLow}{10}
+% numbers.json::production_budget_high_percent
+\newcommand{\ProductionBudgetHigh}{15}
+
+% --- R1 Cowling ---
+% numbers.json::cowling_phase0_zeta_max_inside_horizon
+\newcommand{\CowlingInsideMaximum}{0.00124}
+% numbers.json::cowling_phase0_zeta_at_rmin
+\newcommand{\CowlingDeepValue}{0.00016}
+
+% --- R2 sensitivity ---
+% numbers.json::sens_lambda_min
+\newcommand{\SensitivityLambdaLow}{0.03}
+% numbers.json::sens_lambda_boundary
+\newcommand{\SensitivityLambdaBoundary}{0.30}
+% numbers.json::sens_lambda_max
+\newcommand{\SensitivityLambdaHigh}{1.00}
+% numbers.json::sens_amplitude_min
+\newcommand{\SensitivityAmplitudeLow}{0.01}
+% numbers.json::sens_amplitude_max
+\newcommand{\SensitivityAmplitudeHigh}{0.10}
+% numbers.json::sens_grid_cell_count
+\newcommand{\SensitivityGridCount}{12}
+% numbers.json::sens_disc_min
+\newcommand{\SensitivityDiscLow}{0.712}
+% numbers.json::sens_disc_max
+\newcommand{\SensitivityDiscHigh}{1.313}
+% numbers.json::sens_disc_max_abs_dev
+\newcommand{\SensitivityMaxDeviation}{0.313}
+% numbers.json::sens_disc_review_threshold
+\newcommand{\SensitivityReviewThreshold}{0.15}
+
 % --- Interior discriminator ---
 % numbers.json::disc_l0_lc0.028_l2_ratio_frozen
 \newcommand{\DiscLZero}{0.923}

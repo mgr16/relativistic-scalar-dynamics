@@ -54,6 +54,51 @@ def test_manuscript_has_no_raw_decimal_results_or_retracted_tokens():
     assert r"\today" not in text_without_comments
 
 
+def test_internal_jargon_is_absent_outside_the_single_definition():
+    text_without_comments = re.sub(r"(?m)^%.*$", "", _main_text())
+    lowered = text_without_comments.lower()
+
+    for forbidden in (r"\btruth\b", r"\brungs?\b", r"\bsmoke\b"):
+        assert not re.search(forbidden, lowered)
+    frozen_uses = re.findall(r"\bfrozen\b", lowered)
+    assert len(frozen_uses) == 1
+    assert "production values (frozen before the calibration" in lowered
+
+    abstract = re.search(
+        r"\\begin\{abstract\}(.*?)\\end\{abstract\}",
+        text_without_comments,
+        re.S,
+    )
+    assert abstract is not None
+    assert not re.search(r"\b(frozen|truth|rung|floor)\b", abstract.group(1).lower())
+
+
+def test_round_r1_sections_and_protocol_tables_are_present():
+    text = _main_text()
+    assert r"\section{Data availability}" in text
+    assert "[REPOSITORY-URL-AT-DEPOSIT]" in text
+    assert r"\appendix" in text
+    assert r"\section{Initial data}" in text
+    assert r"\section{Numerical protocol}" in text
+    assert text.count(r"\begin{table*}") >= 2
+    assert r"\toprule" in text and r"\bottomrule" in text
+
+
+def test_round_r2_sensitivity_boundary_and_tkp_scope_are_present():
+    text = _main_text()
+    for entry_id in (
+        "sens_grid_cell_count",
+        "sens_disc_min",
+        "sens_disc_max",
+        "sens_disc_max_abs_dev",
+        "sens_disc_review_threshold",
+    ):
+        assert f"% numbers.json::{entry_id}" in text
+    assert "not uniform robustness across the full scan" in text
+    assert "P_l(r/M-1)" in text
+    assert "full-interior profiles" in text
+
+
 def test_all_figure_inputs_exist_as_versioned_pdfs():
     paths = re.findall(r"\\includegraphics(?:\[[^]]*\])?\{([^}]+)\}", _main_text())
 

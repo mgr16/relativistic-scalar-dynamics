@@ -30,12 +30,13 @@ def _sha256(content: bytes) -> str:
 
 
 def test_inventory_is_exact_sorted_reproducibility_closure():
-    assert len(manifest.VERSIONED_INPUTS) == 11
-    assert len(manifest.GENERATORS) == 4
+    assert len(manifest.VERSIONED_INPUTS) == 18
+    assert len(manifest.GENERATORS) == 8
+    assert len(manifest.REPRODUCIBILITY) == 5
     assert len(manifest.GENERATED_TABLES) == 3
     assert len(manifest.FIGURES) == 10
     assert len(manifest.MANUSCRIPT) == 4
-    assert len(manifest.ARTIFACT_PATHS) == 32
+    assert len(manifest.ARTIFACT_PATHS) == 48
     assert list(manifest.ARTIFACT_PATHS) == sorted(manifest.ARTIFACT_PATHS)
     assert len(set(manifest.ARTIFACT_PATHS)) == len(manifest.ARTIFACT_PATHS)
     assert set(manifest.GENERATORS) == {
@@ -43,6 +44,17 @@ def test_inventory_is_exact_sorted_reproducibility_closure():
         "scripts/paper_tex_numbers.py",
         "scripts/paper_figures.py",
         "scripts/paper_manifest.py",
+        "scripts/paper_protocol_addenda.py",
+        "scripts/oracle_energy_split.py",
+        "scripts/oracle_sensitivity_scan.py",
+        "scripts/price_tail_diagnostic.py",
+    }
+    assert set(manifest.REPRODUCIBILITY) == {
+        ".github/workflows/hpc.yml",
+        "Dockerfile",
+        "docs/validation/price_tail_diagnostic.md",
+        "envs/rsd-dolfinx-lock-osx-arm64.txt",
+        "envs/rsd-dolfinx.yml",
     }
     assert set(manifest.GENERATED_TABLES) == {
         "docs/research/phase3/numbers.json",

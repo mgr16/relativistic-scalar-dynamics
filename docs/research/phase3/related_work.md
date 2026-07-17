@@ -120,10 +120,17 @@ de Schwarzschild, con F–S como puente lineal riguroso.
 - **[A] Fournodavlos, Rodnianski & Speck**, estabilidad de Kasner-scalar
   en todo el régimen subcrítico (JAMS 36, 827–916 (2023),
   arXiv:2012.05888; ID verificado).
-- **[S]** *Formation of quiescent big bang singularities*
+- **[A]** *Formation of quiescent big bang singularities*
   (arXiv:2309.11370) y *Complete asymptotics in the formation of
-  quiescent big bang singularities* (arXiv:2602.02373, **feb 2026** —
-  citar como estado del arte).
+  quiescent big bang singularities* (arXiv:2602.02373, **feb 2026**) —
+  autores, abstracts y versiones verificados en arXiv; se citan como estado
+  del arte de formación y datos completos en la singularidad.
+- **[A] Angelopoulos, Aretakis & Gajic**, *Late-time asymptotics for the
+  wave equation on spherically symmetric, stationary spacetimes*, Adv. Math.
+  323, 529--621 (2018), arXiv:1612.01566 — fija asintóticas precisas de
+  Price hasta el horizonte. El contrato decía ``Alexakis--Aretakis--Gajic``
+  desde memoria; la fuente primaria confirma que el primer autor es
+  **Angelopoulos**.
 - **[S]** *Scattering towards the singularity for the wave equation and
   the linearized Einstein-scalar field system in Kasner spacetimes*
   (arXiv:2401.08437) y *The wave equation near flat FLRW and Kasner Big
@@ -169,6 +176,10 @@ de Schwarzschild, con F–S como puente lineal riguroso.
   manipulación del pozo + graduación apareada** — nuestro capítulo de
   cavidad/dominio es citable como contribución metodológica menor.
   Tangencial: *absorption-induced mode excitation* (arXiv:2112.11168).
+- **Integración y software:** [A] Shu & Osher, JCP 77, 439--471 (1988),
+  verifica la discretización temporal TVD/SSP-RK de tres etapas usada aquí;
+  las citas oficiales [A] de PETSc/petsc4py son el manual ANL-21/39 y Dalcin
+  et al., Adv. Water Resour. 34, 1124--1139 (2011).
 
 ## 5. Declaración de novedad (borrador para el paper, EN)
 
@@ -199,8 +210,10 @@ no se defiende.
    línea exterior Higgs–BH (TBP18 congelado en horizonte; MACF24
    cascarones/burbujas) y (b) el teorema F–S + la historia de quiescencia
    autogravitante (RS/FRS). H1 queda en un párrafo con sus anclas.
-2. **Validación:** añadir el cross-check de las oscilaciones-l de TKP17
-   sobre nuestras series interiores (tarea nueva, barata, para C2/C4).
+2. **Validación:** R2.3 verificó que TKP17 predice nodos **radiales tardíos**,
+   no un espectro temporal corto. El banco $t\leq10M$, restringido al
+   intervalo de ajuste, no prueba ese observable; el cross-check correcto
+   requiere perfiles tardíos de todo el interior y queda diferido.
 3. **Discusión:** contraste explícito con teorías modificadas (Bars) —
    nuestra medición fija el comportamiento en GR mínima.
 4. **Sección QNM:** citar el debate de overtones/start-time y presentar
@@ -238,3 +251,60 @@ en C4 si el referee la pide).
   este estudio, no como claim bibliográfico de ausencia universal.
 - Scoop check central sin contraejemplo: no apareció una medición numérica
   publicada de $a(t,\omega)$ ni un par lineal–Higgs con dato idéntico.
+
+### 2026-07-16 — Altas R2 y corrección del ID recordado
+
+- Verificados contra arXiv/editor las altas obligatorias Brady--Smith
+  (PRL 75, 1256), Alexakis--Fournodavlos (2004.00692), An--Gajic
+  (2004.11831), Oude Groeniger--Petersen--Ringström (2309.11370),
+  Franco-Grisales--Ringström (2602.02373) y Buchman--Sarbach
+  (gr-qc/0703129). Todas pasan a [A] y se citan en el manuscrito.
+- arXiv:1612.01566 quedó verificado como Angelopoulos--Aretakis--Gajic,
+  Adv. Math. 323 (2018), no ``Alexakis--Aretakis--Gajic`` como decía el ID
+  de memoria del contrato. Se corrigió la atribución sin cambiar el rol
+  bibliográfico: asintóticas tardías/Price que alimentan el horizonte.
+- Shu--Osher se verificó contra la página editorial (JCP 77, 439--471,
+  DOI 10.1016/0021-9991(88)90177-5); PETSc/petsc4py contra su página oficial
+  de citas (manual ANL-21/39 y Dalcin et al. 2011). Cero referencia [S] se
+  usa en `paper/main.tex`.
+
+### 2026-07-16 — Criterio previo y cierre del cross-check TKP17 (R2.3)
+
+- Se releyó el resultado de Thuestad--Khanna--Price (arXiv:1705.04949)
+  antes de analizar datos. Su predicción relevante es **espacial y tardía**:
+  a tiempo avanzado fijo, el perfil radial interior es proporcional a
+  $P_l(r/M-1)$ y el número de cruces radiales aumenta con $l$; a radio fijo,
+  el decaimiento tardío es $t^{-(2l+3)}$.
+- El banco de producción disponible cubre sólo la fase fuerte $4\leq t/M\leq
+  10$ y el intervalo radial de ajuste $0.1\leq r/M\leq0.5$. Un espectro
+  temporal en dos o tres de esos radios no prueba los nodos espaciales de
+  tiempo tardío a través de todo el interior. Se aplicó el tope de una sesión:
+  se abortó el opcional antes de promover cuatro NPZ que no podían responder
+  la pregunta, y el manuscrito ahora documenta esta incompatibilidad precisa.
+
+### 2026-07-16 — Re-scoop-check R3 (ventana posterior al 2026-07-12)
+
+Búsqueda fresca restringida a arXiv, ejecutada el 2026-07-16 con las cinco
+queries contractuales y dos ampliaciones:
+
+1. `"Fournodavlos Sbierski" numerical`
+2. `scalar field black hole interior logarithmic`
+3. `Schwarzschild singularity scalar asymptotics numerical`
+4. `Higgs field black hole interior`
+5. `"wave equation" blow-up Schwarzschild numerics`
+6. `Schwarzschild interior "log r" scalar numerical`
+7. `black hole interior test scalar singularity numerical 2026`
+
+Los resultados relevantes fueron obras ya catalogadas: el teorema analítico
+Fournodavlos--Sbierski (1804.01941), el interior autogravitante cargado de
+Brady--Smith (gr-qc/9506067), la teoría conforme/antigravedad de Bars
+(2509.06800), el agujero negro **con pelo y backreaction** con potencial Higgs
+invertido (2603.08067), y trabajos analíticos de lifespan/blow-up para ondas
+semilineales. Los falsos positivos restantes trataban entropía BTZ, ringdown o
+usos no relacionados de “logarithmic”.
+
+**Veredicto 2026-07-16:** ningún resultado nuevo desde el pase del 2026-07-12
+ni ningún contraejemplo a §5. No apareció una medición numérica del coeficiente
+$A(t,\omega)$ de la asintótica $\log r$ para un campo de prueba dentro de
+Schwarzschild, ni una comparación lineal--Higgs de dato idéntico. La declaración
+de novedad queda sin cambios, pendiente de la auditoría Fable ya prevista.

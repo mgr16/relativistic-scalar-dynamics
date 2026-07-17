@@ -228,6 +228,44 @@ def test_required_protocol_and_fine_ladder_inventory_is_json_backed():
         "exterior_tail_floor_tmin",
         "exterior_late_window_length",
         "exterior_late_window_min_offset",
+        "interior_domain_radius",
+        "interior_excision_radius",
+        "interior_outer_mesh_scale",
+        "interior_element_degree",
+        "interior_cfl",
+        "interior_extraction_count",
+        "interior_extraction_r_min",
+        "interior_extraction_r_max",
+        "interior_mesh_scale_coarse",
+        "interior_mesh_scale_middle",
+        "interior_mode_l0",
+        "interior_mode_l1",
+        "interior_mode_l2",
+        "interior_lmax_l0",
+        "interior_lmax_l2",
+        "production_normalization_convention",
+        "exterior_domain_small",
+        "exterior_domain_large",
+        "exterior_sponge_small_width",
+        "exterior_sponge_small_onset",
+        "exterior_sponge_large_width",
+        "exterior_sponge_large_onset",
+        "exterior_end_time",
+        "exterior_mesh_scale_coarse",
+        "exterior_mesh_scale_middle",
+        "exterior_mesh_scale_fine",
+        "exterior_lc_inner_ratio",
+        "exterior_r40_matching_rule",
+        "disc_l0_ladder_span_pts",
+        "production_budget_low_percent",
+        "production_budget_high_percent",
+        "mechanism_rstar_mexhat",
+        "mechanism_ratio_exponent",
+        "sens_disc_min",
+        "sens_disc_max",
+        "sens_disc_max_abs_dev",
+        "sens_disc_review_threshold",
+        "sens_lambda_boundary",
     }
 
     assert required_ids <= set(by_id)
@@ -236,6 +274,28 @@ def test_required_protocol_and_fine_ladder_inventory_is_json_backed():
         assert entry["source"] != "note-only", entry_id
         assert "::/" in entry["source"], entry_id
         assert entry["status"] in {"citable", "citable-con-caveat"}, entry_id
+
+
+def test_round_r1_derived_entries_retain_compound_provenance():
+    table = numbers.build_table(REPO)
+    by_id = {entry["id"]: entry for entry in table.entries}
+
+    ladder = by_id["disc_l0_ladder_span_pts"]
+    ladder_inputs = ladder["derivation"]["inputs"]
+    assert len(ladder_inputs) == 3
+    assert all(item["source"].endswith("/l2_ratio") for item in ladder_inputs)
+    assert ladder["value"] == pytest.approx(
+        100.0 * (
+            max(item["value"] for item in ladder_inputs)
+            - min(item["value"] for item in ladder_inputs)
+        )
+    )
+
+    for entry_id in (
+        "production_budget_low_percent",
+        "production_budget_high_percent",
+    ):
+        assert len(by_id[entry_id]["derivation"]["inputs"]) == 4
 
 
 def test_new_protocol_entries_match_exact_rfc6901_sources_and_transforms():

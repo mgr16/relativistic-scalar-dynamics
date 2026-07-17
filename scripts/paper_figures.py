@@ -381,7 +381,7 @@ def build_interior_profiles(ctx: PlotContext) -> Figure:
         ax.xaxis.set_minor_formatter(NullFormatter())
         ax.set_xlabel(r"$r/M$")
         if panel == 0:
-            ax.set_ylabel(r"$u_{00}/\sqrt{4\pi}$")
+            ax.set_ylabel(r"$\phi_{00}$")
         ax.text(
             0.97,
             0.93,
@@ -504,7 +504,7 @@ def build_discriminator(ctx: PlotContext) -> Figure:
     ax.text(
         0.98,
         0.06,
-        r"$l>0$: frozen, uncorrected",
+        r"$l>0$: uncorrected",
         transform=ax.transAxes,
         ha="right",
         va="bottom",
@@ -550,7 +550,7 @@ def build_o1_calibration(ctx: PlotContext) -> Figure:
     ax.axhline(1.0, color=GRAY, ls=":", lw=0.8)
     ax.set_xlim(3.9, 7.35)
     ax.set_xlabel(r"$t/M$")
-    ax.set_ylabel(r"$c(t)=a_{o1[0.1,0.5]}/a_{\rm truth}$")
+    ax.set_ylabel(r"$c(t)=a_{\mathrm{prod}}/a_{\mathrm{ref}}$")
     ax.legend(loc="upper right")
     _panel_label(ax, "(a)")
     _finish_axis(ax)

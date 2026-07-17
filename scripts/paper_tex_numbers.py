@@ -116,6 +116,197 @@ SPECS: tuple[MacroSpec, ...] = (
         "interior_fine_ladder_rms_mexhat_l2",
         1,
     ),
+    # R1 self-contained numerical protocol.
+    MacroSpec(
+        "R1 interior protocol", "InteriorDomainRadius", "interior_domain_radius", 1
+    ),
+    MacroSpec(
+        "R1 interior protocol",
+        "InteriorExcisionRadius",
+        "interior_excision_radius",
+        1,
+    ),
+    MacroSpec(
+        "R1 interior protocol",
+        "InteriorOuterMeshScale",
+        "interior_outer_mesh_scale",
+        1,
+    ),
+    MacroSpec(
+        "R1 interior protocol",
+        "InteriorElementDegree",
+        "interior_element_degree",
+        0,
+    ),
+    MacroSpec("R1 interior protocol", "InteriorCFL", "interior_cfl", 1),
+    MacroSpec(
+        "R1 interior protocol",
+        "InteriorExtractionCount",
+        "interior_extraction_count",
+        0,
+    ),
+    MacroSpec(
+        "R1 interior protocol",
+        "InteriorExtractionRadiusLow",
+        "interior_extraction_r_min",
+        1,
+    ),
+    MacroSpec(
+        "R1 interior protocol",
+        "InteriorExtractionRadiusHigh",
+        "interior_extraction_r_max",
+        1,
+    ),
+    MacroSpec(
+        "R1 interior protocol",
+        "InteriorMeshScaleCoarse",
+        "interior_mesh_scale_coarse",
+        3,
+    ),
+    MacroSpec(
+        "R1 interior protocol",
+        "InteriorMeshScaleMiddle",
+        "interior_mesh_scale_middle",
+        3,
+    ),
+    MacroSpec("R1 interior protocol", "InteriorModeLZero", "interior_mode_l0", 0),
+    MacroSpec("R1 interior protocol", "InteriorModeLOne", "interior_mode_l1", 0),
+    MacroSpec("R1 interior protocol", "InteriorModeLTwo", "interior_mode_l2", 0),
+    MacroSpec("R1 interior protocol", "InteriorLmaxLZero", "interior_lmax_l0", 0),
+    MacroSpec("R1 interior protocol", "InteriorLmaxLTwo", "interior_lmax_l2", 0),
+    MacroSpec(
+        "R1 exterior protocol", "ExteriorDomainSmall", "exterior_domain_small", 0
+    ),
+    MacroSpec(
+        "R1 exterior protocol", "ExteriorDomainLarge", "exterior_domain_large", 0
+    ),
+    MacroSpec(
+        "R1 exterior protocol",
+        "ExteriorSpongeSmallWidth",
+        "exterior_sponge_small_width",
+        0,
+    ),
+    MacroSpec(
+        "R1 exterior protocol",
+        "ExteriorSpongeSmallOnset",
+        "exterior_sponge_small_onset",
+        0,
+    ),
+    MacroSpec(
+        "R1 exterior protocol",
+        "ExteriorSpongeLargeWidth",
+        "exterior_sponge_large_width",
+        0,
+    ),
+    MacroSpec(
+        "R1 exterior protocol",
+        "ExteriorSpongeLargeOnset",
+        "exterior_sponge_large_onset",
+        0,
+    ),
+    MacroSpec("R1 exterior protocol", "ExteriorEndTime", "exterior_end_time", 0),
+    MacroSpec(
+        "R1 exterior protocol",
+        "ExteriorMeshScaleCoarse",
+        "exterior_mesh_scale_coarse",
+        1,
+    ),
+    MacroSpec(
+        "R1 exterior protocol",
+        "ExteriorMeshScaleMiddle",
+        "exterior_mesh_scale_middle",
+        1,
+    ),
+    MacroSpec(
+        "R1 exterior protocol",
+        "ExteriorMeshScaleFine",
+        "exterior_mesh_scale_fine",
+        1,
+    ),
+    MacroSpec(
+        "R1 exterior protocol",
+        "ExteriorLcInnerRatio",
+        "exterior_lc_inner_ratio",
+        2,
+    ),
+    # R1 kinetic mechanism, convergence summary, and conservative budget.
+    MacroSpec(
+        "R1 mechanism", "MechanismRstar", "mechanism_rstar_mexhat", 3
+    ),
+    MacroSpec(
+        "R1 mechanism", "MechanismRstarIQRLow", "mechanism_rstar_iqr_low", 3
+    ),
+    MacroSpec(
+        "R1 mechanism", "MechanismRstarIQRHigh", "mechanism_rstar_iqr_high", 3
+    ),
+    MacroSpec(
+        "R1 mechanism", "MechanismExponent", "mechanism_ratio_exponent", 2
+    ),
+    MacroSpec(
+        "R1 mechanism",
+        "MechanismExponentIQRLow",
+        "mechanism_ratio_exponent_iqr_low",
+        2,
+    ),
+    MacroSpec(
+        "R1 mechanism",
+        "MechanismExponentIQRHigh",
+        "mechanism_ratio_exponent_iqr_high",
+        2,
+    ),
+    MacroSpec(
+        "R1 mechanism", "MechanismRatioThreshold", "mechanism_ratio_threshold", 2
+    ),
+    MacroSpec(
+        "R1 interior result", "DiscLadderSpan", "disc_l0_ladder_span_pts", 1
+    ),
+    MacroSpec(
+        "R1 interior result",
+        "ProductionBudgetLow",
+        "production_budget_low_percent",
+        0,
+    ),
+    MacroSpec(
+        "R1 interior result",
+        "ProductionBudgetHigh",
+        "production_budget_high_percent",
+        0,
+    ),
+    MacroSpec(
+        "R1 Cowling",
+        "CowlingInsideMaximum",
+        "cowling_phase0_zeta_max_inside_horizon",
+        5,
+    ),
+    MacroSpec(
+        "R1 Cowling", "CowlingDeepValue", "cowling_phase0_zeta_at_rmin", 5
+    ),
+    # R2 one-dimensional sensitivity boundary.
+    MacroSpec("R2 sensitivity", "SensitivityLambdaLow", "sens_lambda_min", 2),
+    MacroSpec(
+        "R2 sensitivity", "SensitivityLambdaBoundary", "sens_lambda_boundary", 2
+    ),
+    MacroSpec("R2 sensitivity", "SensitivityLambdaHigh", "sens_lambda_max", 2),
+    MacroSpec(
+        "R2 sensitivity", "SensitivityAmplitudeLow", "sens_amplitude_min", 2
+    ),
+    MacroSpec(
+        "R2 sensitivity", "SensitivityAmplitudeHigh", "sens_amplitude_max", 2
+    ),
+    MacroSpec(
+        "R2 sensitivity", "SensitivityGridCount", "sens_grid_cell_count", 0
+    ),
+    MacroSpec("R2 sensitivity", "SensitivityDiscLow", "sens_disc_min", 3),
+    MacroSpec("R2 sensitivity", "SensitivityDiscHigh", "sens_disc_max", 3),
+    MacroSpec(
+        "R2 sensitivity", "SensitivityMaxDeviation", "sens_disc_max_abs_dev", 3
+    ),
+    MacroSpec(
+        "R2 sensitivity",
+        "SensitivityReviewThreshold",
+        "sens_disc_review_threshold",
+        2,
+    ),
     # Frozen H2 discriminator at each mode's finest available rung.
     MacroSpec(
         "Interior discriminator", "DiscLZero", "disc_l0_lc0.028_l2_ratio_frozen", 3

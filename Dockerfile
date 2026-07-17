@@ -4,7 +4,7 @@ FROM mambaorg/micromamba:1.5.8
 # (la variable que respeta micromamba es ENV_NAME, no CONDA_ENV)
 RUN micromamba install -y -n base -c conda-forge \
     python=3.10 \
-    fenics-dolfinx \
+    fenics-dolfinx=0.10 \
     gmsh \
     python-gmsh \
     numpy \

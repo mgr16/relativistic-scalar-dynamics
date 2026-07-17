@@ -15,12 +15,20 @@ build del paper.
 
 ## Entorno probado
 
-- Python 3.10.19
-- NumPy 2.2.6
-- Matplotlib 3.10.8
-- Tectonic 0.16.9
-- bundle Tectonic `default_bundle_v33.tar`
-- RevTeX 4.2e, resuelto desde ese bundle
+| Componente | Versión |
+|---|---:|
+| Python | 3.10.19 |
+| DOLFINx | 0.10.0 |
+| PETSc / petsc4py | 3.24.4 / 3.24.4 |
+| Gmsh | 4.15.0 |
+| NumPy | 2.2.6 |
+| Matplotlib | 3.10.8 |
+| Tectonic | 0.16.9 |
+
+El bundle probado es `default_bundle_v33.tar`; RevTeX 4.2e se resuelve desde
+ese bundle. El entorno completo está en `envs/rsd-dolfinx.yml` (portable,
+sin builds) y `envs/rsd-dolfinx-lock-osx-arm64.txt` (lock exacto de la
+plataforma auditada). Ninguno contiene rutas personales.
 
 La instalación mínima usada fue:
 
@@ -80,14 +88,17 @@ checks; actualizarlo sólo cuando el cambio sea intencional y revisado.
 python scripts/paper_numbers.py --check
 python scripts/paper_tex_numbers.py --check
 python scripts/paper_figures.py --check
+python scripts/paper_protocol_addenda.py --check
+python scripts/oracle_energy_split.py --check
+python scripts/oracle_sensitivity_scan.py --check
+python scripts/price_tail_diagnostic.py --check
 python scripts/paper_manifest.py --check
 python -m pytest -m "not slow"
 git diff --check
 ```
 
-El cierre C5 espera 257 entradas canónicas, 97 macros, 5 figuras en PDF+PNG,
-un PDF de 7 páginas, 32 artefactos en el manifest y 216 tests rápidos (más 7
-slow deseleccionados). El manifest lista la clausura de fuentes y outputs con
+El cierre de la ronda R espera 307 entradas canónicas, 145 macros, 5 figuras
+en PDF+PNG y 48 artefactos en el manifest. El manifest lista la clausura de fuentes y outputs con
 rutas relativas y hashes SHA-256; no contiene timestamps ni rutas del host.
 
 ## Cambios de metadata y release

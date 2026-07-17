@@ -169,6 +169,15 @@ def test_expected_manifest_has_exactly_five_pdf_png_pairs():
     }
 
 
+def test_interior_profile_uses_publication_multipole_label(rendered_bundle):
+    context, _rendered, _second, _approved = rendered_bundle
+    figure = figures.build_interior_profiles(context)
+    try:
+        assert figure.axes[0].get_ylabel() == r"$\phi_{00}$"
+    finally:
+        figures.plt.close(figure)
+
+
 def test_all_builders_render_and_close_with_binary_signatures(rendered_bundle):
     context, rendered, _second, _approved = rendered_bundle
     assert tuple(rendered) == figures.expected_output_names()

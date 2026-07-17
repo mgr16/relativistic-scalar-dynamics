@@ -3,8 +3,8 @@
   "generated_by": "scripts/paper_numbers.py",
   "source_syntax": "repo-relative-file::/RFC6901/JSON/Pointer",
   "status_counts": {
-    "citable": 62,
-    "citable-con-caveat": 163,
+    "citable": 90,
+    "citable-con-caveat": 185,
     "degradado-a-prosa": 10,
     "no-citable": 22,
     "pendiente-de-promoción": 0
@@ -2917,6 +2917,562 @@
       "source": "docs/research/phase0/pilot_oracle_summary.json::/cowling_interior/zeta_at_rmin",
       "status": "citable-con-caveat",
       "caveat": "Valor del piloto en el radio mínimo, no máximo global.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "interior_domain_radius",
+      "value": 15.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/interior/domain_radius",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_excision_radius",
+      "value": 0.1,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/interior/excision_radius",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_outer_mesh_scale",
+      "value": 1.2,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/interior/outer_mesh_scale",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_element_degree",
+      "value": 1,
+      "uncertainty": null,
+      "units": "grado",
+      "source": "docs/research/phase3/protocol_addenda.json::/interior/degree",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_cfl",
+      "value": 0.3,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/protocol_addenda.json::/interior/cfl",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_extraction_count",
+      "value": 32,
+      "uncertainty": null,
+      "units": "radios",
+      "source": "docs/research/phase3/protocol_addenda.json::/interior/extraction_count",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_extraction_r_min",
+      "value": 0.1,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/interior/extraction_r_min",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_extraction_r_max",
+      "value": 0.5,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/interior/extraction_r_max",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_domain_small",
+      "value": 20.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/exterior/small_domain_radius",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_domain_large",
+      "value": 40.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/exterior/large_domain_radius",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_sponge_small_width",
+      "value": 5.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/exterior/small_sponge_width",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_sponge_small_onset",
+      "value": 15.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/exterior/small_sponge_onset",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_sponge_large_width",
+      "value": 10.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/exterior/large_sponge_width",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_sponge_large_onset",
+      "value": 30.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/exterior/large_sponge_onset",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_end_time",
+      "value": 70.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/protocol_addenda.json::/exterior/end_time",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_mesh_scale_coarse",
+      "value": 0.056,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/0/lc",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_mesh_scale_middle",
+      "value": 0.04,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/1/lc",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_mode_l0",
+      "value": 0,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/0/l",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_mode_l1",
+      "value": 1,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/3/l",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_mode_l2",
+      "value": 2,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/4/l",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_lmax_l0",
+      "value": 2,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/0/lmax",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "interior_lmax_l2",
+      "value": 4,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/production/production.json::/protocol/matrix/4/lmax",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "production_normalization_convention",
+      "value": "c00 = sqrt(4pi)*u (l=0); c_l0 = u_l (l>=1)",
+      "uncertainty": null,
+      "units": "convención",
+      "source": "docs/research/phase2/production/production.json::/protocol/normalization",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_mesh_scale_coarse",
+      "value": 1.4,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/0/lc",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_mesh_scale_middle",
+      "value": 1.0,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/1/lc",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_mesh_scale_fine",
+      "value": 0.7,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/ladder_R20/rungs/2/lc",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_lc_inner_ratio",
+      "value": 3.75,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/lc_inner_ratio",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "exterior_r40_matching_rule",
+      "value": "lc(r) = lc_inner + (lc_out − lc_inner)·r/R con lc_out = lc_inner + (lc − lc_inner)·R/20: graduación idéntica en r<20 al rung base — el par aísla dominio de resolución",
+      "uncertainty": null,
+      "units": "regla",
+      "source": "docs/research/phase2/exterior/spectroscopy.json::/protocol/r40_matching",
+      "status": "citable",
+      "caveat": "",
+      "paper_section": "methods"
+    },
+    {
+      "id": "disc_l0_ladder_span_pts",
+      "value": 2.1358305557105717,
+      "uncertainty": null,
+      "units": "puntos porcentuales",
+      "source": "docs/research/phase3/protocol_addenda.json::/derived/disc_l0_ladder_span_pts",
+      "status": "citable-con-caveat",
+      "caveat": "Máximo menos mínimo de los tres valores de producción l=0; no es una estimación de orden de convergencia.",
+      "paper_section": "interior",
+      "derivation": {
+        "inputs": [
+          {
+            "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.056/l2_ratio",
+            "value": 0.9441888243850722
+          },
+          {
+            "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.040/l2_ratio",
+            "value": 0.9361095938465803
+          },
+          {
+            "source": "docs/research/phase2/production/production.json::/discriminator/l0_lc0.028/l2_ratio",
+            "value": 0.9228305188279665
+          }
+        ]
+      }
+    },
+    {
+      "id": "production_budget_low_percent",
+      "value": 10,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/protocol_addenda.json::/derived/production_budget_low_percent",
+      "status": "citable-con-caveat",
+      "caveat": "Envolvente conservadora redondeada a cinco puntos a partir de diferencias finas apareadas y desviaciones absolutas 3D--1D.",
+      "paper_section": "interior",
+      "derivation": {
+        "inputs": [
+          {
+            "source": "docs/research/phase2/production/production.json::/ladder/linear_l0/diff_rms_over_scale/linear_l0_lc0.040 vs linear_l0_lc0.028",
+            "value": 0.09296203210751215
+          },
+          {
+            "source": "docs/research/phase2/production/production.json::/ladder/mexhat_l0/diff_rms_over_scale/mexhat_l0_lc0.040 vs mexhat_l0_lc0.028",
+            "value": 0.11808104412081272
+          },
+          {
+            "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/dev_vs_1d_primary/median",
+            "value": 0.13138830056436226
+          },
+          {
+            "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/dev_vs_1d_primary/median",
+            "value": 0.08580950400565111
+          }
+        ]
+      }
+    },
+    {
+      "id": "production_budget_high_percent",
+      "value": 15,
+      "uncertainty": null,
+      "units": "%",
+      "source": "docs/research/phase3/protocol_addenda.json::/derived/production_budget_high_percent",
+      "status": "citable-con-caveat",
+      "caveat": "Envolvente conservadora redondeada a cinco puntos a partir de diferencias finas apareadas y desviaciones absolutas 3D--1D.",
+      "paper_section": "interior",
+      "derivation": {
+        "inputs": [
+          {
+            "source": "docs/research/phase2/production/production.json::/ladder/linear_l0/diff_rms_over_scale/linear_l0_lc0.040 vs linear_l0_lc0.028",
+            "value": 0.09296203210751215
+          },
+          {
+            "source": "docs/research/phase2/production/production.json::/ladder/mexhat_l0/diff_rms_over_scale/mexhat_l0_lc0.040 vs mexhat_l0_lc0.028",
+            "value": 0.11808104412081272
+          },
+          {
+            "source": "docs/research/phase2/production/production.json::/runs/linear_l0_lc0.028/dev_vs_1d_primary/median",
+            "value": 0.13138830056436226
+          },
+          {
+            "source": "docs/research/phase2/production/production.json::/runs/mexhat_l0_lc0.028/dev_vs_1d_primary/median",
+            "value": 0.08580950400565111
+          }
+        ]
+      }
+    },
+    {
+      "id": "mechanism_rstar_mexhat",
+      "value": 0.6248137978993387,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/energy_split.json::/summary/rstar_median",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "mechanism_rstar_iqr_low",
+      "value": 0.4138273106475578,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/energy_split.json::/summary/rstar_iqr/0",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "mechanism_rstar_iqr_high",
+      "value": 0.8079578344537661,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/energy_split.json::/summary/rstar_iqr/1",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "mechanism_ratio_exponent",
+      "value": 2.7945473504497587,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/energy_split.json::/summary/ratio_exponent_median",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "mechanism_ratio_exponent_iqr_low",
+      "value": 2.440594534505494,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/energy_split.json::/summary/ratio_exponent_iqr/0",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "mechanism_ratio_exponent_iqr_high",
+      "value": 3.2869495921112435,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/energy_split.json::/summary/ratio_exponent_iqr/1",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "mechanism_ratio_threshold",
+      "value": 0.01,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/energy_split.json::/protocol/ratio_threshold",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "mechanism_exponent_window_low",
+      "value": 0.05,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/energy_split.json::/protocol/exponent_window/0",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "mechanism_exponent_window_high",
+      "value": 0.5,
+      "uncertainty": null,
+      "units": "M",
+      "source": "docs/research/phase3/energy_split.json::/protocol/exponent_window/1",
+      "status": "citable-con-caveat",
+      "caveat": "Mediana instantánea sobre la fase fuerte de producción; r* varía con el tránsito y no es el agregado RMS de la era tardía usado en F0.",
+      "paper_section": "interior"
+    },
+    {
+      "id": "sens_lambda_min",
+      "value": 0.03,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/protocol/lambdas/0",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_lambda_boundary",
+      "value": 0.3,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/protocol/lambdas/2",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_lambda_max",
+      "value": 1.0,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/protocol/lambdas/3",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_amplitude_min",
+      "value": 0.01,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/protocol/amplitudes/0",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_amplitude_max",
+      "value": 0.1,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/protocol/amplitudes/2",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_grid_cell_count",
+      "value": 12,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/summary/cell_count",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_disc_min",
+      "value": 0.7116794181386639,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/summary/D_min",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_disc_max",
+      "value": 1.3128178163026547,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/summary/D_max",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_disc_max_abs_dev",
+      "value": 0.3128178163026547,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/summary/max_abs_dev_from_unity",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
+      "paper_section": "discusión"
+    },
+    {
+      "id": "sens_disc_review_threshold",
+      "value": 0.15,
+      "uncertainty": null,
+      "units": "1",
+      "source": "docs/research/phase3/sensitivity_scan.json::/protocol/discovery_threshold_abs_D_minus_one",
+      "status": "citable-con-caveat",
+      "caveat": "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las celdas que exceden el umbral delimitan el régimen y no constituyen una incertidumbre de la medición 3D de producción.",
       "paper_section": "discusión"
     },
     {

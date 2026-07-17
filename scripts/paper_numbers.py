@@ -31,6 +31,9 @@ EXTERIOR = "docs/research/phase2/exterior/spectroscopy.json"
 CAVITY = "docs/research/phase1/cavity/summary.json"
 PHASE0 = "docs/research/phase0/pilot_oracle_summary.json"
 CALIBRATION = "docs/research/phase3/o1_calibration.json"
+PROTOCOL_ADDENDA = "docs/research/phase3/protocol_addenda.json"
+ENERGY_SPLIT = "docs/research/phase3/energy_split.json"
+SENSITIVITY_SCAN = "docs/research/phase3/sensitivity_scan.json"
 
 STATUSES = {
     "citable",
@@ -179,6 +182,7 @@ class NumberTable:
         transform: str = "identity",
         uncertainty: dict[str, Any] | None = None,
         support_source: str | None = None,
+        derivation_sources: list[str] | None = None,
     ) -> None:
         self._claim_id(entry_id)
         value = self.resolve(source, transform)
@@ -195,6 +199,24 @@ class NumberTable:
         }
         if transform != "identity":
             entry["transform"] = transform
+        if derivation_sources is not None:
+            if not derivation_sources:
+                raise ValueError(f"{entry_id}: empty derivation source list")
+            resolved_inputs = []
+            for index, derivation_source in enumerate(derivation_sources):
+                resolved = self.resolve(derivation_source)
+                resolved_inputs.append(
+                    {"source": derivation_source, "value": resolved}
+                )
+                self._checks.append(
+                    (
+                        f"{entry_id}.derivation[{index}]",
+                        derivation_source,
+                        "identity",
+                        resolved,
+                    )
+                )
+            entry["derivation"] = {"inputs": resolved_inputs}
         if support_source is not None:
             support = self.resolve(support_source)
             if isinstance(support, bool) or not isinstance(support, int):
@@ -1040,6 +1062,199 @@ def _add_cavity_and_phase0(table: NumberTable) -> None:
     )
 
 
+def _add_round_r1(table: NumberTable) -> None:
+    """Add the R1 self-contained protocol and mechanism measurements."""
+    addenda_specs = (
+        ("interior_domain_radius", "/interior/domain_radius", "M"),
+        ("interior_excision_radius", "/interior/excision_radius", "M"),
+        ("interior_outer_mesh_scale", "/interior/outer_mesh_scale", "M"),
+        ("interior_element_degree", "/interior/degree", "grado"),
+        ("interior_cfl", "/interior/cfl", "1"),
+        ("interior_extraction_count", "/interior/extraction_count", "radios"),
+        ("interior_extraction_r_min", "/interior/extraction_r_min", "M"),
+        ("interior_extraction_r_max", "/interior/extraction_r_max", "M"),
+        ("exterior_domain_small", "/exterior/small_domain_radius", "M"),
+        ("exterior_domain_large", "/exterior/large_domain_radius", "M"),
+        ("exterior_sponge_small_width", "/exterior/small_sponge_width", "M"),
+        ("exterior_sponge_small_onset", "/exterior/small_sponge_onset", "M"),
+        ("exterior_sponge_large_width", "/exterior/large_sponge_width", "M"),
+        ("exterior_sponge_large_onset", "/exterior/large_sponge_onset", "M"),
+        ("exterior_end_time", "/exterior/end_time", "M"),
+    )
+    for entry_id, pointer, units in addenda_specs:
+        table.scalar(
+            entry_id,
+            source=_source(PROTOCOL_ADDENDA, pointer),
+            units=units,
+            status="citable",
+            paper_section="methods",
+        )
+
+    for label, matrix_index in (("coarse", 0), ("middle", 1)):
+        table.scalar(
+            f"interior_mesh_scale_{label}",
+            source=_source(PRODUCTION, f"/protocol/matrix/{matrix_index}/lc"),
+            units="M",
+            status="citable",
+            paper_section="methods",
+        )
+    for label, matrix_index in (("l0", 0), ("l1", 3), ("l2", 4)):
+        table.scalar(
+            f"interior_mode_{label}",
+            source=_source(PRODUCTION, f"/protocol/matrix/{matrix_index}/l"),
+            units="1",
+            status="citable",
+            paper_section="methods",
+        )
+    for label, matrix_index in (("l0", 0), ("l2", 4)):
+        table.scalar(
+            f"interior_lmax_{label}",
+            source=_source(PRODUCTION, f"/protocol/matrix/{matrix_index}/lmax"),
+            units="1",
+            status="citable",
+            paper_section="methods",
+        )
+    table.scalar(
+        "production_normalization_convention",
+        source=_source(PRODUCTION, "/protocol/normalization"),
+        units="convención",
+        status="citable",
+        paper_section="methods",
+    )
+
+    for index, label in enumerate(("coarse", "middle", "fine")):
+        table.scalar(
+            f"exterior_mesh_scale_{label}",
+            source=_source(EXTERIOR, f"/ladder_R20/rungs/{index}/lc"),
+            units="M",
+            status="citable",
+            paper_section="methods",
+        )
+    table.scalar(
+        "exterior_lc_inner_ratio",
+        source=_source(EXTERIOR, "/protocol/lc_inner_ratio"),
+        units="1",
+        status="citable",
+        paper_section="methods",
+    )
+    table.scalar(
+        "exterior_r40_matching_rule",
+        source=_source(EXTERIOR, "/protocol/r40_matching"),
+        units="regla",
+        status="citable",
+        paper_section="methods",
+    )
+
+    ladder_sources = [
+        _source(PRODUCTION, f"/discriminator/l0_lc{lc}/l2_ratio")
+        for lc in ("0.056", "0.040", "0.028")
+    ]
+    table.scalar(
+        "disc_l0_ladder_span_pts",
+        source=_source(PROTOCOL_ADDENDA, "/derived/disc_l0_ladder_span_pts"),
+        derivation_sources=ladder_sources,
+        units="puntos porcentuales",
+        status="citable-con-caveat",
+        caveat=(
+            "Máximo menos mínimo de los tres valores de producción l=0; no es "
+            "una estimación de orden de convergencia."
+        ),
+        paper_section="interior",
+    )
+
+    budget_sources = [
+        _source(
+            PRODUCTION,
+            "/ladder/linear_l0/diff_rms_over_scale/"
+            "linear_l0_lc0.040 vs linear_l0_lc0.028",
+        ),
+        _source(
+            PRODUCTION,
+            "/ladder/mexhat_l0/diff_rms_over_scale/"
+            "mexhat_l0_lc0.040 vs mexhat_l0_lc0.028",
+        ),
+        _source(PRODUCTION, "/runs/linear_l0_lc0.028/dev_vs_1d_primary/median"),
+        _source(PRODUCTION, "/runs/mexhat_l0_lc0.028/dev_vs_1d_primary/median"),
+    ]
+    for label in ("low", "high"):
+        table.scalar(
+            f"production_budget_{label}_percent",
+            source=_source(
+                PROTOCOL_ADDENDA, f"/derived/production_budget_{label}_percent"
+            ),
+            derivation_sources=budget_sources,
+            units="%",
+            status="citable-con-caveat",
+            caveat=(
+                "Envolvente conservadora redondeada a cinco puntos a partir "
+                "de diferencias finas apareadas y desviaciones absolutas 3D--1D."
+            ),
+            paper_section="interior",
+        )
+
+    mechanism_specs = (
+        ("mechanism_rstar_mexhat", "/summary/rstar_median", "M"),
+        ("mechanism_rstar_iqr_low", "/summary/rstar_iqr/0", "M"),
+        ("mechanism_rstar_iqr_high", "/summary/rstar_iqr/1", "M"),
+        ("mechanism_ratio_exponent", "/summary/ratio_exponent_median", "1"),
+        ("mechanism_ratio_exponent_iqr_low", "/summary/ratio_exponent_iqr/0", "1"),
+        ("mechanism_ratio_exponent_iqr_high", "/summary/ratio_exponent_iqr/1", "1"),
+        ("mechanism_ratio_threshold", "/protocol/ratio_threshold", "1"),
+        ("mechanism_exponent_window_low", "/protocol/exponent_window/0", "M"),
+        ("mechanism_exponent_window_high", "/protocol/exponent_window/1", "M"),
+    )
+    mechanism_caveat = (
+        "Mediana instantánea sobre la fase fuerte de producción; r* varía con "
+        "el tránsito y no es el agregado RMS de la era tardía usado en F0."
+    )
+    for entry_id, pointer, units in mechanism_specs:
+        table.scalar(
+            entry_id,
+            source=_source(ENERGY_SPLIT, pointer),
+            units=units,
+            status="citable-con-caveat",
+            caveat=mechanism_caveat,
+            paper_section="interior",
+        )
+
+
+def _add_round_r2(table: NumberTable) -> None:
+    sensitivity_specs = (
+        ("sens_lambda_min", "/protocol/lambdas/0", "1"),
+        ("sens_lambda_boundary", "/protocol/lambdas/2", "1"),
+        ("sens_lambda_max", "/protocol/lambdas/3", "1"),
+        ("sens_amplitude_min", "/protocol/amplitudes/0", "1"),
+        ("sens_amplitude_max", "/protocol/amplitudes/2", "1"),
+        ("sens_grid_cell_count", "/summary/cell_count", "1"),
+        ("sens_disc_min", "/summary/D_min", "1"),
+        ("sens_disc_max", "/summary/D_max", "1"),
+        (
+            "sens_disc_max_abs_dev",
+            "/summary/max_abs_dev_from_unity",
+            "1",
+        ),
+        (
+            "sens_disc_review_threshold",
+            "/protocol/discovery_threshold_abs_D_minus_one",
+            "1",
+        ),
+    )
+    caveat = (
+        "Barrido oráculo 1D l=0 durante la fase fuerte transitoria; las "
+        "celdas que exceden el umbral delimitan el régimen y no constituyen "
+        "una incertidumbre de la medición 3D de producción."
+    )
+    for entry_id, pointer, units in sensitivity_specs:
+        table.scalar(
+            entry_id,
+            source=_source(SENSITIVITY_SCAN, pointer),
+            units=units,
+            status="citable-con-caveat",
+            caveat=caveat,
+            paper_section="discusión",
+        )
+
+
 def _add_note_only(table: NumberTable) -> None:
     promotion = "El valor no existe como scalar en un JSON versionado."
     demoted = (
@@ -1131,6 +1346,8 @@ def build_table(repo: Path = REPO) -> NumberTable:
     _add_calibration(table)
     _add_exterior(table)
     _add_cavity_and_phase0(table)
+    _add_round_r1(table)
+    _add_round_r2(table)
     _add_note_only(table)
     table.validate_provenance()
     return table
