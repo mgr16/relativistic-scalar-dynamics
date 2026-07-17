@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/ci.yml/badge.svg)](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/ci.yml)
 [![Core CI](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/core.yml/badge.svg)](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/core.yml)
+[![HPC CI](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/hpc.yml/badge.svg)](https://github.com/mgr16/relativistic-scalar-dynamics/actions/workflows/hpc.yml)
 ![Version](https://img.shields.io/badge/version-3.2.0-blue)
 ![License](https://img.shields.io/badge/license-Apache--2.0-green)
 
@@ -92,7 +93,8 @@ canonical, versioned plan and status live in
 ![Showcase: l=2 field slice around the excised black hole; interior H2 discriminator (linear vs Higgs overlapping); exterior QNM vs Leaver with the cavity floor removed at R=40](docs/media/research_showcase.png)
 
 *Left: φ on a y=0 slice during the l=2 ringdown (excision disk in black,
-horizon and extraction sphere marked). Center: the H2 result — with
+horizon and extraction sphere marked). Center: the H2 result at the production
+coupling — with
 identical initial data, the interior log-slope profile a₀₀(t) of a Higgs
 vacuum field is indistinguishable from the free field (L2 ratio 0.92).
 Right: the exterior l=2 QNM against Leaver's decay; the R=20 late-time
@@ -107,6 +109,13 @@ Headline results so far:
   l = 0, 1, 2 (L2 ratios 0.87–0.94, ladder-stable at 2–3 %): kinetic
   domination erases the vacuum structure at the ~10–15 % level, per mode
   ([phase 2 production note](docs/research/phase2/production/note.md)).
+- **1D robustness and mechanism (diagnostic scope):** at fixed `v = 1` and
+  `l = 0`, the oracle sensitivity scan gives D = 0.712–1.313 and
+  max|D−1| = 0.313, exposing a coupling-regime boundary; at the production
+  coupling, the strong-phase mechanism check finds r* = 0.625 M
+  [IQR 0.414–0.808 M] and R_V ∝ r^2.79 [IQR 2.44–3.29]. These are transient
+  1D diagnostics, not additions to the 3D mesh/extraction error budget
+  (canonical sources: `numbers.json` ids `sens_disc_*` and `mechanism_*`).
 - **Exterior spectroscopy:** the 3D pipeline reproduces the Leaver l=2
   QNM to −1.9 % in Re Mω (mesh ladder converging at p ≈ 1.8) and
   +5.0 % ± 5.6 % in −Im Mω (declared late-window sweep on a floor-free
@@ -145,10 +154,11 @@ rsd/
 ├── tests/                 # Pytest suite (markers: slow, mpi, requires_dolfinx, ...)
 ├── docs/
 │   ├── math/              # 3+1, excision window, Killing energy, dissipation
-│   ├── media/             # README assets (live demo GIF)
+│   ├── media/             # README assets (live demo GIF + research showcase)
 │   ├── research/          # Research program: plan.md (canonical) + phase
 │   │                      #   chapters F0–F3 (notes, JSON, data, figures)
 │   └── validation/        # Validation & reproducibility summary
+├── envs/                  # Audited conda export and exact platform lock
 ├── scripts/               # Env setup, research production scripts (interior
 │                          #   matrix, spectroscopy, paper pipeline), demos
 ├── paper/                 # RevTeX manuscript, figures, PDF and SHA-256 manifest
@@ -418,8 +428,11 @@ The test suite validates physics at increasing depth (deepest are `slow`):
    Schwarzschild l=1 fundamental, and the prograde/retrograde frame-dragging
    splitting at a = 0.9 (an 80% effect, immune to discretization systematics
    in the ratio).
-4. **Late-time tails** (`slow`) — after the ringdown, the field must decay
-   as the Price power law t^-(2l+3) on a causally clean domain.
+4. **Late-time tails** (`slow`, expected `xfail`) — the 3D Price benchmark is
+   retained with its original tolerances, but an empirical diagnostic finds a
+   non-power-law junk/domain floor. The late signal in this domain does not
+   resolve the expected l=1 decay t^-5; see
+   [`docs/validation/price_tail_diagnostic.md`](docs/validation/price_tail_diagnostic.md).
 5. **Honesty checks** — every run logs the Cowling validity measure; the
    suite asserts it scales as A² and warns at the right threshold.
 6. **Domain-artifact canary** (`slow`) — the late-time tail floor on the
@@ -430,11 +443,11 @@ The test suite validates physics at increasing depth (deepest are `slow`):
    the BCs makes it fail, forcing a recalibration of spectroscopy
    windows and floors.
 
-- **Core CI** — lightweight NumPy/SciPy/UFL paths without DOLFINx/PETSc/MPI
-- **HPC CI** — full suite inside the version-pinned
-  `dolfinx/dolfinx:v0.10.0` image, including MPI
-  owned/ghost-vector regressions
-- **HPC CI** — scheduled weekly run including `slow` tests
+- **Core CI** — lightweight NumPy/SciPy/UFL paths without DOLFINx.
+- **CI** — per-push and pull-request fast suite in the version-pinned DOLFINx
+  container, including MPI owned/ghost-vector regressions.
+- **HPC CI** — weekly and `workflow_dispatch` full suite, including `slow`
+  tests, in `dolfinx/dolfinx:v0.10.0`.
 
 ## Extending RSD
 

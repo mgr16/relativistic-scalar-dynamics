@@ -1195,6 +1195,37 @@ Revisión de cierre sobre los entregables de 3b:
   auditor. Commit+push de la ronda autorizados por Marco en vivo
   (2026-07-16) — los ejecuta el auditor a continuación.
 
+### 2026-07-16 — README-sync post-ronda-R CERRADO
+
+- Hecho: `README.md` describe ahora exactamente los tres workflows: Core CI
+  sin DOLFINx, CI rápida por push/PR en contenedor DOLFINx con regresiones MPI
+  owned/ghost, y HPC CI semanal/manual con la suite completa y slow. Se agregó
+  el badge HPC CI por decisión explícita de Marco, junto a los badges CI/Core.
+- Hecho: la escalera de validación ya no promete una detección Price inexistente.
+  El punto 4 conserva el benchmark como `xfail` con tolerancias originales,
+  declara el piso no-potencia de junk/dominio, dice que el dominio no resuelve
+  $t^{-5}$ y enlaza `docs/validation/price_tail_diagnostic.md`.
+- Hecho: el árbol incluye `envs/` para el export/lock auditado y `docs/media/`
+  identifica tanto el GIF como el showcase. El caption del showcase restringe
+  el resultado al acoplamiento de producción.
+- Hecho: Headline results añade un único bullet de alcance diagnóstico 1D. Los
+  valores redondeados provienen sólo de los ids canónicos `sens_disc_*` y
+  `mechanism_*`; la frase arrastra el alcance transitorio y excluye esos
+  diagnósticos del presupuesto de error 3D.
+- Decisión: el badge opcional se incluyó después de que Marco confirmara que
+  prefería hacer visible el estado de la validación semanal completa. No cambia
+  triggers ni ejecución.
+- [REVIEW] Cambio mínimo de workflow: `.github/workflows/ci.yml` sustituye
+  únicamente `dolfinx/dolfinx:stable` por `dolfinx/dolfinx:v0.10.0` y añade el
+  mismo comentario de racional usado en R2.4 para `hpc.yml`. No se modificaron
+  eventos, pasos, marcadores ni comandos; confirmar el pin común en revisión.
+- Ambigüedades numeradas: ninguna. Artefactos modificados por esta tarea:
+  `README.md`, `.github/workflows/ci.yml` y esta entrada; sin commit.
+- Cierre: ocho `--check` verdes (307 números, 145 macros, 5 figuras/10 archivos,
+  48 hashes, addenda, energía, sensibilidad y Price), `git diff --check` verde.
+  Suite rápida completa fuera del sandbox: **235/235 + 7 slow deseleccionados**
+  en 110.77 s, MPI incluido.
+
 ---
 
 ## 8. Contrato autónomo C3–C5 (vigente desde 2026-07-12)
